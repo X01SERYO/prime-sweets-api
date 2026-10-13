@@ -6,3 +6,9 @@ export const listInvoicesSchema: RequestValidationSchema = {
     salesDayId: z.string().trim().min(1, 'salesDayId is required')
   })
 };
+
+export const generateInvoiceSchema: RequestValidationSchema = {
+  params: z.object({
+    saleId: z.string().trim().min(1, 'saleId is required')
+  })
+};

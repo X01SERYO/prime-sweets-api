@@ -255,6 +255,10 @@ The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from conf
 
 `ListInvoices` is not a table. It reads `sales` rows that already have an `invoice_number` (`CONFIRMED` or `VOIDED`) for a Sales Day and returns a summary. It does not insert or update rows.
 
+## Invoice document
+
+`GenerateInvoice` is not a table. It builds a document in memory from a confirmed `sales` row, its `sale_items`, the related `customers` row, and the company profile supplied by environment variables. It does not insert or update rows and does not allocate an invoice number.
+
 ## Relationships and delete behavior
 
 - Product may have zero or one brand (`brand_id` nullable). Create product fails with `BrandNotFoundError` if a non-empty `brandId` does not exist.

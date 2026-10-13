@@ -268,6 +268,23 @@ Read model of invoice numbers already allocated on a Sales Day. Listing does not
 6. Order the summaries by `invoiceNumber` ascending.
 7. A Sales Day with no allocated invoices returns `[]`.
 
+## 9. Invoice generation
+
+Builds a document representation from an existing confirmed Sale. It does not create a Sale, does not allocate an invoice number, does not change Sale or SaleItem state, and is not stored. Calling it again with the same sale, customer, and company profile returns the same document. Printing is not part of this step.
+
+### Generate invoice — `GET /invoices/:saleId`
+
+1. HTTP `validateRequest` (Zod) requires a non-empty `saleId`. The use case does not repeat empty or type checks.
+2. Load the sale through `InvoiceSaleQuery`. Missing sale → `SaleNotFoundForInvoiceError` (404, `SALE_NOT_FOUND`).
+3. Reject unless status is `CONFIRMED` (`SaleNotInvoiceableError`, 400, `SALE_NOT_INVOICEABLE`). `DRAFT` and `VOIDED` are rejected.
+4. A confirmed sale without `invoiceNumber` → `InvoiceNumberMissingError` (400, `INVOICE_NUMBER_MISSING`). A confirmed sale without `confirmedAt` → `InvoiceSaleDateMissingError` (400, `INVOICE_SALE_DATE_MISSING`).
+5. Load the customer through `InvoiceCustomerQuery`. Missing customer → `CustomerNotFoundForInvoiceError` (404, `CUSTOMER_NOT_FOUND`). The document shows `documentType`, `documentNumber`, and `name`.
+6. Load the company profile through `CompanyProfileQuery`. The adapter reads `COMPANY_NAME`, `COMPANY_NIT`, `COMPANY_CITY`, `COMPANY_COUNTRY`, `COMPANY_TELEPHONE`, `COMPANY_LOGO`, and `COMPANY_LEGAL_TEXT`. If any value is missing, generation fails with `CompanyProfileNotConfiguredError` (400, `COMPANY_PROFILE_NOT_CONFIGURED`). Those values are not hardcoded.
+7. The tax regime text is the specified constant `Régimen simplificado`. It is not a company setting and it does not add a tax amount.
+8. Each line uses the transaction-time `itemName` as the product name, plus `productId`, quantity, the snapshotted unit wholesale price, and the line total. Line order follows the sale. Catalog product name is not substituted.
+9. `subtotal` and `total` are both the sum of the line totals. No separate tax total is defined.
+10. `saleDate` is `confirmedAt`. The returned `invoiceNumber` is the one already stored on the sale.
+
 ## Pending definition / not implemented
 
 These appear in the PDR/SPEC as Version 1. They have **no** code paths in this repository. Details belong in the SPEC when implemented; they are not specified here.
@@ -275,7 +292,7 @@ These appear in the PDR/SPEC as Version 1. They have **no** code paths in this r
 | Area | What is missing in code |
 |---|---|
 | Authentication | `AuthenticateSeller`, `LogoutSeller`, session rules (OQ-05) |
-| Invoice document | Generate / print / reprint; printer model and mechanism (OQ-03, OQ-04). Listing allocated invoices is implemented. |
+| Invoice document | Print / reprint; printer model and mechanism (OQ-03, OQ-04). Listing and document generation are implemented. |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |
 | Product create/delete sync | Create and delete do not update Alegra |

@@ -1,8 +1,12 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { CatalogProductDisplayAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/catalogProductDisplay.adapter';
 import { ConfirmedSaleItemsAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/confirmedSaleItems.adapter';
+import { EnvCompanyProfileAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/envCompanyProfile.adapter';
+import { InvoiceCustomerAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/invoiceCustomer.adapter';
 import { InvoiceQueryAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/invoiceQuery.adapter';
+import { InvoiceSaleAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/invoiceSale.adapter';
 import { SalesDayClosureAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/salesDayClosure.adapter';
+import { GenerateInvoiceUseCase } from '../../../contexts/fulfillment-output/application/use-cases/generateInvoice/generateInvoice.useCase';
 import { GenerateLoadSheetUseCase } from '../../../contexts/fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
 import { ListInvoicesUseCase } from '../../../contexts/fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
 
@@ -11,6 +15,7 @@ export function registerFulfillmentOutputDependencies(container: ContainerBuilde
   const saleRepoRef = new Reference('sales.domain.sale_repository');
   const productRepoRef = new Reference('catalog.domain.product_repository');
   const brandRepoRef = new Reference('catalog.domain.brand_repository');
+  const customerRepoRef = new Reference('customers.domain.customer_repository');
 
   container
     .register('fulfillment.infrastructure.sales_day_closure_query', SalesDayClosureAdapter)
@@ -37,4 +42,18 @@ export function registerFulfillmentOutputDependencies(container: ContainerBuilde
     .register('fulfillment.application.list_invoices_use_case', ListInvoicesUseCase)
     .addArgument(new Reference('fulfillment.infrastructure.sales_day_closure_query'))
     .addArgument(new Reference('fulfillment.infrastructure.invoice_query'));
+
+  container.register('fulfillment.infrastructure.invoice_sale_query', InvoiceSaleAdapter).addArgument(saleRepoRef);
+
+  container
+    .register('fulfillment.infrastructure.invoice_customer_query', InvoiceCustomerAdapter)
+    .addArgument(customerRepoRef);
+
+  container.register('fulfillment.infrastructure.company_profile_query', EnvCompanyProfileAdapter);
+
+  container
+    .register('fulfillment.application.generate_invoice_use_case', GenerateInvoiceUseCase)
+    .addArgument(new Reference('fulfillment.infrastructure.invoice_sale_query'))
+    .addArgument(new Reference('fulfillment.infrastructure.invoice_customer_query'))
+    .addArgument(new Reference('fulfillment.infrastructure.company_profile_query'));
 }

@@ -18,7 +18,7 @@ Container_Boundary(api, "Prime Sweets Core API") {
   Component(salesDom, "Sales domain", "Sale aggregate, SaleItem entity, errors", "Financial calculations & invoice numbering")
   Component(salesInf, "Sales persistence", "TypeOrmSaleRepository + TypeOrmInvoiceNumberAllocator", "Atomicity & sequence")
 
-  Component(fulfillmentApp, "Fulfillment application", "GenerateLoadSheetUseCase, ListInvoicesUseCase", "Load Sheet projection and invoice list")
+  Component(fulfillmentApp, "Fulfillment application", "GenerateLoadSheet, ListInvoices, GenerateInvoice", "Load Sheet, invoice list, invoice document")
   Component(fulfillmentDom, "Fulfillment domain", "LoadSheet", "Group by productId; sum quantity, total, profit")
   Component(fulfillmentInf, "Fulfillment queries", "SalesDay, confirmed sale items, catalog display adapters", "Read-only cross-context ports")
 
@@ -110,6 +110,7 @@ src/
 | POST | `/sales/:id/void` | Void Confirmed Sale logically |
 | GET | `/load-sheets/:salesDayId` | Generate Load Sheet for a closed Sales Day |
 | GET | `/invoices?salesDayId=` | List invoices already allocated on a Sales Day |
+| GET | `/invoices/:saleId` | Generate the invoice document for a confirmed Sale |
 
 `httpResponse` maps `Result`: 200/201 success, 404 `NotFoundError`, 400 `DomainError`, 500 otherwise.
 
@@ -119,4 +120,6 @@ src/
 
 `GET /invoices?salesDayId=` reads allocated invoice numbers for that Sales Day. It accepts an open or closed day and does not write Sales tables.
 
-Invoice rendering and printing (`fulfillment-output` document adapters) are not present. `alegra` still uses the legacy `infrastructure/` layout.
+`GET /invoices/:saleId` renders a confirmed sale into an invoice document. It does not write Sales tables and does not allocate an invoice number. Printing is not implemented.
+
+`alegra` still uses the legacy `infrastructure/` layout.

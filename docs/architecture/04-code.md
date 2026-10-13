@@ -109,7 +109,7 @@ sequenceDiagram
 
 `UpdateProduct` accepts `name`, `wholesalePrice`, and/or `retailPrice` only. It does not change cost, brand, units, pack, or `alegraId`.
 
-Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice listing is implemented. Invoice document rendering and printing are not implemented.
+Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice listing and invoice document generation are implemented. Invoice printing is not implemented.
 
 ## Load Sheet generation
 
@@ -124,3 +124,9 @@ Sales Day transitions, sale confirmation, and invoice-number allocation are impl
 **Sources:** `ListInvoicesUseCase`, `InvoiceQueryAdapter`, `SalesDayClosureAdapter`.
 
 `GET /invoices?salesDayId=` calls `ListInvoicesUseCase`. The use case checks that the Sales Day exists and reads invoice summaries through `InvoiceQuery`. The adapter keeps `CONFIRMED` and `VOIDED` sales that already have an invoice number. It does not write to Sales tables and does not render an invoice document.
+
+## Invoice document
+
+**Sources:** `GenerateInvoiceUseCase`, `InvoiceDocument.compose`, `InvoiceSaleAdapter`, `InvoiceCustomerAdapter`, `EnvCompanyProfileAdapter`.
+
+`GET /invoices/:saleId` calls `GenerateInvoiceUseCase`. The use case loads a sale projection, a customer projection, and the company profile. `InvoiceDocument.compose` copies each SaleItem `itemName` into the product column and keeps the existing invoice number. The fulfillment domain does not import `Sale` or `Customer`, and the use case does not save the sale.

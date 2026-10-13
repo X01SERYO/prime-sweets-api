@@ -4,7 +4,7 @@
 
 **Sources:** `UpdateProductUseCase`, `InProcessProductAlegraSyncService`, `SyncProductItemUseCase`, `AlegraHttpClient`, `TypeOrmProductRepository`.
 
-Other use cases are local brand/product CRUD. See [flows](../flows/README.md).
+The class and sequence diagrams below cover product update and Alegra sync. Customers, Sales Day, sales, Load Sheet, invoice listing, and invoice generation are implemented and described in [flows](../flows/README.md).
 
 ## Dependencies
 

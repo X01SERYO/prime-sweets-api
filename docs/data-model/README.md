@@ -257,7 +257,7 @@ The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from conf
 
 ## Invoice document
 
-`GenerateInvoice` is not a table. It builds a document in memory from a confirmed `sales` row, its `sale_items`, the related `customers` row, and the company profile supplied by environment variables. It does not insert or update rows and does not allocate an invoice number.
+`GenerateInvoice` is not a table. It builds a document in memory from a confirmed `sales` row, its `sale_items`, the related `customers` row, and the company profile loaded by `loadAppConfig` from `COMPANY_*`. It does not insert or update rows and does not allocate an invoice number.
 
 ## Relationships and delete behavior
 

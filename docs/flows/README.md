@@ -1,6 +1,6 @@
 # Business and application flows (current)
 
-**Sources:** HTTP routers, product/brand use cases, Alegra sync use case, sales use cases, Load Sheet use case, TypeORM repositories.
+**Sources:** HTTP routers, catalog, customer, Sales Day, sales, Load Sheet, invoice list, and invoice generation use cases, `loadAppConfig`, and TypeORM repositories.
 
 Only flows that exist in code are described as current. Version 1 store-to-store flows from the PDR/SPEC are listed as **pending**; they are not filled in.
 

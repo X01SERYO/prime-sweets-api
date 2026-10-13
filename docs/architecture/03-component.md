@@ -11,7 +11,7 @@ C4Component
 title HTTP API — Components (current)
 
 Container_Boundary(api, "Prime Sweets Core API") {
-  Component(http, "HTTP inbound", "Express routers + httpResponse + validateRequest", "/brands, /products, /customers, /sales-days, /sales, /load-sheets. Maps Result to JSON")
+  Component(http, "HTTP inbound", "Express routers + httpResponse + validateRequest", "/brands, /products, /customers, /sales-days, /sales, /load-sheets, /invoices. Maps Result to JSON")
   Component(di, "Composition root", "TypeScript DI modules", "persistence.di, catalog.di, customer.di, salesDay.di, sales.di, fulfillmentOutput.di, alegra.di")
 
   Component(salesApp, "Sales application", "Sale use cases", "Create/Add/Update/Remove/Confirm/Void/Get/List")
@@ -19,8 +19,8 @@ Container_Boundary(api, "Prime Sweets Core API") {
   Component(salesInf, "Sales persistence", "TypeOrmSaleRepository + TypeOrmInvoiceNumberAllocator", "Atomicity & sequence")
 
   Component(fulfillmentApp, "Fulfillment application", "GenerateLoadSheet, ListInvoices, GenerateInvoice", "Load Sheet, invoice list, invoice document")
-  Component(fulfillmentDom, "Fulfillment domain", "LoadSheet", "Group by productId; sum quantity, total, profit")
-  Component(fulfillmentInf, "Fulfillment queries", "SalesDay, confirmed sale items, catalog display adapters", "Read-only cross-context ports")
+  Component(fulfillmentDom, "Fulfillment domain", "LoadSheet, InvoiceDocument", "Group by productId; render invoice from itemName")
+  Component(fulfillmentInf, "Fulfillment queries", "Sales day, sale, customer, catalog, and company-profile adapters", "Read-only cross-context ports")
 
   Component(salesDayApp, "Sales Day application", "Sales Day use cases", "Open/GetCurrent/Close/Reopen")
   Component(salesDayDom, "Sales Day domain", "SalesDay aggregate root, errors, date provider", "Operational daily lifecycle")
@@ -54,7 +54,7 @@ Rel(alegraInf, alegraApp, "delegates SyncProductItem")
 Rel(alegraApp, alegraExt, "PUT /items")
 Rel(di, http, "Resolves use cases")
 Rel(di, productsApp, "Wires repositories and sync")
-Rel(http, fulfillmentApp, "GET /load-sheets/:salesDayId")
+Rel(http, fulfillmentApp, "GET /load-sheets/:salesDayId and GET /invoices")
 Rel(fulfillmentApp, fulfillmentDom, "LoadSheet.compose")
 Rel(fulfillmentApp, fulfillmentInf, "via outbound query ports")
 Rel(fulfillmentInf, salesInf, "SaleRepository.list confirmed")
@@ -78,11 +78,12 @@ src/
     customers/
     sales-day/
     sales/
-    fulfillment-output/            Load Sheet generation; no persistence
+    fulfillment-output/            Load Sheet, invoice list, and invoice document; no persistence
     alegra/
   shared/
     application/result/
     domain/errors/
+    infrastructure/config/         loadAppConfig
     infrastructure/persistence/typeorm/
 ```
 
@@ -92,9 +93,11 @@ src/
 |---|---|---|
 | GET/POST | `/brands` | List / Create Brand |
 | GET/PUT/DELETE | `/brands/:id` | Get / Update / Delete Brand |
-| GET/POST | `/products` | List / Create Product |
+| GET/POST | `/products` | List / Search / Create Product |
+| GET | `/products/search` | Search Products |
 | GET/PUT/DELETE | `/products/:id` | Get / Update / Delete Product |
-| GET/POST | `/customers` | List (Search) / Create Customer |
+| GET/POST | `/customers` | List / Search / Create Customer |
+| GET | `/customers/search` | Search Customers |
 | GET/PUT | `/customers/:id` | Get / Update Customer |
 | POST | `/sales-days/open` | Open current Sales Day |
 | GET | `/sales-days/current` | Get current Sales Day |

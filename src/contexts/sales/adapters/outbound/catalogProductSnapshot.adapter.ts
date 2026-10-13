@@ -1,0 +1,19 @@
+import { ProductRepository } from '../../../catalog/application/ports/outbound/product.repository';
+import { ProductSnapshot, ProductSnapshotProvider } from '../../application/ports/outbound/productSnapshotProvider.port';
+
+export class CatalogProductSnapshotAdapter implements ProductSnapshotProvider {
+  constructor(private readonly productRepository: ProductRepository) {}
+
+  async getSnapshot(productId: string): Promise<ProductSnapshot | null> {
+    const product = await this.productRepository.findById(productId);
+    if (!product) return null;
+
+    const primitives = product.toPrimitives();
+    return {
+      id: primitives.id,
+      name: primitives.name ?? 'Sin nombre',
+      wholesalePrice: primitives.wholesalePrice ?? 0,
+      wholesaleCost: primitives.wholesaleCost ?? 0
+    };
+  }
+}

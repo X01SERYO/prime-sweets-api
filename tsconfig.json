@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    // JavaScript version emitted by TypeScript.
+    // ES2020 is stable on Node 18+ and supports async/await, optional chaining, etc.
+
+    "module": "CommonJS",
+    // Module system used in the output JavaScript.
+    // CommonJS is the native module system for Node.js.
+
+    "moduleResolution": "node",
+    // Tells TypeScript how to resolve modules.
+    // Matches Node.js resolution strategy.
+
+    "outDir": "dist",
+    // Directory where compiled JavaScript files are emitted.
+
+    "rootDir": "src",
+    // Root directory of the TypeScript source code.
+
+    "strict": true,
+    // Enables all strict type-checking options.
+    // Critical for business rules and domain safety.
+
+    "noImplicitAny": true,
+    // Disallows variables and parameters with implicit `any` type.
+
+    "strictNullChecks": true,
+    // Forces explicit handling of null and undefined values.
+    // Prevents many runtime errors.
+
+    "forceConsistentCasingInFileNames": true,
+    // Ensures consistent file name casing across different OS (Windows/Linux).
+
+    "skipLibCheck": true,
+    // Skips type checking of declaration files in node_modules.
+    // Improves build performance without sacrificing safety.
+
+    "experimentalDecorators": true,
+    // Enables decorators support.
+    // Required by TypeORM and some DDD patterns.
+
+    "emitDecoratorMetadata": true,
+    // Emits metadata for decorators.
+    // Needed for dependency injection and ORM reflection.
+
+    "sourceMap": true,
+    // Generates source maps for better debugging experience.
+
+    "esModuleInterop": true,
+    // Enables compatibility with CommonJS and ES modules.
+  },
+  "include": ["src/**/*.ts"],
+  // Includes all TypeScript files under the src directory
+
+  "exclude": ["node_modules", "dist"]
+  // Excludes dependencies and compiled output
+}

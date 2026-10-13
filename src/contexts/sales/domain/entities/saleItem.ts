@@ -1,0 +1,129 @@
+import { InvalidSaleError } from '../errors/invalidSale.error';
+import { InvalidQuantityError } from '../errors/invalidQuantity.error';
+
+export type SaleItemPrimitives = {
+  id: string;
+  productId: string;
+  itemName: string;
+  quantity: number;
+  wholesalePrice: number;
+  wholesaleCost: number;
+  totalPrice: number;
+  profit: number;
+};
+
+export class SaleItem {
+  constructor(
+    readonly id: string,
+    readonly productId: string,
+    private _itemName: string,
+    private _quantity: number,
+    readonly wholesalePrice: number,
+    readonly wholesaleCost: number
+  ) {}
+
+  get itemName(): string {
+    return this._itemName;
+  }
+
+  get quantity(): number {
+    return this._quantity;
+  }
+
+  get totalPrice(): number {
+    return Math.round(this._quantity * this.wholesalePrice * 100) / 100;
+  }
+
+  get profit(): number {
+    return Math.round((this.totalPrice - this.wholesaleCost * this._quantity) * 100) / 100;
+  }
+
+  static create(params: {
+    id: string;
+    productId: string;
+    itemName: string;
+    quantity: number;
+    wholesalePrice: number;
+    wholesaleCost: number;
+  }): SaleItem {
+    const trimmedId = params.id?.trim();
+    if (!trimmedId) {
+      throw new InvalidSaleError('Sale item id cannot be empty');
+    }
+
+    const trimmedProductId = params.productId?.trim();
+    if (!trimmedProductId) {
+      throw new InvalidSaleError('Sale item productId cannot be empty');
+    }
+
+    const trimmedItemName = params.itemName?.trim();
+    if (!trimmedItemName) {
+      throw new InvalidSaleError('Sale item name cannot be empty');
+    }
+
+    if (!Number.isInteger(params.quantity) || params.quantity <= 0) {
+      throw new InvalidQuantityError('Quantity must be an integer greater than 0');
+    }
+
+    if (typeof params.wholesalePrice !== 'number' || Number.isNaN(params.wholesalePrice) || params.wholesalePrice < 0) {
+      throw new InvalidSaleError('Wholesale price must be a number greater than or equal to 0');
+    }
+
+    if (typeof params.wholesaleCost !== 'number' || Number.isNaN(params.wholesaleCost) || params.wholesaleCost < 0) {
+      throw new InvalidSaleError('Wholesale cost must be a number greater than or equal to 0');
+    }
+
+    return new SaleItem(
+      trimmedId,
+      trimmedProductId,
+      trimmedItemName,
+      params.quantity,
+      params.wholesalePrice,
+      params.wholesaleCost
+    );
+  }
+
+  updateQuantity(newQuantity: number): SaleItem {
+    if (!Number.isInteger(newQuantity) || newQuantity <= 0) {
+      throw new InvalidQuantityError('Quantity must be an integer greater than 0');
+    }
+
+    return new SaleItem(
+      this.id,
+      this.productId,
+      this._itemName,
+      newQuantity,
+      this.wholesalePrice,
+      this.wholesaleCost
+    );
+  }
+
+  updateItemName(newItemName: string): SaleItem {
+    const trimmed = newItemName?.trim();
+    if (!trimmed) {
+      throw new InvalidSaleError('Sale item name cannot be empty');
+    }
+
+    return new SaleItem(
+      this.id,
+      this.productId,
+      trimmed,
+      this._quantity,
+      this.wholesalePrice,
+      this.wholesaleCost
+    );
+  }
+
+  toPrimitives(): SaleItemPrimitives {
+    return {
+      id: this.id,
+      productId: this.productId,
+      itemName: this._itemName,
+      quantity: this._quantity,
+      wholesalePrice: this.wholesalePrice,
+      wholesaleCost: this.wholesaleCost,
+      totalPrice: this.totalPrice,
+      profit: this.profit
+    };
+  }
+}

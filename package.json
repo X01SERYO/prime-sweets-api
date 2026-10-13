@@ -19,7 +19,7 @@
     "migration:show": "typeorm-ts-node-commonjs -d src/shared/infrastructure/persistence/typeorm/data-source.ts migration:show"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "keywords": [],
   "author": "",

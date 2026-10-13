@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     // JavaScript version emitted by TypeScript.
-    // ES2020 is stable on Node 18+ and supports async/await, optional chaining, etc.
+    // ES2022 matches the baseline of Node 22.
 
     "module": "CommonJS",
     // Module system used in the output JavaScript.
     // CommonJS is the native module system for Node.js.
 
-    "moduleResolution": "node",
-    // Tells TypeScript how to resolve modules.
-    // Matches Node.js resolution strategy.
+    "moduleResolution": "node10",
+    // Classic Node resolution for CommonJS (the old "node" setting).
+    // Paired with ignoreDeprecations so TypeScript 6 does not warn;
+    // "nodenext" would require file extensions on every relative import.
+
+    "ignoreDeprecations": "6.0",
 
     "outDir": "dist",
     // Directory where compiled JavaScript files are emitted.

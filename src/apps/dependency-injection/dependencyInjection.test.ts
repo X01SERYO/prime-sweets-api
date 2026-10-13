@@ -91,6 +91,10 @@ test('Dependency Injection Container - compiles and resolves all core services',
   const listSalesUseCase = container.get('sales.application.list_sales_use_case');
   assert.ok(listSalesUseCase);
 
+  // Fulfillment Output
+  const generateLoadSheetUseCase = container.get('fulfillment.application.generate_load_sheet_use_case');
+  assert.ok(generateLoadSheetUseCase);
+
   // Alegra
   const alegraClient = container.get('alegra.infrastructure.http_client');
   assert.ok(alegraClient);

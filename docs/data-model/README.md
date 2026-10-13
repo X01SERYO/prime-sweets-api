@@ -247,6 +247,10 @@ Domain `SaleItem` stores transaction-time snapshot of pricing and customized `it
 `TypeOrmInvoiceNumberAllocator.allocateNext`:
 - Uses atomic PostgreSQL `INSERT ... ON CONFLICT ("id") DO UPDATE SET current_value = current_value + 1 RETURNING ...` to ensure monotonic, immediate, non-reusable invoice numbering.
 
+## Load Sheet
+
+The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from confirmed `sale_items` of a closed `sales_days` row and from Catalog `products` / `brands` display fields. Nothing is inserted or updated. See [flows](../flows/README.md).
+
 ## Relationships and delete behavior
 
 - Product may have zero or one brand (`brand_id` nullable). Create product fails with `BrandNotFoundError` if a non-empty `brandId` does not exist.

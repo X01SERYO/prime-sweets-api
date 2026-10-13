@@ -109,4 +109,12 @@ sequenceDiagram
 
 `UpdateProduct` accepts `name`, `wholesalePrice`, and/or `retailPrice` only. It does not change cost, brand, units, pack, or `alegraId`.
 
-ConfirmSale, invoice numbering, Sales Day transitions, and Load Sheet aggregation are specified in the SPEC and are not implemented. They are not documented as code here.
+Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice document rendering and printing are not implemented.
+
+## Load Sheet generation
+
+**Sources:** `GenerateLoadSheetUseCase`, `LoadSheet.compose`, `SalesDayClosureAdapter`, `ConfirmedSaleItemsAdapter`, `CatalogProductDisplayAdapter`.
+
+`GET /load-sheets/:salesDayId` calls `GenerateLoadSheetUseCase`. The use case reads a Sales Day closure view, confirmed sale-item contributions, and Catalog display fields through fulfillment outbound ports. It does not import `Sale`, `Product`, or `SalesDay` into the fulfillment domain, and it does not write to Sales tables.
+
+`LoadSheet.compose` groups contributions by `productId`, sums quantity, total price, and profit, and fills brand and name from the Catalog display. The transaction-time `itemName` is dropped in `ConfirmedSaleItemsAdapter` before it reaches the domain.

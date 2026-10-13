@@ -13,10 +13,10 @@ title Prime Sweets Core API — Containers (current)
 Person(operator, "Catalog operator", "HTTP client")
 
 Container_Boundary(sweets, "Prime Sweets Core API") {
-  Container(api, "HTTP API", "Node.js 18+, Express 5, TypeScript", "Exposes /brands, /products, /customers, /sales-days. Builds the DI container and starts TypeORM")
+  Container(api, "HTTP API", "Node.js 22+, Express 5, TypeScript", "Exposes /brands, /products, /customers, /sales-days, /sales, and /load-sheets. Builds the DI container and starts TypeORM")
 }
 
-ContainerDb(postgres, "PostgreSQL", "Tables brands, products, product_prices, customers, sales_days", "Catalog, customer, and sales-day persistence")
+ContainerDb(postgres, "PostgreSQL", "Tables brands, products, product_prices, customers, sales_days, sales, sale_items, invoice_sequences", "Catalog, customer, sales-day, and sales persistence. Load Sheet is not stored.")
 System_Ext(alegra, "Alegra API", "PUT /items/{id} with name and major/minor price lists")
 
 Rel(operator, api, "REST JSON", "HTTP")
@@ -26,7 +26,7 @@ Rel(api, alegra, "Item sync on product update", "HTTPS")
 
 ## HTTP API
 
-`src/main.ts` loads `.env` and `reflect-metadata`, builds the `node-dependency-injection` container using typed TypeScript modules (`persistence.di`, `catalog.di`, `customer.di`, `salesDay.di`, `alegra.di`), initializes the TypeORM `DataSource`, and starts Express (`src/apps/api`).
+`src/main.ts` loads `.env` and `reflect-metadata`, builds the `node-dependency-injection` container using typed TypeScript modules (`persistence.di`, `catalog.di`, `customer.di`, `salesDay.di`, `sales.di`, `fulfillmentOutput.di`, `alegra.di`), initializes the TypeORM `DataSource`, and starts Express (`src/apps/api`).
 
 `startApi` listens on `config.port` resolved from the DI container (defaulting to `3000` or `process.env.PORT`).
 
@@ -34,7 +34,7 @@ Stack: TypeScript CommonJS, Express 5, TypeORM 0.3, `pg`, `node-dependency-injec
 
 ## PostgreSQL
 
-Schema from migrations `1760000000001` through `1760000000005`. Catalog ORM entities live in `src/shared/infrastructure/persistence/typeorm/`, customer entity in `src/contexts/customers/adapters/outbound/persistence/`, sales day entity in `src/contexts/sales-day/adapters/outbound/persistence/`. `synchronize` is `false`. Details: [data-model](../data-model/README.md).
+Schema from migrations `1760000000001` through `1760000000006`. Catalog ORM entities live in `src/shared/infrastructure/persistence/typeorm/`. Customer, sales day, and sales entities live in their context persistence adapters. `synchronize` is `false`. The Load Sheet has no table. Details: [data-model](../data-model/README.md).
 
 ## Alegra API (external)
 

@@ -1,6 +1,6 @@
 # Business and application flows (current)
 
-**Sources:** HTTP routers, product/brand use cases, Alegra sync use case, TypeORM repositories.
+**Sources:** HTTP routers, product/brand use cases, Alegra sync use case, sales use cases, Load Sheet use case, TypeORM repositories.
 
 Only flows that exist in code are described as current. Version 1 store-to-store flows from the PDR/SPEC are listed as **pending**; they are not filled in.
 
@@ -234,6 +234,26 @@ Body: `itemName` (non-empty string).
 
 1. Retrieve sale by ID or list sales filtering by Sales Day, Customer, or Status.
 
+## 7. Load Sheet generation
+
+Operational projection for a closed Sales Day. It is not stored. Generating it does not write sales, allocate an invoice number, or change a Sale.
+
+### Generate Load Sheet — `GET /load-sheets/:salesDayId`
+
+1. HTTP `validateRequest` (Zod) requires a non-empty `salesDayId`. The use case does not repeat empty or type checks.
+2. Load the Sales Day through `SalesDayClosureQuery`. Missing day → `SalesDayNotFoundForLoadSheetError` (404, `SALES_DAY_NOT_FOUND`).
+3. Reject unless status is `CLOSED` (`SalesDayNotClosedError`, 400, `SALES_DAY_NOT_CLOSED`). An open day, including a reopened current day, is rejected before sales are read.
+4. Read sale items only from sales whose status is `CONFIRMED`. `DRAFT` and `VOIDED` sales contribute nothing. The transaction-time `itemName` is not part of the query result.
+5. Group contributions by `productId` only. Distinct `itemName` values for the same product stay on one row.
+6. For each product:
+   - `quantity` = sum of confirmed item quantities
+   - `totalPrice` = sum of confirmed item total prices
+   - `profit` = sum of confirmed item profits
+7. Resolve `name` and `brand` from Catalog by `productId`. `name` is the Catalog product name. A missing product → `ProductNotFoundForLoadSheetError` (404, `PRODUCT_NOT_FOUND`). A blank Catalog name → `LoadSheetProductNameMissingError` (400, `LOAD_SHEET_PRODUCT_NAME_MISSING`). The Load Sheet does not fall back to `itemName`. `brand` is the Catalog brand name, or `null` when the product has no brand.
+8. `wholesaleCost` and `wholesaleSalePrice` are the transaction-time unit snapshots from the confirmed sale items. They are copied when every contribution in the product group shares the same unit cost and the same unit sale price. When those snapshots differ, the row stays a single `productId` group, the two unit fields are `null`, and the summed quantity, total price, and profit are unchanged. Values are not averaged and the group is not split.
+9. Rows are ordered by brand name (null last), then Catalog name, then `productId`.
+10. A closed day with no confirmed items returns `lines: []`.
+
 ## Pending definition / not implemented
 
 These appear in the PDR/SPEC as Version 1. They have **no** code paths in this repository. Details belong in the SPEC when implemented; they are not specified here.
@@ -241,7 +261,6 @@ These appear in the PDR/SPEC as Version 1. They have **no** code paths in this r
 | Area | What is missing in code |
 |---|---|
 | Authentication | `AuthenticateSeller`, `LogoutSeller`, session rules (OQ-05) |
-| Load Sheet | Generate after closed Sales Day; aggregate by `productId` excluding voided sales |
 | Invoice document | Generate / list / print / reprint; printer model and mechanism (OQ-03, OQ-04) |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |

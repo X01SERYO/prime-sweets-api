@@ -2,7 +2,7 @@
 
 **Sources:** `src/contexts/`, `src/apps/`, `src/shared/`.
 
-Top-level modules are `products` and `alegra`, not global `controllers` / `services` trees. Ports live under `domain/interfaces`; adapters under `infrastructure/`. That differs from the ADR folder convention (`application/ports`, `adapters/`).
+Top-level modules are the bounded contexts `catalog`, `customers`, `sales-day`, `sales`, `fulfillment-output`, and `alegra`. `catalog`, `customers`, `sales-day`, `sales`, and `fulfillment-output` use `application/ports` and `adapters/`. `alegra` still uses `domain/interfaces` and `infrastructure/`.
 
 ## Diagram
 
@@ -11,12 +11,16 @@ C4Component
 title HTTP API — Components (current)
 
 Container_Boundary(api, "Prime Sweets Core API") {
-  Component(http, "HTTP inbound", "Express routers + httpResponse + validateRequest", "/brands, /products, /customers, /sales-days, /sales. Maps Result to JSON")
-  Component(di, "Composition root", "TypeScript DI modules", "persistence.di, catalog.di, customer.di, salesDay.di, sales.di, alegra.di")
+  Component(http, "HTTP inbound", "Express routers + httpResponse + validateRequest", "/brands, /products, /customers, /sales-days, /sales, /load-sheets. Maps Result to JSON")
+  Component(di, "Composition root", "TypeScript DI modules", "persistence.di, catalog.di, customer.di, salesDay.di, sales.di, fulfillmentOutput.di, alegra.di")
 
   Component(salesApp, "Sales application", "Sale use cases", "Create/Add/Update/Remove/Confirm/Void/Get/List")
   Component(salesDom, "Sales domain", "Sale aggregate, SaleItem entity, errors", "Financial calculations & invoice numbering")
   Component(salesInf, "Sales persistence", "TypeOrmSaleRepository + TypeOrmInvoiceNumberAllocator", "Atomicity & sequence")
+
+  Component(fulfillmentApp, "Fulfillment application", "GenerateLoadSheetUseCase", "Closed Sales Day projection")
+  Component(fulfillmentDom, "Fulfillment domain", "LoadSheet", "Group by productId; sum quantity, total, profit")
+  Component(fulfillmentInf, "Fulfillment queries", "SalesDay, confirmed sale items, catalog display adapters", "Read-only cross-context ports")
 
   Component(salesDayApp, "Sales Day application", "Sales Day use cases", "Open/GetCurrent/Close/Reopen")
   Component(salesDayDom, "Sales Day domain", "SalesDay aggregate root, errors, date provider", "Operational daily lifecycle")
@@ -50,6 +54,12 @@ Rel(alegraInf, alegraApp, "delegates SyncProductItem")
 Rel(alegraApp, alegraExt, "PUT /items")
 Rel(di, http, "Resolves use cases")
 Rel(di, productsApp, "Wires repositories and sync")
+Rel(http, fulfillmentApp, "GET /load-sheets/:salesDayId")
+Rel(fulfillmentApp, fulfillmentDom, "LoadSheet.compose")
+Rel(fulfillmentApp, fulfillmentInf, "via outbound query ports")
+Rel(fulfillmentInf, salesInf, "SaleRepository.list confirmed")
+Rel(fulfillmentInf, salesDayInf, "SalesDayRepository.findById")
+Rel(fulfillmentInf, productsInf, "product and brand display")
 Rel(http, shared, "httpResponse(Result)")
 Rel(productsApp, shared, "Result")
 ```
@@ -62,16 +72,14 @@ src/
   apps/
     api/                           inbound HTTP
     controllers/httpResponse.ts
-    dependency-injection/
+    dependency-injection/          *.di.ts composition modules
   contexts/
-    products/
-      domain/
-      application/
-      infrastructure/persistence/
+    catalog/
+    customers/
+    sales-day/
+    sales/
+    fulfillment-output/            Load Sheet generation; no persistence
     alegra/
-      domain/
-      application/
-      infrastructure/
   shared/
     application/result/
     domain/errors/
@@ -100,9 +108,12 @@ src/
 | DELETE | `/sales/:id/items/:productId` | Remove item from Sale |
 | POST | `/sales/:id/confirm` | Confirm Sale and allocate Invoice Number |
 | POST | `/sales/:id/void` | Void Confirmed Sale logically |
+| GET | `/load-sheets/:salesDayId` | Generate Load Sheet for a closed Sales Day |
 
 `httpResponse` maps `Result`: 200/201 success, 404 `NotFoundError`, 400 `DomainError`, 500 otherwise.
 
 `CreateProduct` and `DeleteProduct` do not call Alegra. `CreateProduct` requires `alegraId` and treats it as already existing in Alegra.
 
-ADR-001 Version 1 contexts (`catalog`, `customers`, `sales-day`, `sales`, `fulfillment-output`) are not present as source folders.
+`GET /load-sheets/:salesDayId` reads a closed Sales Day and confirmed sales. It does not persist a Load Sheet and does not write Sales tables.
+
+Invoice rendering and printing (`fulfillment-output` document adapters) are not present. `alegra` still uses the legacy `infrastructure/` layout.

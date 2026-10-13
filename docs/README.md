@@ -13,7 +13,7 @@ This index is the map of project documents. Runtime descriptions below match the
 | [adrs/ADR-001.md](./adrs/ADR-001.md) | Architecture decision: modular monolith, DDD bounded contexts, hexagon per context | Proposed. Binding for Version 1. Current runtime shape is in `architecture/`. |
 | [architecture/](./architecture/README.md) | C4 model of **the current API** | Implemented. One C4 set only. |
 | [data-model/](./data-model/README.md) | Entities, tables, and relations verified in code and migrations | Implemented catalog persistence only. |
-| [flows/](./flows/README.md) | Business/application flows verified in code | Catalog and Alegra outbound sync only. Pending Version 1 flows are listed, not invented. |
+| [flows/](./flows/README.md) | Business/application flows verified in code | Catalog, customers, Sales Day, sales, Load Sheet, and Alegra outbound sync. Pending Version 1 flows are listed, not invented. |
 | [technical-debt.md](./technical-debt.md) | Central register of technical debt, hypotheses, and pending technical decisions | Active. Living register updated as items are resolved. |
 
 ## Keep / consolidate / create
@@ -38,8 +38,8 @@ This index is the map of project documents. Runtime descriptions below match the
 | Authentication | No |
 | Customers | Yes — context name is `customers` (CRUD + search) |
 | Sales Day | Yes — context name is `sales-day` (Open, Current, Close, Reopen) |
-| Sales (draft/confirm/void, snapshots, invoice numbering) | No |
-| Fulfillment Output (Load Sheet, invoice render/print) | No |
+| Sales (draft/confirm/void, snapshots, invoice numbering) | Yes — context name is `sales` |
+| Fulfillment Output (Load Sheet, invoice render/print) | Partial — `GenerateLoadSheet` via `GET /load-sheets/:salesDayId`. Invoice list, render, and print are not implemented. |
 | Hexagonal folder convention (`adapters/`, `application/ports`) | Yes for `catalog` (`application/ports`, `adapters/inbound|outbound`); pending `alegra` normalization |
 
 When a SPEC step is implemented, update `architecture/`, `data-model/`, and `flows/` to match the code. Do not mark SPEC sections as done only in the SPEC.

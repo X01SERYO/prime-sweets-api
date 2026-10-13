@@ -109,7 +109,7 @@ sequenceDiagram
 
 `UpdateProduct` accepts `name`, `wholesalePrice`, and/or `retailPrice` only. It does not change cost, brand, units, pack, or `alegraId`.
 
-Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice document rendering and printing are not implemented.
+Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice listing is implemented. Invoice document rendering and printing are not implemented.
 
 ## Load Sheet generation
 
@@ -118,3 +118,9 @@ Sales Day transitions, sale confirmation, and invoice-number allocation are impl
 `GET /load-sheets/:salesDayId` calls `GenerateLoadSheetUseCase`. The use case reads a Sales Day closure view, confirmed sale-item contributions, and Catalog display fields through fulfillment outbound ports. It does not import `Sale`, `Product`, or `SalesDay` into the fulfillment domain, and it does not write to Sales tables.
 
 `LoadSheet.compose` groups contributions by `productId`, sums quantity, total price, and profit, and fills brand and name from the Catalog display. The transaction-time `itemName` is dropped in `ConfirmedSaleItemsAdapter` before it reaches the domain.
+
+## Invoice listing
+
+**Sources:** `ListInvoicesUseCase`, `InvoiceQueryAdapter`, `SalesDayClosureAdapter`.
+
+`GET /invoices?salesDayId=` calls `ListInvoicesUseCase`. The use case checks that the Sales Day exists and reads invoice summaries through `InvoiceQuery`. The adapter keeps `CONFIRMED` and `VOIDED` sales that already have an invoice number. It does not write to Sales tables and does not render an invoice document.

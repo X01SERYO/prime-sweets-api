@@ -18,7 +18,7 @@ Container_Boundary(api, "Prime Sweets Core API") {
   Component(salesDom, "Sales domain", "Sale aggregate, SaleItem entity, errors", "Financial calculations & invoice numbering")
   Component(salesInf, "Sales persistence", "TypeOrmSaleRepository + TypeOrmInvoiceNumberAllocator", "Atomicity & sequence")
 
-  Component(fulfillmentApp, "Fulfillment application", "GenerateLoadSheetUseCase", "Closed Sales Day projection")
+  Component(fulfillmentApp, "Fulfillment application", "GenerateLoadSheetUseCase, ListInvoicesUseCase", "Load Sheet projection and invoice list")
   Component(fulfillmentDom, "Fulfillment domain", "LoadSheet", "Group by productId; sum quantity, total, profit")
   Component(fulfillmentInf, "Fulfillment queries", "SalesDay, confirmed sale items, catalog display adapters", "Read-only cross-context ports")
 
@@ -109,11 +109,14 @@ src/
 | POST | `/sales/:id/confirm` | Confirm Sale and allocate Invoice Number |
 | POST | `/sales/:id/void` | Void Confirmed Sale logically |
 | GET | `/load-sheets/:salesDayId` | Generate Load Sheet for a closed Sales Day |
+| GET | `/invoices?salesDayId=` | List invoices already allocated on a Sales Day |
 
 `httpResponse` maps `Result`: 200/201 success, 404 `NotFoundError`, 400 `DomainError`, 500 otherwise.
 
 `CreateProduct` and `DeleteProduct` do not call Alegra. `CreateProduct` requires `alegraId` and treats it as already existing in Alegra.
 
 `GET /load-sheets/:salesDayId` reads a closed Sales Day and confirmed sales. It does not persist a Load Sheet and does not write Sales tables.
+
+`GET /invoices?salesDayId=` reads allocated invoice numbers for that Sales Day. It accepts an open or closed day and does not write Sales tables.
 
 Invoice rendering and printing (`fulfillment-output` document adapters) are not present. `alegra` still uses the legacy `infrastructure/` layout.

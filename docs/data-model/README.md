@@ -251,6 +251,10 @@ Domain `SaleItem` stores transaction-time snapshot of pricing and customized `it
 
 The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from confirmed `sale_items` of a closed `sales_days` row and from Catalog `products` / `brands` display fields. Nothing is inserted or updated. See [flows](../flows/README.md).
 
+## Invoice list
+
+`ListInvoices` is not a table. It reads `sales` rows that already have an `invoice_number` (`CONFIRMED` or `VOIDED`) for a Sales Day and returns a summary. It does not insert or update rows.
+
 ## Relationships and delete behavior
 
 - Product may have zero or one brand (`brand_id` nullable). Create product fails with `BrandNotFoundError` if a non-empty `brandId` does not exist.

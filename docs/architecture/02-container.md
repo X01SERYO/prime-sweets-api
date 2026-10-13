@@ -13,7 +13,7 @@ title Prime Sweets Core API — Containers (current)
 Person(operator, "Catalog operator", "HTTP client")
 
 Container_Boundary(sweets, "Prime Sweets Core API") {
-  Container(api, "HTTP API", "Node.js 22+, Express 5, TypeScript", "Exposes /brands, /products, /customers, /sales-days, /sales, and /load-sheets. Builds the DI container and starts TypeORM")
+  Container(api, "HTTP API", "Node.js 22+, Express 5, TypeScript", "Exposes /brands, /products, /customers, /sales-days, /sales, /load-sheets, and /invoices. Builds the DI container and starts TypeORM")
 }
 
 ContainerDb(postgres, "PostgreSQL", "Tables brands, products, product_prices, customers, sales_days, sales, sale_items, invoice_sequences", "Catalog, customer, sales-day, and sales persistence. Load Sheet is not stored.")

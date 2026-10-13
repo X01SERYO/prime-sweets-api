@@ -5,6 +5,7 @@ import { createCustomersRouter } from '../../../contexts/customers/adapters/inbo
 import { createSalesDaysRouter } from '../../../contexts/sales-day/adapters/inbound/http/salesDay.route';
 import { createSalesRouter } from '../../../contexts/sales/adapters/inbound/http/sales.route';
 import { createLoadSheetsRouter } from '../../../contexts/fulfillment-output/adapters/inbound/http/loadSheet.route';
+import { createInvoicesRouter } from '../../../contexts/fulfillment-output/adapters/inbound/http/invoices.route';
 
 export function registerRoutes(app: Application, container: any) {
   app.use('/brands', createBrandsRouter(container));
@@ -13,5 +14,5 @@ export function registerRoutes(app: Application, container: any) {
   app.use('/sales-days', createSalesDaysRouter(container));
   app.use('/sales', createSalesRouter(container));
   app.use('/load-sheets', createLoadSheetsRouter(container));
+  app.use('/invoices', createInvoicesRouter(container));
 }
-

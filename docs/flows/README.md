@@ -254,6 +254,20 @@ Operational projection for a closed Sales Day. It is not stored. Generating it d
 9. Rows are ordered by brand name (null last), then Catalog name, then `productId`.
 10. A closed day with no confirmed items returns `lines: []`.
 
+## 8. Invoice listing
+
+Read model of invoice numbers already allocated on a Sales Day. Listing does not create a Sale, does not allocate an invoice number, and does not change Sale state. It is not stored as its own table.
+
+### List invoices — `GET /invoices?salesDayId=...`
+
+1. HTTP `validateRequest` (Zod) requires a non-empty `salesDayId`. The use case does not repeat empty or type checks.
+2. Load the Sales Day through `SalesDayClosureQuery`. Missing day → `SalesDayNotFoundForInvoiceError` (404, `SALES_DAY_NOT_FOUND`).
+3. `OPEN` and `CLOSED` are both accepted. Closing the day is not a precondition for listing invoices.
+4. Read sales for that Sales Day. Keep sales whose status is `CONFIRMED` or `VOIDED` and that already have an `invoiceNumber`. `DRAFT` sales are omitted because confirmation is the only point that allocates a number.
+5. Return one summary per invoice: `saleId`, `salesDayId`, `customerId`, `invoiceNumber`, `status`, `confirmedAt`, `totalAmount`. Line items and the transaction-time `itemName` are not included.
+6. Order the summaries by `invoiceNumber` ascending.
+7. A Sales Day with no allocated invoices returns `[]`.
+
 ## Pending definition / not implemented
 
 These appear in the PDR/SPEC as Version 1. They have **no** code paths in this repository. Details belong in the SPEC when implemented; they are not specified here.
@@ -261,7 +275,7 @@ These appear in the PDR/SPEC as Version 1. They have **no** code paths in this r
 | Area | What is missing in code |
 |---|---|
 | Authentication | `AuthenticateSeller`, `LogoutSeller`, session rules (OQ-05) |
-| Invoice document | Generate / list / print / reprint; printer model and mechanism (OQ-03, OQ-04) |
+| Invoice document | Generate / print / reprint; printer model and mechanism (OQ-03, OQ-04). Listing allocated invoices is implemented. |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |
 | Product create/delete sync | Create and delete do not update Alegra |

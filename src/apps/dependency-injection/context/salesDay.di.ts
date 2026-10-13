@@ -1,4 +1,5 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
+import { getAppConfig } from '../../../shared/infrastructure/config/appConfig';
 import { TypeOrmSalesDayRepository } from '../../../contexts/sales-day/adapters/outbound/persistence/repositories/typeOrmSalesDay.repository';
 import { ColombianBusinessDateProvider } from '../../../contexts/sales-day/application/services/businessDate.provider';
 import { OpenCurrentSalesDayUseCase } from '../../../contexts/sales-day/application/use-cases/openCurrentSalesDay/openCurrentSalesDay.useCase';
@@ -9,11 +10,11 @@ import { ReopenCurrentSalesDayUseCase } from '../../../contexts/sales-day/applic
 export function registerSalesDayDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');
 
-  container
-    .register('sales_day.domain.sales_day_repository', TypeOrmSalesDayRepository)
-    .addArgument(dataSourceRef);
+  container.register('sales_day.domain.sales_day_repository', TypeOrmSalesDayRepository).addArgument(dataSourceRef);
 
-  container.register('sales_day.application.date_provider', ColombianBusinessDateProvider);
+  container
+    .register('sales_day.application.date_provider', ColombianBusinessDateProvider)
+    .addArgument(getAppConfig().businessTimeZone);
 
   const salesDayRepoRef = new Reference('sales_day.domain.sales_day_repository');
   const dateProviderRef = new Reference('sales_day.application.date_provider');

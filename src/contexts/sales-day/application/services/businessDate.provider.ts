@@ -3,7 +3,7 @@ export interface BusinessDateProvider {
 }
 
 export class ColombianBusinessDateProvider implements BusinessDateProvider {
-  constructor(private readonly timeZone = process.env.BUSINESS_TIMEZONE || 'America/Bogota') {}
+  constructor(private readonly timeZone = 'America/Bogota') {}
 
   getCurrentDate(): string {
     const formatter = new Intl.DateTimeFormat('en-CA', {

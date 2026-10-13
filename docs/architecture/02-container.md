@@ -26,9 +26,9 @@ Rel(api, alegra, "Item sync on product update", "HTTPS")
 
 ## HTTP API
 
-`src/main.ts` loads `.env` and `reflect-metadata`, builds the `node-dependency-injection` container using typed TypeScript modules (`persistence.di`, `catalog.di`, `customer.di`, `salesDay.di`, `sales.di`, `fulfillmentOutput.di`, `alegra.di`), initializes the TypeORM `DataSource`, and starts Express (`src/apps/api`).
+`src/main.ts` loads `.env` and `reflect-metadata`, validates environment variables with `loadAppConfig`, builds the `node-dependency-injection` container using typed TypeScript modules (`persistence.di`, `catalog.di`, `customer.di`, `salesDay.di`, `sales.di`, `fulfillmentOutput.di`, `alegra.di`), initializes the TypeORM `DataSource`, and starts Express (`src/apps/api`).
 
-`startApi` listens on `config.port` resolved from the DI container (defaulting to `3000` or `process.env.PORT`).
+`startApi` listens on `config.port` from that validated configuration (default `3000`). `DB_USER` and `DB_NAME` are required at startup.
 
 Stack: TypeScript CommonJS, Express 5, TypeORM 0.3, `pg`, `node-dependency-injection`.
 

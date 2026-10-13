@@ -1,5 +1,6 @@
 import path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
+import { getAppConfig } from '../../config/appConfig';
 import { BrandEntity } from './brand.entity';
 import { ProductEntity } from './product.entity';
 import { ProductPriceEntity } from './productPrice.entity';
@@ -10,13 +11,15 @@ import { SaleItemEntity } from '../../../../contexts/sales/adapters/outbound/per
 import { InvoiceSequenceEntity } from '../../../../contexts/sales/adapters/outbound/persistence/invoiceSequence.entity';
 
 export function createTypeOrmOptions(): DataSourceOptions {
+  const config = getAppConfig();
+
   return {
     type: 'postgres',
-    host: process.env.DB_HOST ?? '127.0.0.1',
-    port: Number(process.env.DB_PORT ?? 5432),
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+    host: config.db.host,
+    port: config.db.port,
+    username: config.db.user,
+    password: config.db.password,
+    database: config.db.name,
     entities: [
       BrandEntity,
       ProductEntity,

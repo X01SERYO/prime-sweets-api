@@ -1,8 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { loadAppConfig } from '../../shared/infrastructure/config/appConfig';
 import { buildContainer } from './index';
 
 test('Dependency Injection Container - compiles and resolves all core services', async () => {
+  process.env.DB_USER ??= 'test';
+  process.env.DB_NAME ??= 'prime_sweets_test';
+  process.env.DB_PASSWORD ??= '';
+  loadAppConfig();
+
   const container = await buildContainer();
 
   // Persistence

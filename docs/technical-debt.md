@@ -81,6 +81,6 @@ Decisions that must be agreed upon before completing subsequent modules of Versi
 
 To preserve a single source of truth across the project:
 
-- **Business Domain Open Questions (OQ-01 through OQ-21):** Maintained in [docs/pdrs/PDR.md § 17 — Open Questions and Decisions](./pdrs/PDR.md#17-open-questions-and-decisions-oq-register). Includes invoice uniqueness scope, printer hardware model, seller multi-device sessions, customer route assignment, etc.
-- **Unimplemented Version 1 Core Modules:** Maintained in [docs/flows/README.md § Pending definition / not implemented](./flows/README.md#pending-definition--not-implemented). Includes Authentication, invoice printing, and catalog Excel migration. Load Sheet generation, invoice listing, and invoice document generation are implemented.
+- **Business Domain Open Questions:** Maintained in [docs/pdrs/PDR.md § 17 — Open Questions and Decisions](./pdrs/PDR.md#17-open-questions-and-decisions-oq-register). OQ-01, OQ-02, OQ-03, OQ-04, OQ-05, OQ-06, OQ-07, and OQ-09 are answered there. The daily invoice-number format is not yet what `InvoiceNumberAllocator` emits.
+- **Unimplemented Version 1 Core Modules:** Maintained in [docs/flows/README.md § Pending definition / not implemented](./flows/README.md#pending-definition--not-implemented). Includes Authentication and catalog Excel migration. Load Sheet generation, invoice listing, and invoice document generation are implemented. Invoice printing is the UI, through the Windows print dialog.
 - **Architectural Guidelines:** Maintained in [docs/adrs/ADR-001.md](./adrs/ADR-001.md) and [.cursor/skills/backend-hexagonal-ddd/SKILL.md](../.cursor/skills/backend-hexagonal-ddd/SKILL.md).

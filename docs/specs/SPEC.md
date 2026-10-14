@@ -145,7 +145,7 @@ Mandatory data:
 
 Additional electronic-invoicing fields are optional and informational in Version 1.
 
-Customer document uniqueness remains an OQ and must not be silently assumed to be global until confirmed.
+The same document type and document number identify one customer for the whole company.
 
 ## 7. Domain Context: Catalog
 
@@ -220,9 +220,9 @@ At sale confirmation:
 3. persist the confirmed sale and allocated number atomically according to the selected transaction strategy;
 4. return the confirmed sale and invoice number.
 
-The numbering scope and initial number remain OQs.
+The numbering scope is one sequence per business date for the whole company. Every date starts at `001`. The visible invoice number is digits only, at least three places (`001`, `002`), with no letters and no prefix. Within that date a number is never reused after logical deletion. The next business date starts again at `001`.
 
-Numbers are never reused after logical deletion.
+The database allocates the next value in one atomic update. The API selects the business date and stores the returned digits on the sale.
 
 ## 10. State and Execution Flows
 
@@ -337,6 +337,8 @@ Invoice document
 ```
 
 No branch in this flow changes the SaleItem name or allocates another invoice number.
+
+`PrintInvoice` and `PrintInvoiceBatch` run in the UI. The UI requests the invoice document from the API and opens the Windows print dialog on the PC. One invoice, a seller-selected subset, or every allocated invoice of the Sales Day can be printed in that dialog, with a page break between invoices. Reprinting prints the same document again. The API does not select a printer, send printer commands, or record that an invoice was printed. The Load Sheet is not printed.
 
 ## 10. Application Use Cases
 
@@ -586,7 +588,7 @@ The migration process must report invalid or duplicate records rather than silen
 
 ## 20. OQ Register
 
-All OQs in the PDR are binding until resolved. In particular, implementation must not invent invoice-number scope, initial number, printer model, print mechanism, concurrent-session behavior, customer route assignment, or document uniqueness. The product-name behavior is resolved: the seller may customize the sale-item name during order capture, and the stored transaction-time name is used for subsequent outputs.
+All OQs in the PDR are binding until resolved. Invoice numbering, sessions, customer assignment, customer creation during a sale, and document uniqueness are resolved in PDR OQ-01, OQ-02, OQ-05, OQ-06, OQ-07, and OQ-09. Printer model and print mechanism are resolved in PDR OQ-03 and OQ-04: the UI prints through the Windows dialog. The product-name behavior is resolved: the seller may customize the sale-item name during order capture, and the stored transaction-time name is used for subsequent outputs.
 
 ## 21. Definition of Done
 

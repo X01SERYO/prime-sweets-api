@@ -109,7 +109,7 @@ sequenceDiagram
 
 `UpdateProduct` accepts `name`, `wholesalePrice`, and/or `retailPrice` only. It does not change cost, brand, units, pack, or `alegraId`.
 
-Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice listing and invoice document generation are implemented. Invoice printing is not implemented.
+Sales Day transitions, sale confirmation, and invoice-number allocation are implemented and described in [flows](../flows/README.md). Invoice listing and invoice document generation are implemented. The UI prints those documents with the Windows print dialog. This API has no printer adapter.
 
 ## Load Sheet generation
 

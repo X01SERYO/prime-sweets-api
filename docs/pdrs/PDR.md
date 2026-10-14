@@ -94,7 +94,7 @@ TOTAL PRICE = QUANTITY × WHOLESALE SALE PRICE
 PROFIT = TOTAL PRICE − (WHOLESALE COST × QUANTITY)
 ```
 
-When a sale is confirmed, the system immediately allocates its invoice number. The number is persistent and is never reused, including when a sale is later logically deleted.
+When a sale is confirmed, the system immediately allocates its invoice number for that business date. The visible number is digits only, with at least three places: `001`, `002`, `003`. It has no letters and no prefix. Each new business date starts again at `001`. Within that date the number is not reused, including when a sale is later logically deleted. The database assigns the next value in one atomic update so two confirmations cannot receive the same number. The API chooses the business date and stores the resulting digits on the sale.
 
 A logically deleted sale contributes nothing to the Load Sheet: no quantity, cost, sale amount, or profit.
 
@@ -181,7 +181,7 @@ The invoice uses the transaction-time `itemName` captured on each SaleItem. The 
 ID | PRODUCT | QTY | UNIT VALUE | TOTAL VALUE
 ```
 
-The existing thermal-paper width and invoice layout are constraints. The exact printer model and exact direct/silent-printing behavior remain open questions and must not be invented.
+The existing thermal-paper width and invoice layout are constraints. Printing uses the Windows print dialog on the PC that already has the thermal printer. The UI owns that dialog, the selection of one invoice, several invoices, or all invoices of the Sales Day, and the page break between invoices. The API supplies the invoice document and does not talk to the printer. Reprinting prints that same document again. Nothing records that an invoice was printed. The Load Sheet is not printed. The printer model is the one already installed in Windows for the current paper roll.
 
 ## 13. End-to-End Flow
 
@@ -324,21 +324,21 @@ These are modules/business boundaries, not automatically separate deployable ser
 - Invoice uses the transaction-time `itemName` captured during order entry.
 - Invoice regeneration does not create a sale or a new invoice number.
 - The same responsive application works on phone and PC.
-- Printing uses the existing PC-connected thermal-printer workflow, subject to the printer-specific OQs.
+- Printing uses the Windows print dialog on the PC. The UI prints the invoice document supplied by the API.
 
 ## 17. Open Questions and Decisions (OQ Register)
 
 | ID | Question | Current answer/status |
 |---|---|---|
-| OQ-01 | What is the scope of invoice-number uniqueness? | **OPEN.** Uniqueness must be central, persistent, immediate, and non-reusable; global scope versus another business scope is not yet defined. |
-| OQ-02 | What is the initial invoice number? | **OPEN.** |
-| OQ-03 | What is the exact thermal-printer model? | **OPEN.** |
-| OQ-04 | Should printing be silent/direct or use the standard PC print flow? | **OPEN.** |
-| OQ-05 | Can the same seller account be active on both phone and PC simultaneously? | **OPEN.** This is relevant because the current requirement says one active session/device. |
-| OQ-06 | Must customers be assigned to sellers/routes? | **OPEN.** No route-assignment rule has been defined. |
-| OQ-07 | Can a customer be created from the sale flow? | **PROPOSED: YES.** Final confirmation required. |
+| OQ-01 | What is the scope of invoice-number uniqueness? | **ANSWERED.** One sequence per business date for the whole company. The next date starts again at `001`. Within the date the number is not reused. The visible value is digits only (`001`, `002`). The database allocates it atomically. The API selects the business date and stores the digits. |
+| OQ-02 | What is the initial invoice number? | **ANSWERED.** Every business date starts at `001`. |
+| OQ-03 | What is the exact thermal-printer model? | **ANSWERED for Version 1.** The model stays in the Windows driver already installed on the PC for the current thermal roll. The API does not depend on it. |
+| OQ-04 | Should printing be silent/direct or use the standard PC print flow? | **ANSWERED.** Standard Windows print dialog. The UI is responsible. The seller selects the printer, as in the current Excel flow. The API does not send the invoice directly to a printer. |
+| OQ-05 | Can the same seller account be active on both phone and PC simultaneously? | **ANSWERED.** Yes. The same account may keep more than one session open, with a maximum of 3 sessions. |
+| OQ-06 | Must customers be assigned to sellers/routes? | **ANSWERED.** No for Version 1. A customer belongs to the company. Any seller can use that customer. |
+| OQ-07 | Can a customer be created from the sale flow? | **ANSWERED: YES.** The seller can create the customer during the sale visit. The customer remains stored for later sales. |
 | OQ-08 | Can the seller change the product name during order capture, and which name is used afterward? | **ANSWERED: YES.** When a product is added to a sale, its catalog name is prefilled and may be changed immediately by the seller. The resulting transaction-time item name is stored with the sale and is used for the invoice only. The product ID remains the product identity. The Load Sheet aggregates strictly by productId and uses Catalog product data for its product name. The item name is not an invoice-stage editing field. |
-| OQ-09 | Must customer document number be globally unique? | **OPEN.** |
+| OQ-09 | Must customer document number be globally unique? | **ANSWERED: YES.** The same document type and document number identify one customer for the whole company. |
 | OQ-10 | Do electronic-invoicing fields change the Version 1 sale process? | **NO.** They are informational only. |
 | OQ-11 | Is historical Load Sheet persistence required? | **NO.** Current process does not require it. |
 | OQ-12 | Is inventory management required? | **NO.** Out of scope. |

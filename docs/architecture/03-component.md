@@ -123,6 +123,6 @@ src/
 
 `GET /invoices?salesDayId=` reads allocated invoice numbers for that Sales Day. It accepts an open or closed day and does not write Sales tables.
 
-`GET /invoices/:saleId` renders a confirmed sale into an invoice document. It does not write Sales tables and does not allocate an invoice number. Printing is not implemented.
+`GET /invoices/:saleId` renders a confirmed sale into an invoice document. It does not write Sales tables and does not allocate an invoice number. The UI prints that document with the Windows print dialog. This API has no printer adapter.
 
 `alegra` still uses the legacy `infrastructure/` layout.

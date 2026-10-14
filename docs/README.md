@@ -39,7 +39,7 @@ This index is the map of project documents. Runtime descriptions below match the
 | Customers | Yes — context name is `customers` (CRUD + search) |
 | Sales Day | Yes — context name is `sales-day` (Open, Current, Close, Reopen) |
 | Sales (draft/confirm/void, snapshots, invoice numbering) | Yes — context name is `sales` |
-| Fulfillment Output (Load Sheet, invoice render/print) | Partial — `GenerateLoadSheet` via `GET /load-sheets/:salesDayId`, `ListInvoices` via `GET /invoices?salesDayId=`, and `GenerateInvoice` via `GET /invoices/:saleId`. Print is not implemented. |
+| Fulfillment Output (Load Sheet, invoice render/print) | API: `GenerateLoadSheet` via `GET /load-sheets/:salesDayId`, `ListInvoices` via `GET /invoices?salesDayId=`, and `GenerateInvoice` via `GET /invoices/:saleId`. Printing is the UI, through the Windows print dialog (PDR OQ-04). |
 | Hexagonal folder convention (`adapters/`, `application/ports`) | Yes for `catalog`, `customers`, `sales-day`, `sales`, and `fulfillment-output`. `alegra` still uses `domain/interfaces` and `infrastructure/` (TD-04). |
 
 When a SPEC step is implemented, update `architecture/`, `data-model/`, and `flows/` to match the code. Do not mark SPEC sections as done only in the SPEC.

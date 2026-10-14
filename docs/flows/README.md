@@ -285,14 +285,17 @@ Builds a document representation from an existing confirmed Sale. It does not cr
 9. `subtotal` and `total` are both the sum of the line totals. No separate tax total is defined.
 10. `saleDate` is `confirmedAt`. The returned `invoiceNumber` is the one already stored on the sale.
 
+Printing is not an API route. The UI on the PC opens the Windows print dialog with the document from `GET /invoices/:saleId`. For several invoices, or for every allocated invoice of the Sales Day, the UI loads each selected document and prints them in one dialog with a page break between invoices. Reprinting requests the same document again. The API does not record a printed mark. The Load Sheet is not printed.
+
 ## Pending definition / not implemented
 
 These appear in the PDR/SPEC as Version 1. They have **no** code paths in this repository. Details belong in the SPEC when implemented; they are not specified here.
 
 | Area | What is missing in code |
 |---|---|
-| Authentication | `AuthenticateSeller`, `LogoutSeller`, session rules (OQ-05) |
-| Invoice document | Print / reprint; printer model and mechanism (OQ-03, OQ-04). Listing and document generation are implemented. |
+| Authentication | `AuthenticateSeller`, `LogoutSeller`. A seller may keep up to 3 sessions open (OQ-05). No session code exists yet. |
+| Daily invoice number | Decided format is digits per business date (`001`, `002`, …), allocated in the database. The running allocator still issues a global `INV-00001` series. |
+| Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |
 | Product create/delete sync | Create and delete do not update Alegra |

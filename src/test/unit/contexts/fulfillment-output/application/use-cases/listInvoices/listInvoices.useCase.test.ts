@@ -70,6 +70,46 @@ test('ListInvoicesUseCase - returns allocated invoices when the Sales Day is clo
   assert.equal(result.value?.length, 2);
 });
 
+test('ListInvoicesUseCase - orders numeric invoice numbers so 1000 follows 999', async () => {
+  const salesDayClosureQuery: SalesDayClosureQuery = {
+    async findById(salesDayId) {
+      return { id: salesDayId, status: 'OPEN' };
+    }
+  };
+  const invoiceQuery: InvoiceQuery = {
+    async findBySalesDayId() {
+      return [
+        {
+          saleId: 's-1000',
+          salesDayId: 'sd-1',
+          customerId: 'c-2',
+          invoiceNumber: '1000',
+          status: 'CONFIRMED',
+          confirmedAt: '2026-10-13T15:00:00.000Z',
+          totalAmount: 2000
+        },
+        {
+          saleId: 's-999',
+          salesDayId: 'sd-1',
+          customerId: 'c-1',
+          invoiceNumber: '999',
+          status: 'CONFIRMED',
+          confirmedAt: '2026-10-13T14:00:00.000Z',
+          totalAmount: 1000
+        }
+      ];
+    }
+  };
+  const useCase = new ListInvoicesUseCase(salesDayClosureQuery, invoiceQuery);
+
+  const result = await useCase.run({ salesDayId: 'sd-1' });
+
+  assert.deepEqual(
+    result.value?.map(invoice => invoice.invoiceNumber),
+    ['999', '1000']
+  );
+});
+
 test('ListInvoicesUseCase - fails when the Sales Day does not exist', async () => {
   const { useCase, wasInvoicesRequested } = setup(null);
 

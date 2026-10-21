@@ -114,12 +114,13 @@ test('Sale aggregate - confirms draft sale, allocating invoice number', () => {
     customerId: 'cust-50'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
-  const confirmed = sale.confirm('INV-0001');
+  const confirmed = sale.confirm('INV-0001', '2026-10-20');
 
   assert.equal(confirmed.status, 'CONFIRMED');
   assert.equal(confirmed.isConfirmed(), true);
   assert.equal(confirmed.isDraft(), false);
   assert.equal(confirmed.invoiceNumber, 'INV-0001');
+  assert.equal(confirmed.invoiceBusinessDate, '2026-10-20');
   assert.ok(confirmed.confirmedAt);
 });
 
@@ -130,7 +131,7 @@ test('Sale aggregate - rejects confirmation if sale has no items', () => {
     customerId: 'cust-50'
   });
 
-  assert.throws(() => emptySale.confirm('INV-0001'), SaleMustContainItemsError);
+  assert.throws(() => emptySale.confirm('INV-0001', '2026-10-20'), SaleMustContainItemsError);
 });
 
 test('Sale aggregate - rejects confirmation if invoice number is missing or empty', () => {
@@ -140,8 +141,8 @@ test('Sale aggregate - rejects confirmation if invoice number is missing or empt
     customerId: 'cust-50'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
-  assert.throws(() => sale.confirm(''), InvalidSaleError);
-  assert.throws(() => sale.confirm('   '), InvalidSaleError);
+  assert.throws(() => sale.confirm('', '2026-10-20'), InvalidSaleError);
+  assert.throws(() => sale.confirm('   ', '2026-10-20'), InvalidSaleError);
 });
 
 test('Sale aggregate - confirms only once', () => {
@@ -151,9 +152,9 @@ test('Sale aggregate - confirms only once', () => {
     customerId: 'cust-50'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
-    .confirm('INV-0001');
+    .confirm('INV-0001', '2026-10-20');
 
-  assert.throws(() => confirmed.confirm('INV-0002'), SaleCannotBeModifiedError);
+  assert.throws(() => confirmed.confirm('INV-0002', '2026-10-20'), SaleCannotBeModifiedError);
 });
 
 test('Sale aggregate - editing items on confirmed sale keeps the same invoice number', () => {
@@ -163,7 +164,7 @@ test('Sale aggregate - editing items on confirmed sale keeps the same invoice nu
     customerId: 'cust-50'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
-    .confirm('INV-0001');
+    .confirm('INV-0001', '2026-10-20');
 
   const modified = confirmed.updateItemQuantity('p-1', 5);
   assert.equal(modified.invoiceNumber, 'INV-0001');
@@ -184,7 +185,7 @@ test('Sale aggregate - rejects any modifications once voided', () => {
     customerId: 'cust-50'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
-    .confirm('INV-0001');
+    .confirm('INV-0001', '2026-10-20');
 
   const voided = confirmed.void();
 
@@ -201,7 +202,7 @@ test('Sale aggregate - voids a confirmed sale logically without modifying items 
     customerId: 'cust-50'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
-    .confirm('INV-0001');
+    .confirm('INV-0001', '2026-10-20');
 
   const voided = confirmed.void();
 

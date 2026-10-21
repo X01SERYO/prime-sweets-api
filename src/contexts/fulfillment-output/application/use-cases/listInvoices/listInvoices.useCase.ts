@@ -17,8 +17,18 @@ export class ListInvoicesUseCase {
     }
 
     const invoices = await this.invoiceQuery.findBySalesDayId(dto.salesDayId);
-    const ordered = [...invoices].sort((left, right) => left.invoiceNumber.localeCompare(right.invoiceNumber));
+    const ordered = [...invoices].sort((left, right) => compareInvoiceNumbers(left.invoiceNumber, right.invoiceNumber));
 
     return Result.ok(ordered);
   }
+}
+
+function compareInvoiceNumbers(left: string, right: string): number {
+  const leftNumber = Number(left);
+  const rightNumber = Number(right);
+  if (Number.isInteger(leftNumber) && Number.isInteger(rightNumber)) {
+    return leftNumber - rightNumber;
+  }
+
+  return left.localeCompare(right);
 }

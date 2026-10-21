@@ -1,6 +1,6 @@
 # Data model (current)
 
-**Sources:** TypeORM entities, migrations `1760000000001-CreateBrands.ts` through `1760000000007-UniqueCustomerDocument.ts`, `TypeOrmDataSource`, domain `Product` / `Brand` / `Customer` / `SalesDay` / `Sale` / `SaleItem`, TypeORM repositories.
+**Sources:** TypeORM entities, migrations `1760000000001-CreateBrands.ts` through `1760000000008-DailyInvoiceNumbers.ts`, `TypeOrmDataSource`, domain `Product` / `Brand` / `Customer` / `SalesDay` / `Sale` / `SaleItem`, TypeORM repositories.
 
 Tables registered on the DataSource and created by migrations are documented below.
 
@@ -66,7 +66,8 @@ erDiagram
     uuid sales_day_id FK
     uuid customer_id FK
     varchar status
-    varchar invoice_number UK
+    varchar invoice_business_date
+    varchar invoice_number
     numeric total_amount
     numeric total_profit
     int total_quantity
@@ -181,7 +182,8 @@ Unique & Index: `IDX_sales_days_seller_date` on `(seller_id, date)`.
 | `sales_day_id` | uuid | NOT NULL, FK to `sales_days(id)` |
 | `customer_id` | uuid | NOT NULL, FK to `customers(id)` |
 | `status` | varchar(20) | NOT NULL, default `'DRAFT'`, CHECK `IN ('DRAFT', 'CONFIRMED', 'VOIDED')` |
-| `invoice_number` | varchar(50) | nullable, UNIQUE |
+| `invoice_number` | varchar(50) | nullable |
+| `invoice_business_date` | varchar(10) | nullable. Business date `YYYY-MM-DD` copied from the open Sales Day at confirmation |
 | `total_amount` | numeric(12,2) | NOT NULL, default `0` |
 | `total_profit` | numeric(12,2) | NOT NULL, default `0` |
 | `total_quantity` | integer | NOT NULL, default `0` |
@@ -189,7 +191,7 @@ Unique & Index: `IDX_sales_days_seller_date` on `(seller_id, date)`.
 | `voided_at` | timestamptz | nullable |
 | `created_at` / `updated_at` | timestamptz | default `now()` |
 
-Indexes: `IDX_sales_sales_day_id`, `IDX_sales_customer_id`, `IDX_sales_invoice_number`.
+Indexes: `IDX_sales_sales_day_id`, `IDX_sales_customer_id`. Unique index `UQ_sales_invoice_business_date_number` on `(invoice_business_date, invoice_number)`. Several drafts may keep both columns null. The same digits can exist again on another business date. Migration `1760000000008` drops the previous global unique constraint on `invoice_number`.
 
 ### `sale_items`
 
@@ -212,12 +214,12 @@ Indexes: `IDX_sale_items_sale_id`, `IDX_sale_items_product_id`.
 
 | Column | Type | Constraints |
 |---|---|---|
-| `id` | varchar(32) | PK (e.g. `'default'`) |
+| `id` | varchar(32) | PK. One row per business date (`YYYY-MM-DD`) |
 | `current_value` | integer | NOT NULL, default `0` |
-| `prefix` | varchar(10) | NOT NULL, default `'INV-'` |
+| `prefix` | varchar(10) | NOT NULL, default `'INV-'`. Daily rows store `''` because the visible number has no letters |
 | `updated_at` | timestamptz | default `now()` |
 
-Initial seed row: `('default', 0, 'INV-')`.
+Migration `1760000000006` seeded `('default', 0, 'INV-')`. Migration `1760000000008` deletes that row. New numbers are allocated against the business date, not `'default'`.
 
 ## Domain mapping
 
@@ -244,8 +246,9 @@ Domain `SaleItem` stores transaction-time snapshot of pricing and customized `it
 `TypeOrmSaleRepository.save`:
 - Atomically in transaction saves the sale record and synchronizes its `sale_items`.
 
-`TypeOrmInvoiceNumberAllocator.allocateNext`:
-- Uses atomic PostgreSQL `INSERT ... ON CONFLICT ("id") DO UPDATE SET current_value = current_value + 1 RETURNING ...` to ensure monotonic, immediate, non-reusable invoice numbering.
+`TypeOrmInvoiceNumberAllocator.allocateNext(businessDate)`:
+- Inserts a row whose id is the business date with `current_value = 1` and an empty prefix, or increments that row with `INSERT ... ON CONFLICT ("id") DO UPDATE SET current_value = current_value + 1 RETURNING`.
+- `formatDailyInvoiceNumber` turns the integer into the visible value: `001` through `999`, then the full number from `1000`. The same date never reuses a value. The next date starts again at `001`.
 
 ## Load Sheet
 

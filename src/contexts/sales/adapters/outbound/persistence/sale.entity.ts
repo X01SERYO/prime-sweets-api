@@ -12,7 +12,7 @@ import { SaleItemEntity } from './saleItem.entity';
 @Entity('sales')
 @Index('IDX_sales_sales_day_id', ['salesDayId'])
 @Index('IDX_sales_customer_id', ['customerId'])
-@Index('IDX_sales_invoice_number', ['invoiceNumber'], { unique: true })
+@Index('UQ_sales_invoice_business_date_number', ['invoiceBusinessDate', 'invoiceNumber'], { unique: true })
 export class SaleEntity {
   @PrimaryColumn({ type: 'uuid' })
   id!: string;
@@ -26,8 +26,11 @@ export class SaleEntity {
   @Column({ type: 'varchar', length: 20, nullable: false, default: 'DRAFT' })
   status!: string;
 
-  @Column({ type: 'varchar', length: 50, name: 'invoice_number', nullable: true, unique: true })
+  @Column({ type: 'varchar', length: 50, name: 'invoice_number', nullable: true })
   invoiceNumber!: string | null;
+
+  @Column({ type: 'varchar', length: 10, name: 'invoice_business_date', nullable: true })
+  invoiceBusinessDate!: string | null;
 
   @Column({ type: 'numeric', precision: 12, scale: 2, name: 'total_amount', default: 0 })
   totalAmount!: number;

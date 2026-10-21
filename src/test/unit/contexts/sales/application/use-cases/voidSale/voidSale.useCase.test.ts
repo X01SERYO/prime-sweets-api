@@ -19,7 +19,7 @@ test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async (
   });
   const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
     .addItem(item)
-    .confirm('INV-0001');
+    .confirm('INV-0001', '2026-10-20');
 
   let saved: Sale = confirmed;
   const repo: SaleRepository = {
@@ -63,7 +63,7 @@ test('VoidSaleUseCase - fails if already voided', async () => {
   });
   const voided = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
     .addItem(item)
-    .confirm('INV-0001')
+    .confirm('INV-0001', '2026-10-20')
     .void();
 
   const repo: SaleRepository = {
@@ -103,7 +103,7 @@ test('VoidSaleUseCase - fails if sales day is closed', async () => {
   });
   const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
     .addItem(item)
-    .confirm('INV-0001');
+    .confirm('INV-0001', '2026-10-20');
 
   const repo: SaleRepository = {
     async save() {},

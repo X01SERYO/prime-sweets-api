@@ -1,7 +1,7 @@
 import { Result } from '../../../../../shared/application/result/result';
 import { SalePrimitives } from '../../../domain/entities/sale';
 import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecker.port';
+import { SalesDayBusinessDateQuery } from '../../ports/outbound/salesDayBusinessDate.port';
 import { InvoiceNumberAllocator } from '../../ports/outbound/invoiceNumberAllocator.port';
 import { ConfirmSaleDto } from '../../dto/confirmSale.dto';
 import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
@@ -12,7 +12,7 @@ import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 export class ConfirmSaleUseCase {
   constructor(
     private readonly saleRepository: SaleRepository,
-    private readonly salesDayStatusChecker: SalesDayStatusChecker,
+    private readonly salesDayBusinessDateQuery: SalesDayBusinessDateQuery,
     private readonly invoiceNumberAllocator: InvoiceNumberAllocator
   ) {}
 
@@ -26,8 +26,8 @@ export class ConfirmSaleUseCase {
       return Result.fail(new SaleNotFoundError(dto.saleId));
     }
 
-    const isOpen = await this.salesDayStatusChecker.isSalesDayOpen(sale.salesDayId);
-    if (!isOpen) {
+    const businessDate = await this.salesDayBusinessDateQuery.findOpenBusinessDate(sale.salesDayId);
+    if (!businessDate) {
       return Result.fail(new SalesDayNotOpenForSaleError(sale.salesDayId));
     }
 
@@ -36,8 +36,8 @@ export class ConfirmSaleUseCase {
     }
 
     try {
-      const invoiceNumber = await this.invoiceNumberAllocator.allocateNext();
-      const confirmed = sale.confirm(invoiceNumber);
+      const invoiceNumber = await this.invoiceNumberAllocator.allocateNext(businessDate);
+      const confirmed = sale.confirm(invoiceNumber, businessDate);
       await this.saleRepository.save(confirmed);
 
       return Result.ok(confirmed.toPrimitives());

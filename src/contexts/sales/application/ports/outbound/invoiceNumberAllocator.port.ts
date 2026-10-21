@@ -1,3 +1,3 @@
 export interface InvoiceNumberAllocator {
-  allocateNext(): Promise<string>;
+  allocateNext(businessDate: string): Promise<string>;
 }

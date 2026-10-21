@@ -12,6 +12,7 @@ export type SalePrimitives = {
   customerId: string;
   status: SaleStatus;
   invoiceNumber: string | null;
+  invoiceBusinessDate: string | null;
   items: SaleItemPrimitives[];
   totalAmount: number;
   totalProfit: number;
@@ -28,6 +29,7 @@ export class Sale {
     readonly customerId: string,
     private _status: SaleStatus,
     private _invoiceNumber: string | null,
+    private _invoiceBusinessDate: string | null,
     private _items: SaleItem[],
     readonly createdAt: Date,
     private _confirmedAt: Date | null,
@@ -40,6 +42,10 @@ export class Sale {
 
   get invoiceNumber(): string | null {
     return this._invoiceNumber;
+  }
+
+  get invoiceBusinessDate(): string | null {
+    return this._invoiceBusinessDate;
   }
 
   get items(): SaleItem[] {
@@ -86,6 +92,7 @@ export class Sale {
     customerId: string;
     status?: SaleStatus;
     invoiceNumber?: string | null;
+    invoiceBusinessDate?: string | null;
     items?: SaleItem[];
     createdAt?: Date;
     confirmedAt?: Date | null;
@@ -108,6 +115,7 @@ export class Sale {
 
     const status = params.status ?? 'DRAFT';
     const invoiceNumber = params.invoiceNumber ? params.invoiceNumber.trim() : null;
+    const invoiceBusinessDate = params.invoiceBusinessDate ? params.invoiceBusinessDate.trim() : null;
     const items = params.items ? [...params.items] : [];
     const createdAt = params.createdAt ?? new Date();
     const confirmedAt = params.confirmedAt ?? null;
@@ -119,6 +127,7 @@ export class Sale {
       trimmedCustomerId,
       status,
       invoiceNumber,
+      invoiceBusinessDate,
       items,
       createdAt,
       confirmedAt,
@@ -148,6 +157,7 @@ export class Sale {
       this.customerId,
       this._status,
       this._invoiceNumber,
+      this._invoiceBusinessDate,
       updatedItems,
       this.createdAt,
       this._confirmedAt,
@@ -173,6 +183,7 @@ export class Sale {
       this.customerId,
       this._status,
       this._invoiceNumber,
+      this._invoiceBusinessDate,
       updatedItems,
       this.createdAt,
       this._confirmedAt,
@@ -198,6 +209,7 @@ export class Sale {
       this.customerId,
       this._status,
       this._invoiceNumber,
+      this._invoiceBusinessDate,
       updatedItems,
       this.createdAt,
       this._confirmedAt,
@@ -225,6 +237,7 @@ export class Sale {
       this.customerId,
       this._status,
       this._invoiceNumber,
+      this._invoiceBusinessDate,
       updatedItems,
       this.createdAt,
       this._confirmedAt,
@@ -232,7 +245,7 @@ export class Sale {
     );
   }
 
-  confirm(invoiceNumber: string): Sale {
+  confirm(invoiceNumber: string, businessDate: string): Sale {
     this.ensureIsDraft();
 
     if (this._items.length === 0) {
@@ -244,12 +257,18 @@ export class Sale {
       throw new InvalidSaleError('Invoice number cannot be empty upon confirmation');
     }
 
+    const trimmedDate = businessDate?.trim();
+    if (!trimmedDate) {
+      throw new InvalidSaleError('Invoice business date cannot be empty upon confirmation');
+    }
+
     return new Sale(
       this.id,
       this.salesDayId,
       this.customerId,
       'CONFIRMED',
       trimmedInvoice,
+      trimmedDate,
       this._items,
       this.createdAt,
       new Date(),
@@ -272,6 +291,7 @@ export class Sale {
       this.customerId,
       'VOIDED',
       this._invoiceNumber,
+      this._invoiceBusinessDate,
       this._items,
       this.createdAt,
       this._confirmedAt,
@@ -286,6 +306,7 @@ export class Sale {
       customerId: this.customerId,
       status: this._status,
       invoiceNumber: this._invoiceNumber,
+      invoiceBusinessDate: this._invoiceBusinessDate,
       items: this._items.map((item) => item.toPrimitives()),
       totalAmount: this.totalAmount,
       totalProfit: this.totalProfit,

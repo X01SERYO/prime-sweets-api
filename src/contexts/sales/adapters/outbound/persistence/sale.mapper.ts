@@ -1,7 +1,16 @@
-import { Sale } from '../../../domain/entities/sale';
+import { Sale, SaleStatus } from '../../../domain/entities/sale';
+import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 import { SaleItem } from '../../../domain/entities/saleItem';
 import { SaleEntity } from './sale.entity';
 import { SaleItemEntity } from './saleItem.entity';
+
+function toSaleStatus(status: string): SaleStatus {
+  if (status === 'DRAFT' || status === 'CONFIRMED' || status === 'VOIDED') {
+    return status;
+  }
+
+  throw new InvalidSaleError(`Unknown sale status: ${status}`);
+}
 
 export class SaleMapper {
   static toDomain(entity: SaleEntity): Sale {
@@ -20,8 +29,9 @@ export class SaleMapper {
       id: entity.id,
       salesDayId: entity.salesDayId,
       customerId: entity.customerId,
-      status: entity.status as any,
+      status: toSaleStatus(entity.status),
       invoiceNumber: entity.invoiceNumber,
+      invoiceBusinessDate: entity.invoiceBusinessDate,
       items,
       createdAt: entity.createdAt,
       confirmedAt: entity.confirmedAt,
@@ -38,6 +48,7 @@ export class SaleMapper {
     entity.customerId = primitives.customerId;
     entity.status = primitives.status;
     entity.invoiceNumber = primitives.invoiceNumber;
+    entity.invoiceBusinessDate = primitives.invoiceBusinessDate;
     entity.totalAmount = primitives.totalAmount;
     entity.totalProfit = primitives.totalProfit;
     entity.totalQuantity = primitives.totalQuantity;

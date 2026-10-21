@@ -218,16 +218,16 @@ Body: `itemName` (non-empty string).
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
 3. Verify that sale is in `DRAFT` status and contains at least 1 item.
-4. Allocate next consecutive invoice number atomically via `InvoiceNumberAllocator` (`INV-00001`, `INV-00002`, ...).
-5. Transition sale to `CONFIRMED`, set `confirmedAt = now()`, lock invoice number.
-6. Persist atomically and return confirmed sale.
+4. Read the business date of that open Sales Day. The allocator does not use the clock.
+5. Allocate the next invoice number for that date in `invoice_sequences`. The row id is the business date (`YYYY-MM-DD`). The database increments it atomically. The visible number is digits only: `001`, `002`, …, `999`, then `1000` without padding. Every business date starts at `001`. Two sellers on the same calendar date share that counter.
+6. Transition sale to `CONFIRMED`, set `confirmedAt = now()`, and store `invoiceNumber` together with `invoiceBusinessDate`. The pair is unique for the company. Persist and return the confirmed sale. Void keeps both and does not return the number.
 
 ### Void Sale — `POST /sales/:id/void`
 
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
 3. Verify that sale is `CONFIRMED`.
-4. Transition sale to `VOIDED`, record `voidedAt = now()`. The allocated `invoiceNumber` is preserved and never reused.
+4. Transition sale to `VOIDED`, record `voidedAt = now()`. The allocated `invoiceNumber` and `invoiceBusinessDate` stay on the sale. That number is not reused on the same business date.
 5. Persist and return voided sale.
 
 ### Get / List Sales — `GET /sales/:id`, `GET /sales?salesDayId=...&customerId=...&status=...`
@@ -265,7 +265,7 @@ Read model of invoice numbers already allocated on a Sales Day. Listing does not
 3. `OPEN` and `CLOSED` are both accepted. Closing the day is not a precondition for listing invoices.
 4. Read sales for that Sales Day. Keep sales whose status is `CONFIRMED` or `VOIDED` and that already have an `invoiceNumber`. `DRAFT` sales are omitted because confirmation is the only point that allocates a number.
 5. Return one summary per invoice: `saleId`, `salesDayId`, `customerId`, `invoiceNumber`, `status`, `confirmedAt`, `totalAmount`. Line items and the transaction-time `itemName` are not included.
-6. Order the summaries by `invoiceNumber` ascending.
+6. Order the summaries by `invoiceNumber` ascending. Digit-only numbers compare as integers, so `1000` follows `999`.
 7. A Sales Day with no allocated invoices returns `[]`.
 
 ## 9. Invoice generation
@@ -294,7 +294,6 @@ These appear in the PDR/SPEC as Version 1. They have **no** code paths in this r
 | Area | What is missing in code |
 |---|---|
 | Authentication | `AuthenticateSeller`, `LogoutSeller`. A seller may keep up to 3 sessions open (OQ-05). No session code exists yet. |
-| Daily invoice number | Decided format is digits per business date (`001`, `002`, …), allocated in the database. The running allocator still issues a global `INV-00001` series. |
 | Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |

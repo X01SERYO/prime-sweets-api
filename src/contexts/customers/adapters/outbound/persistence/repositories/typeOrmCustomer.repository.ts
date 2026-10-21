@@ -1,7 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Customer } from '../../../../domain/entities/customer';
+import { CustomerAlreadyExistsError } from '../../../../domain/errors/customerAlreadyExists.error';
 import { CustomerRepository } from '../../../../application/ports/outbound/customer.repository';
 import { CustomerEntity } from '../customer.entity';
+import { isUniqueCustomerDocumentViolation } from './customerDocumentConflict';
 
 export class TypeOrmCustomerRepository implements CustomerRepository {
   constructor(private readonly dataSource: DataSource) {}
@@ -48,15 +50,22 @@ export class TypeOrmCustomerRepository implements CustomerRepository {
   }
 
   async save(customer: Customer): Promise<void> {
-    await this.repo.save({
-      id: customer.id,
-      documentType: customer.documentType,
-      documentNumber: customer.documentNumber,
-      name: customer.name,
-      phone: customer.phone,
-      email: customer.email,
-      address: customer.address
-    });
+    try {
+      await this.repo.save({
+        id: customer.id,
+        documentType: customer.documentType,
+        documentNumber: customer.documentNumber,
+        name: customer.name,
+        phone: customer.phone,
+        email: customer.email,
+        address: customer.address
+      });
+    } catch (error) {
+      if (isUniqueCustomerDocumentViolation(error)) {
+        throw new CustomerAlreadyExistsError(customer.documentNumber);
+      }
+      throw error;
+    }
   }
 
   private toDomain(entity: CustomerEntity): Customer {

@@ -38,7 +38,14 @@ export class CreateCustomerUseCase {
       address: dto.address
     });
 
-    await this.customerRepository.save(customer);
+    try {
+      await this.customerRepository.save(customer);
+    } catch (error) {
+      if (error instanceof CustomerAlreadyExistsError) {
+        return Result.fail(error);
+      }
+      throw error;
+    }
 
     return Result.ok(customer.toPrimitives());
   }

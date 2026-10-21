@@ -1,6 +1,6 @@
 # Data model (current)
 
-**Sources:** TypeORM entities, migrations `1760000000001-CreateBrands.ts`, `1760000000002-CreateProducts.ts`, `1760000000003-CreateProductPrices.ts`, `1760000000004-CreateCustomers.ts`, `1760000000005-CreateSalesDays.ts`, `1760000000006-CreateSalesAndInvoiceSequences.ts`, `TypeOrmDataSource`, domain `Product` / `Brand` / `Customer` / `SalesDay` / `Sale` / `SaleItem`, TypeORM repositories.
+**Sources:** TypeORM entities, migrations `1760000000001-CreateBrands.ts` through `1760000000007-UniqueCustomerDocument.ts`, `TypeOrmDataSource`, domain `Product` / `Brand` / `Customer` / `SalesDay` / `Sale` / `SaleItem`, TypeORM repositories.
 
 Tables registered on the DataSource and created by migrations are documented below.
 
@@ -157,7 +157,7 @@ Unique: `(product_id, channel)`.
 | `address` | varchar(255) | nullable |
 | `created_at` / `updated_at` | timestamptz | default `now()` |
 
-Index: `IDX_customers_document` on `(document_type, document_number)`.
+Unique index: `UQ_customers_document` on `(LOWER(document_type), document_number)`. The type comparison ignores case, matching `findByDocument`. The number is exact. Migration `1760000000007` replaces the previous non-unique index. Creating it fails if that pair is already repeated and does not delete rows.
 
 ### `sales_days`
 

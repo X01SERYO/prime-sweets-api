@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('customers')
-@Index('IDX_customers_document', ['documentType', 'documentNumber'])
+@Index('UQ_customers_document', ['documentType', 'documentNumber'], { unique: true })
 export class CustomerEntity {
   @PrimaryColumn({ type: 'uuid' })
   id!: string;

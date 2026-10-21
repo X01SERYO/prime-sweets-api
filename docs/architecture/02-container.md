@@ -34,7 +34,7 @@ Stack: TypeScript CommonJS, Express 5, TypeORM 0.3, `pg`, `node-dependency-injec
 
 ## PostgreSQL
 
-Schema from migrations `1760000000001` through `1760000000006`. Catalog ORM entities live in `src/shared/infrastructure/persistence/typeorm/`. Customer, sales day, and sales entities live in their context persistence adapters. `synchronize` is `false`. The Load Sheet, the invoice list, and the invoice document have no table. Details: [data-model](../data-model/README.md).
+Schema from migrations `1760000000001` through `1760000000007`. Catalog ORM entities live in `src/shared/infrastructure/persistence/typeorm/`. Customer, sales day, and sales entities live in their context persistence adapters. `synchronize` is `false`. The Load Sheet, the invoice list, and the invoice document have no table. Details: [data-model](../data-model/README.md).
 
 ## Alegra API (external)
 

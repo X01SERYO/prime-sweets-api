@@ -109,8 +109,8 @@ If persist succeeds and Alegra then fails, the use case returns failure (`Alegra
 Required: `documentType`, `documentNumber`, `name` (non-empty strings). Optional: `phone`, `email`, `address`.
 
 1. Validate required fields (`InvalidCustomerError`).
-2. Reject duplicate document type + number combination (`CustomerAlreadyExistsError`).
-3. Persist `customers` with generated UUID.
+2. Reject duplicate document type + number combination (`CustomerAlreadyExistsError`). Document type is compared without case. The document number is exact.
+3. Persist `customers` with generated UUID. A concurrent insert that hits `UQ_customers_document` is returned as the same `CustomerAlreadyExistsError`.
 
 ### List / get / search customer — `GET /customers`, `GET /customers/search?q=...`, `GET /customers/:id`
 
@@ -123,7 +123,7 @@ Required: `documentType`, `documentNumber`, `name` (non-empty strings). Optional
 Body may include `documentType`, `documentNumber`, `name`, `phone`, `email`, `address`.
 
 1. Load customer or `CustomerNotFoundError`.
-2. Reject if updating to a `(documentType, documentNumber)` combination already belonging to a different customer (`CustomerAlreadyExistsError`).
+2. Reject if updating to a `(documentType, documentNumber)` combination already belonging to a different customer (`CustomerAlreadyExistsError`). A concurrent update that hits `UQ_customers_document` returns the same error.
 3. Apply `Customer.update` (invariants: non-empty trimmed strings).
 4. Persist.
 

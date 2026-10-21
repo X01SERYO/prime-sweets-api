@@ -91,6 +91,25 @@ test('CreateCustomerUseCase - rejects duplicate customer by document', async () 
   assert.ok(result.error instanceof CustomerAlreadyExistsError);
 });
 
+test('CreateCustomerUseCase - returns the repository conflict when the document is saved twice', async () => {
+  const repository = new InMemoryCustomerRepository();
+  const originalSave = repository.save.bind(repository);
+  repository.save = async (customer: Customer) => {
+    await originalSave(customer);
+    throw new CustomerAlreadyExistsError(customer.documentNumber);
+  };
+
+  const useCase = new CreateCustomerUseCase(repository);
+  const result = await useCase.run({
+    documentType: 'CC',
+    documentNumber: '10203040',
+    name: 'Tienda La Esperanza'
+  });
+
+  assert.equal(result.isSuccess, false);
+  assert.ok(result.error instanceof CustomerAlreadyExistsError);
+});
+
 test('CreateCustomerUseCase - fails on missing mandatory fields', async () => {
   const repository = new InMemoryCustomerRepository();
   const useCase = new CreateCustomerUseCase(repository);

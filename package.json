@@ -8,7 +8,9 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
     "build": "tsc",
-    "test": "node --test \"dist/**/*.test.js\"",
+    "test": "node --test \"dist/test/**/*.test.js\"",
+    "test:unit": "node --test \"dist/test/unit/**/*.test.js\"",
+    "test:integration": "node --test \"dist/test/integration/**/*.test.js\"",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",

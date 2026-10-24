@@ -1,6 +1,6 @@
 # Documentation
 
-**Language:** English is the official language for documentation and translation.
+**Language:** English is the official language for these documents. Seller-facing Spanish and English are a UI concern, specified in the UI SPEC. This API keeps stable error `code` values and does not translate stored business text (product names, customer names, sale-item names, company legal text, or invoice numbers).
 
 This index is the map of project documents. Runtime descriptions below match the current codebase. Version 1 product and design decisions live in the PDR, SPEC, and ADR; they are not described here as implemented.
 

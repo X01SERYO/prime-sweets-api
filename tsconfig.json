@@ -10,10 +10,8 @@
 
     "moduleResolution": "node10",
     // Classic Node resolution for CommonJS (the old "node" setting).
-    // Paired with ignoreDeprecations so TypeScript 6 does not warn;
     // "nodenext" would require file extensions on every relative import.
-
-    "ignoreDeprecations": "6.0",
+    // ignoreDeprecations "6.0" is valid only on TypeScript 6; this project compiles with 5.9.
 
     "outDir": "dist",
     // Directory where compiled JavaScript files are emitted.

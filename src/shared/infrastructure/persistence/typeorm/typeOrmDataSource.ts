@@ -9,6 +9,7 @@ import { SalesDayEntity } from '../../../../contexts/sales-day/adapters/outbound
 import { SaleEntity } from '../../../../contexts/sales/adapters/outbound/persistence/sale.entity';
 import { SaleItemEntity } from '../../../../contexts/sales/adapters/outbound/persistence/saleItem.entity';
 import { InvoiceSequenceEntity } from '../../../../contexts/sales/adapters/outbound/persistence/invoiceSequence.entity';
+import { UserEntity } from '../../../../contexts/identity/adapters/outbound/persistence/user.entity';
 
 export function createTypeOrmOptions(): DataSourceOptions {
   const config = getAppConfig();
@@ -28,7 +29,8 @@ export function createTypeOrmOptions(): DataSourceOptions {
       SalesDayEntity,
       SaleEntity,
       SaleItemEntity,
-      InvoiceSequenceEntity
+      InvoiceSequenceEntity,
+      UserEntity
     ],
     migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
     synchronize: false

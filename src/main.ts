@@ -21,10 +21,9 @@ async function bootstrap() {
       const config = getAppConfig();
       console.error(
         `No se pudo conectar a PostgreSQL en ${config.db.host}:${config.db.port} (database: ${config.db.name}). ` +
-          'Arranca Postgres, crea la base y revisa DB_HOST, DB_PORT, DB_USER, DB_PASSWORD y DB_NAME en .env.'
+          'El acceso local sigue disponible. El resto de módulos necesita la base.'
       );
       console.error(error);
-      process.exit(1);
     }
   }
   await startApi(container);

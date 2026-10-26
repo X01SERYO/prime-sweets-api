@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: prime-sweets-db
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_DB: ${DB_NAME:-prime_sweets}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - prime_sweets_pg:/var/lib/postgresql/data
+
+volumes:
+  prime_sweets_pg:

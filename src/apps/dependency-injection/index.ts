@@ -7,6 +7,7 @@ import { registerSalesDayDependencies } from './context/salesDay.di';
 import { registerSalesDependencies } from './context/sales.di';
 import { registerFulfillmentOutputDependencies } from './context/fulfillmentOutput.di';
 import { registerAlegraDependencies } from './context/alegra.di';
+import { registerIdentityDependencies } from './context/identity.di';
 
 export async function buildContainer(): Promise<ContainerBuilder> {
   const container = new ContainerBuilder();
@@ -21,6 +22,7 @@ export async function buildContainer(): Promise<ContainerBuilder> {
   registerSalesDependencies(container);
   registerFulfillmentOutputDependencies(container);
   registerAlegraDependencies(container);
+  registerIdentityDependencies(container);
 
   await container.compile();
 

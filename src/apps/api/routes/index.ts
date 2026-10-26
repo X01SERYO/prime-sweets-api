@@ -6,8 +6,10 @@ import { createSalesDaysRouter } from '../../../contexts/sales-day/adapters/inbo
 import { createSalesRouter } from '../../../contexts/sales/adapters/inbound/http/sales.route';
 import { createLoadSheetsRouter } from '../../../contexts/fulfillment-output/adapters/inbound/http/loadSheet.route';
 import { createInvoicesRouter } from '../../../contexts/fulfillment-output/adapters/inbound/http/invoices.route';
+import { createAuthRouter } from '../../../contexts/identity/adapters/inbound/http/auth.route';
 
 export function registerRoutes(app: Application, container: any) {
+  app.use('/auth', createAuthRouter(container));
   app.use('/brands', createBrandsRouter(container));
   app.use('/products', createProductsRouter(container));
   app.use('/customers', createCustomersRouter(container));

@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { Result } from '../../shared/application/result/result';
 import { DomainError } from '../../shared/domain/errors/domainError';
 import { NotFoundError } from '../../shared/domain/errors/notFound.error';
+import { UnauthorizedError } from '../../shared/domain/errors/unauthorized.error';
 
 export function httpResponse<T>(res: Response, result: Result<T>, successStatus = 200): Response {
   if (result.isSuccess) {
@@ -15,6 +16,14 @@ export function httpResponse<T>(res: Response, result: Result<T>, successStatus 
 
   if (error instanceof NotFoundError) {
     return res.status(404).json({
+      success: false,
+      error: error.message,
+      code: error.code
+    });
+  }
+
+  if (error instanceof UnauthorizedError) {
+    return res.status(401).json({
       success: false,
       error: error.message,
       code: error.code

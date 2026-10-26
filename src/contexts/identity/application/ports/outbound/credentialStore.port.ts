@@ -1,10 +1,5 @@
-export type StoredCredential = {
-  id: string;
-  email: string;
-  displayName: string;
-  passwordHash: string;
-};
+import { User } from '../../../domain/entities/user';
 
 export interface CredentialStore {
-  findByEmail(email: string): Promise<StoredCredential | null>;
+  findByEmail(email: string): Promise<User | null>;
 }

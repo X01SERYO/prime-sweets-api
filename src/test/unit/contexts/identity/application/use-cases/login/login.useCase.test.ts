@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { InMemorySessionStore } from '../../../../../../../contexts/identity/adapters/outbound/inMemorySession.store';
+import { User } from '../../../../../../../contexts/identity/domain/entities/user';
 import { CredentialStore } from '../../../../../../../contexts/identity/application/ports/outbound/credentialStore.port';
 import { PasswordMatcher } from '../../../../../../../contexts/identity/application/ports/outbound/passwordMatcher.port';
 import { LoginUseCase } from '../../../../../../../contexts/identity/application/use-cases/login/login.useCase';
@@ -11,12 +12,12 @@ const credentials: CredentialStore = {
     if (email.trim().toLowerCase() !== 'user@example.com') {
       return null;
     }
-    return {
+    return User.rehydrate({
       id: 'user-1',
       email: 'user@example.com',
       displayName: 'Usuario de prueba',
       passwordHash: 'hash-de-prueba'
-    };
+    });
   }
 };
 

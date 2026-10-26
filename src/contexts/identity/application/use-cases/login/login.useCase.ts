@@ -19,10 +19,11 @@ export class LoginUseCase {
       return Result.fail(new InvalidCredentialsError());
     }
 
+    const user = stored.toPrimitives();
     const session = await this.sessions.issue({
-      id: stored.id,
-      email: stored.email,
-      displayName: stored.displayName
+      id: user.id,
+      email: user.email,
+      displayName: user.displayName
     });
     return Result.ok(session);
   }

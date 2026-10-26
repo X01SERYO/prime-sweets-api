@@ -1,5 +1,5 @@
-import { ProductAlegraSyncService } from '../../../catalog/application/ports/outbound/productAlegraSync.service';
-import { SyncProductItemUseCase } from '../../application/syncProductItem/syncProductItem.useCase';
+import { SyncProductItemUseCase } from '../../../contexts/alegra/application/syncProductItem/syncProductItem.useCase';
+import { ProductAlegraSyncService } from '../../../contexts/catalog/application/ports/outbound/productAlegraSync.service';
 
 export class InProcessProductAlegraSyncService implements ProductAlegraSyncService {
   constructor(private readonly syncProductItemUseCase: SyncProductItemUseCase) {}

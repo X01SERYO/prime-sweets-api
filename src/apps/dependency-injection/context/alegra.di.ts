@@ -2,7 +2,7 @@ import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { getAppConfig } from '../../../shared/infrastructure/config/appConfig';
 import { AlegraHttpClient } from '../../../contexts/alegra/infrastructure/http/alegraHttpClient';
 import { SyncProductItemUseCase } from '../../../contexts/alegra/application/syncProductItem/syncProductItem.useCase';
-import { InProcessProductAlegraSyncService } from '../../../contexts/alegra/infrastructure/sync/inProcessProductAlegraSync.service';
+import { InProcessProductAlegraSyncService } from '../acl/inProcessProductAlegraSync.service';
 
 export function registerAlegraDependencies(container: ContainerBuilder): void {
   const config = getAppConfig();

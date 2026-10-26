@@ -25,6 +25,9 @@ export class CreateBrandUseCase {
       await this.brandRepository.save(brand);
       return Result.ok(brand.toPrimitives());
     } catch (error) {
+      if (error instanceof InvalidBrandError) {
+        return Result.fail(error);
+      }
       return Result.fail(new InvalidBrandError(error instanceof Error ? error.message : 'Invalid brand'));
     }
   }

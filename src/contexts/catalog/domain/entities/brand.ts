@@ -1,3 +1,5 @@
+import { InvalidBrandError } from '../errors/invalidBrand.error';
+
 export type BrandPrimitives = {
   id: string;
   name: string;
@@ -16,10 +18,10 @@ export class Brand {
     const trimmedCode = code?.trim();
 
     if (!trimmedName) {
-      throw new Error('Brand name is required');
+      throw new InvalidBrandError('Brand name is required');
     }
     if (!trimmedCode) {
-      throw new Error('Brand code is required');
+      throw new InvalidBrandError('Brand code is required');
     }
 
     return new Brand(id, trimmedName, trimmedCode);

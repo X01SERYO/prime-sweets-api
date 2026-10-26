@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ConfirmedSaleItemsAdapter } from '../../../../../../contexts/fulfillment-output/adapters/outbound/confirmedSaleItems.adapter';
+import { ConfirmedSaleItemsAdapter } from '../../../../../../apps/dependency-injection/acl/confirmedSaleItems.adapter';
 import { SaleRepository, ListSalesFilters } from '../../../../../../contexts/sales/application/ports/outbound/sale.repository';
 import { Sale } from '../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../contexts/sales/domain/entities/saleItem';

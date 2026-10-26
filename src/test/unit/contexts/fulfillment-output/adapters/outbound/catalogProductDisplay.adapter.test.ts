@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CatalogProductDisplayAdapter } from '../../../../../../contexts/fulfillment-output/adapters/outbound/catalogProductDisplay.adapter';
+import { CatalogProductDisplayAdapter } from '../../../../../../apps/dependency-injection/acl/catalogProductDisplay.adapter';
 import { ProductRepository } from '../../../../../../contexts/catalog/application/ports/outbound/product.repository';
 import { BrandRepository } from '../../../../../../contexts/catalog/application/ports/outbound/brand.repository';
 import { Product } from '../../../../../../contexts/catalog/domain/entities/product';

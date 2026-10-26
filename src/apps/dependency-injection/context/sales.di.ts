@@ -1,9 +1,9 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { TypeOrmSaleRepository } from '../../../contexts/sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
 import { TypeOrmInvoiceNumberAllocator } from '../../../contexts/sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
-import { SalesDayStatusAdapter } from '../../../contexts/sales/adapters/outbound/salesDayStatus.adapter';
-import { CustomerCheckerAdapter } from '../../../contexts/sales/adapters/outbound/customerChecker.adapter';
-import { CatalogProductSnapshotAdapter } from '../../../contexts/sales/adapters/outbound/catalogProductSnapshot.adapter';
+import { SalesDayStatusAdapter } from '../acl/salesDayStatus.adapter';
+import { CustomerCheckerAdapter } from '../acl/customerChecker.adapter';
+import { CatalogProductSnapshotAdapter } from '../acl/catalogProductSnapshot.adapter';
 import { CreateSaleUseCase } from '../../../contexts/sales/application/use-cases/createSale/createSale.useCase';
 import { AddSaleItemUseCase } from '../../../contexts/sales/application/use-cases/addSaleItem/addSaleItem.useCase';
 import { UpdateSaleItemQuantityUseCase } from '../../../contexts/sales/application/use-cases/updateSaleItemQuantity/updateSaleItemQuantity.useCase';

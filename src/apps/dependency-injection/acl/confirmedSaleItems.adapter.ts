@@ -1,6 +1,6 @@
-import { SaleRepository } from '../../../sales/application/ports/outbound/sale.repository';
-import { ConfirmedSaleItemContribution } from '../../domain/entities/loadSheet';
-import { ConfirmedSaleItemsQuery } from '../../application/ports/outbound/confirmedSaleItemsQuery.port';
+import { SaleRepository } from '../../../contexts/sales/application/ports/outbound/sale.repository';
+import { ConfirmedSaleItemContribution } from '../../../contexts/fulfillment-output/domain/entities/loadSheet';
+import { ConfirmedSaleItemsQuery } from '../../../contexts/fulfillment-output/application/ports/outbound/confirmedSaleItemsQuery.port';
 
 export class ConfirmedSaleItemsAdapter implements ConfirmedSaleItemsQuery {
   constructor(private readonly saleRepository: SaleRepository) {}

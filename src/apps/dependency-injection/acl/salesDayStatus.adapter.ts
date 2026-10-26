@@ -1,6 +1,6 @@
-import { SalesDayRepository } from '../../../sales-day/application/ports/outbound/salesDay.repository';
-import { SalesDayBusinessDateQuery } from '../../application/ports/outbound/salesDayBusinessDate.port';
-import { SalesDayStatusChecker } from '../../application/ports/outbound/salesDayStatusChecker.port';
+import { SalesDayRepository } from '../../../contexts/sales-day/application/ports/outbound/salesDay.repository';
+import { SalesDayBusinessDateQuery } from '../../../contexts/sales/application/ports/outbound/salesDayBusinessDate.port';
+import { SalesDayStatusChecker } from '../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 
 export class SalesDayStatusAdapter implements SalesDayStatusChecker, SalesDayBusinessDateQuery {
   constructor(private readonly salesDayRepository: SalesDayRepository) {}

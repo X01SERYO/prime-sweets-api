@@ -1,5 +1,5 @@
-import { SaleRepository } from '../../../sales/application/ports/outbound/sale.repository';
-import { InvoiceSaleQuery, InvoiceSaleView } from '../../application/ports/outbound/invoiceSaleQuery.port';
+import { SaleRepository } from '../../../contexts/sales/application/ports/outbound/sale.repository';
+import { InvoiceSaleQuery, InvoiceSaleView } from '../../../contexts/fulfillment-output/application/ports/outbound/invoiceSaleQuery.port';
 
 export class InvoiceSaleAdapter implements InvoiceSaleQuery {
   constructor(private readonly saleRepository: SaleRepository) {}

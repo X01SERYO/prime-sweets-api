@@ -1,7 +1,7 @@
-import { BrandRepository } from '../../../catalog/application/ports/outbound/brand.repository';
-import { ProductRepository } from '../../../catalog/application/ports/outbound/product.repository';
-import { CatalogProductDisplay } from '../../domain/entities/loadSheet';
-import { CatalogProductDisplayQuery } from '../../application/ports/outbound/catalogProductDisplayQuery.port';
+import { BrandRepository } from '../../../contexts/catalog/application/ports/outbound/brand.repository';
+import { ProductRepository } from '../../../contexts/catalog/application/ports/outbound/product.repository';
+import { CatalogProductDisplay } from '../../../contexts/fulfillment-output/domain/entities/loadSheet';
+import { CatalogProductDisplayQuery } from '../../../contexts/fulfillment-output/application/ports/outbound/catalogProductDisplayQuery.port';
 
 export class CatalogProductDisplayAdapter implements CatalogProductDisplayQuery {
   constructor(

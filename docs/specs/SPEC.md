@@ -508,26 +508,18 @@ src/
           http/
         outbound/
           persistence/
-      composition/
-
     sales-day/
       domain/
       application/
       adapters/
-      composition/
-
     customers/
       domain/
       application/
       adapters/
-      composition/
-
     catalog/
       domain/
       application/
       adapters/
-      composition/
-
     fulfillment-output/
       domain/
       application/
@@ -537,11 +529,14 @@ src/
         outbound/
           document-rendering/
           printing/
-      composition/
-
+  apps/
+    dependency-injection/
+      acl/
   shared/
     kernel/
 ```
+
+Composition is registered in `src/apps/dependency-injection/`. Adapters that read another context live in `acl/`.
 
 The abbreviated contexts above must preserve the same internal separation defined for `sales`. No context may bypass another context's boundary because its folders are abbreviated in documentation.
 

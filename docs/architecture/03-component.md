@@ -73,6 +73,7 @@ src/
     api/                           inbound HTTP
     controllers/httpResponse.ts
     dependency-injection/          *.di.ts composition modules
+      acl/                         adapters that read another context
   contexts/
     catalog/
     customers/

@@ -84,7 +84,7 @@ export type ProductPrimitives = {
 };
 
 export class Product {
-  constructor(
+  private constructor(
     readonly id: string,
     private _name: string,
     private _wholesalePrice: number
@@ -211,3 +211,14 @@ export class TypeOrmProductRepository implements ProductRepository {
 2. **Comunicación intercontexto**:
    - Mediante contratos de aplicación explícitos, eventos de dominio o servicios de aplicación mediadores.
    - Si un contexto necesita datos de otro (ej. `Sales` necesita el nombre de un `Product`), snapshotting o invocación de un puerto/servicio explícito.
+   - El adaptador que lee el repositorio de otro contexto vive en `src/apps/dependency-injection/acl/`. El contexto conserva su puerto. No implementa ese puerto con un import al repositorio ajeno.
+
+---
+
+## 7. Decisiones de este repositorio
+
+- La composición está centralizada en `src/apps/dependency-injection/`. No crear `composition/` dentro de cada contexto.
+- Un caso de uso no importa `crypto` ni otra librería de infraestructura. El identificador entra por el puerto `IdGenerator`.
+- El constructor de la entidad es privado. `create` y `rehydrate` son la única vía de construcción. El repositorio no hace `new Entity(...)`.
+- `toPrimitives()` no incluye secretos. El hash de contraseña vive en un primitivo de persistencia, no en el primitivo que sale hacia la sesión o HTTP.
+- El error de dominio lleva un código estable. La traducción queda fuera del dominio y de la aplicación.

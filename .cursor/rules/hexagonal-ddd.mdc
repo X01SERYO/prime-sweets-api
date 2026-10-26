@@ -1,0 +1,17 @@
+---
+description: Hexagonal and DDD invariants for the API
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# API hexagonal
+
+Follow `.cursor/skills/backend-hexagonal-ddd/SKILL.md`.
+
+- Dependencies point inward. Domain and use cases do not import Express, TypeORM, or `crypto`.
+- A use case gets new ids from `IdGenerator`.
+- Entity constructors are private. Build with `create` or `rehydrate`.
+- `toPrimitives()` omits secrets. Keep `passwordHash` on the persistence primitive only.
+- A context does not import another context's repository. Cross-context adapters live in `src/apps/dependency-injection/acl/`.
+- Register dependencies in `src/apps/dependency-injection/`, not in a `composition/` folder inside the context.
+- Domain errors expose a stable code. Do not put translated text in the domain.

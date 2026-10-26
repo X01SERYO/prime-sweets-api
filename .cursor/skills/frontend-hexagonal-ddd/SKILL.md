@@ -192,3 +192,18 @@ export function useProducts(getProductsUseCase: GetProductsUseCase) {
    - ✅ **Solución**: Usar `ProductMapper.toDomain(dto)` para que la UI dependa únicamente del modelo de dominio local.
 3. ❌ **Antipatrón**: Duplicar en el frontend lógica propietaria del backend que sea crítica y cambiante (ej. cálculo oficial de impuestos o asignación de folios de factura).
    - ✅ **Solución**: El frontend valida para mejorar UX, pero el backend sigue siendo la única fuente de verdad autoritativa para el negocio.
+4. ❌ **Antipatrón**: Lanzar una clave de i18n desde dominio o aplicación, o mostrar un `Error` con texto fijo.
+   - ✅ **Solución**: El adaptador lanza un error de dominio con código. El hook lo traduce con `t()`.
+5. ❌ **Antipatrón**: Un hook que carga y también ejecuta otro comando.
+   - ✅ **Solución**: Un hook por acción. La vista los compone.
+6. ❌ **Antipatrón**: Filas de ejemplo dentro de la vista.
+   - ✅ **Solución**: Modelo, puerto, caso de uso y adaptador. La muestra es un adaptador reemplazable. Los casos de uso cableados al API se registran en `src/app/composition.ts`.
+
+---
+
+## 8. Decisiones de este repositorio
+
+- `erasableSyntaxOnly` prohíbe propiedades de parámetro. Los campos de la clase se declaran en el cuerpo.
+- El formato de dinero vive en `src/shared/domain/money.ts`.
+- Los diccionarios crecen por pantalla en `src/shared/i18n/`, y `messages.ts` los reúne. Dominio y aplicación no importan i18n.
+- El identificador del vendedor sale de la sesión. No se deja fijo en la vista.

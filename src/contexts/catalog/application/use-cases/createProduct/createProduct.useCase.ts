@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
 import { Result } from '../../../../../shared/application/result/result';
 import { Product, ProductPrimitives } from '../../../domain/entities/product';
 import { ProductRepository } from '../../ports/outbound/product.repository';
@@ -27,7 +27,8 @@ function optionalNumber(value: unknown, field: string): Result<number | null | u
 export class CreateProductUseCase {
   constructor(
     private readonly productRepository: ProductRepository,
-    private readonly brandRepository: BrandRepository
+    private readonly brandRepository: BrandRepository,
+    private readonly ids: IdGenerator
   ) {}
 
   async run(dto: CreateProductDto): Promise<Result<ProductPrimitives>> {
@@ -60,7 +61,7 @@ export class CreateProductUseCase {
     if (!suggestedPrice.isSuccess) return Result.fail(suggestedPrice.error!);
 
     const product = Product.create({
-      id: randomUUID(),
+      id: this.ids.next(),
       alegraId,
       brandId: dto.brandId ?? null,
       name: dto.name ?? null,

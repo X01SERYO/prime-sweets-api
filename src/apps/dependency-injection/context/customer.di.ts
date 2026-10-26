@@ -13,10 +13,12 @@ export function registerCustomerDependencies(container: ContainerBuilder): void 
     .addArgument(dataSourceRef);
 
   const customerRepoRef = new Reference('customers.domain.customer_repository');
+  const idsRef = new Reference('shared.application.id_generator');
 
   container
     .register('customers.application.create_customer_use_case', CreateCustomerUseCase)
-    .addArgument(customerRepoRef);
+    .addArgument(customerRepoRef)
+    .addArgument(idsRef);
 
   container
     .register('customers.application.get_customer_use_case', GetCustomerUseCase)

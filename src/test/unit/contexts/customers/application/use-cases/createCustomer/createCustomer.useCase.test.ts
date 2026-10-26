@@ -6,6 +6,8 @@ import { CreateCustomerUseCase } from '../../../../../../../contexts/customers/a
 import { CustomerAlreadyExistsError } from '../../../../../../../contexts/customers/domain/errors/customerAlreadyExists.error';
 import { InvalidCustomerError } from '../../../../../../../contexts/customers/domain/errors/invalidCustomer.error';
 
+const ids = { next: () => `id-${Math.random()}` };
+
 class InMemoryCustomerRepository implements CustomerRepository {
   public customers: Customer[] = [];
 
@@ -44,7 +46,7 @@ class InMemoryCustomerRepository implements CustomerRepository {
 
 test('CreateCustomerUseCase - successfully creates a new customer', async () => {
   const repository = new InMemoryCustomerRepository();
-  const useCase = new CreateCustomerUseCase(repository);
+  const useCase = new CreateCustomerUseCase(repository, ids);
 
   const result = await useCase.run({
     documentType: 'CC',
@@ -80,7 +82,7 @@ test('CreateCustomerUseCase - rejects duplicate customer by document', async () 
     })
   );
 
-  const useCase = new CreateCustomerUseCase(repository);
+  const useCase = new CreateCustomerUseCase(repository, ids);
   const result = await useCase.run({
     documentType: 'CC',
     documentNumber: '10203040',
@@ -99,7 +101,7 @@ test('CreateCustomerUseCase - returns the repository conflict when the document 
     throw new CustomerAlreadyExistsError(customer.documentNumber);
   };
 
-  const useCase = new CreateCustomerUseCase(repository);
+  const useCase = new CreateCustomerUseCase(repository, ids);
   const result = await useCase.run({
     documentType: 'CC',
     documentNumber: '10203040',
@@ -112,7 +114,7 @@ test('CreateCustomerUseCase - returns the repository conflict when the document 
 
 test('CreateCustomerUseCase - fails on missing mandatory fields', async () => {
   const repository = new InMemoryCustomerRepository();
-  const useCase = new CreateCustomerUseCase(repository);
+  const useCase = new CreateCustomerUseCase(repository, ids);
 
   const res1 = await useCase.run({ documentType: '', documentNumber: '123', name: 'Nombre' });
   assert.equal(res1.isSuccess, false);

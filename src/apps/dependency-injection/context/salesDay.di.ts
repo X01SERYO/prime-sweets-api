@@ -18,11 +18,13 @@ export function registerSalesDayDependencies(container: ContainerBuilder): void 
 
   const salesDayRepoRef = new Reference('sales_day.domain.sales_day_repository');
   const dateProviderRef = new Reference('sales_day.application.date_provider');
+  const idsRef = new Reference('shared.application.id_generator');
 
   container
     .register('sales_day.application.open_current_sales_day_use_case', OpenCurrentSalesDayUseCase)
     .addArgument(salesDayRepoRef)
-    .addArgument(dateProviderRef);
+    .addArgument(dateProviderRef)
+    .addArgument(idsRef);
 
   container
     .register('sales_day.application.get_current_sales_day_use_case', GetCurrentSalesDayUseCase)

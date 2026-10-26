@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
 import { Result } from '../../../../../shared/application/result/result';
 import { SalePrimitives } from '../../../domain/entities/sale';
 import { SaleItem } from '../../../domain/entities/saleItem';
@@ -15,7 +15,8 @@ export class AddSaleItemUseCase {
   constructor(
     private readonly saleRepository: SaleRepository,
     private readonly salesDayStatusChecker: SalesDayStatusChecker,
-    private readonly productSnapshotProvider: ProductSnapshotProvider
+    private readonly productSnapshotProvider: ProductSnapshotProvider,
+    private readonly ids: IdGenerator
   ) {}
 
   async run(dto: AddSaleItemDto): Promise<Result<SalePrimitives>> {
@@ -43,7 +44,7 @@ export class AddSaleItemUseCase {
 
     try {
       const saleItem = SaleItem.create({
-        id: randomUUID(),
+        id: this.ids.next(),
         productId: snapshot.id,
         itemName: dto.itemName?.trim() || snapshot.name,
         quantity: dto.quantity,

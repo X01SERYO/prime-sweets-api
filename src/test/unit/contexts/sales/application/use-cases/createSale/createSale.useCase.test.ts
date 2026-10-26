@@ -10,6 +10,8 @@ import { SalesDayNotOpenForSaleError } from '../../../../../../../contexts/sales
 import { CustomerNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/customerNotFoundForSale.error';
 import { ProductNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/productNotFoundForSale.error';
 
+const ids = { next: () => `id-${Math.random()}` };
+
 function createMocks() {
   const savedSales: Sale[] = [];
   const repo: SaleRepository = {
@@ -76,7 +78,7 @@ function createMocks() {
 
 test('CreateSaleUseCase - successfully creates a draft sale without initial items', async () => {
   const { repo, salesDayChecker, customerChecker, productProvider, savedSales } = createMocks();
-  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider);
+  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
 
   const result = await useCase.run({
     salesDayId: 'sd-001',
@@ -93,7 +95,7 @@ test('CreateSaleUseCase - successfully creates a draft sale without initial item
 
 test('CreateSaleUseCase - creates sale with initial items snapshotting prices', async () => {
   const { repo, salesDayChecker, customerChecker, productProvider } = createMocks();
-  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider);
+  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
 
   const result = await useCase.run({
     salesDayId: 'sd-001',
@@ -120,7 +122,7 @@ test('CreateSaleUseCase - fails if sales day is closed', async () => {
   const { repo, salesDayChecker, customerChecker, productProvider, setSalesDayOpen } = createMocks();
   setSalesDayOpen(false);
 
-  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider);
+  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
   const result = await useCase.run({
     salesDayId: 'sd-001',
     customerId: 'cust-001'
@@ -134,7 +136,7 @@ test('CreateSaleUseCase - fails if customer does not exist', async () => {
   const { repo, salesDayChecker, customerChecker, productProvider, setCustomerExists } = createMocks();
   setCustomerExists(false);
 
-  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider);
+  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
   const result = await useCase.run({
     salesDayId: 'sd-001',
     customerId: 'cust-999'
@@ -146,7 +148,7 @@ test('CreateSaleUseCase - fails if customer does not exist', async () => {
 
 test('CreateSaleUseCase - fails if initial item product is not found in catalog', async () => {
   const { repo, salesDayChecker, customerChecker, productProvider } = createMocks();
-  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider);
+  const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
 
   const result = await useCase.run({
     salesDayId: 'sd-001',

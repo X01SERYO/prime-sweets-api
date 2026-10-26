@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
 import { Result } from '../../../../../shared/application/result/result';
 import { Sale, SalePrimitives } from '../../../domain/entities/sale';
 import { SaleItem } from '../../../domain/entities/saleItem';
@@ -17,7 +17,8 @@ export class CreateSaleUseCase {
     private readonly saleRepository: SaleRepository,
     private readonly salesDayStatusChecker: SalesDayStatusChecker,
     private readonly customerChecker: CustomerChecker,
-    private readonly productSnapshotProvider: ProductSnapshotProvider
+    private readonly productSnapshotProvider: ProductSnapshotProvider,
+    private readonly ids: IdGenerator
   ) {}
 
   async run(dto: CreateSaleDto): Promise<Result<SalePrimitives>> {
@@ -39,7 +40,7 @@ export class CreateSaleUseCase {
     }
 
     let sale = Sale.create({
-      id: randomUUID(),
+      id: this.ids.next(),
       salesDayId: dto.salesDayId.trim(),
       customerId: dto.customerId.trim()
     });
@@ -52,7 +53,7 @@ export class CreateSaleUseCase {
         }
 
         const saleItem = SaleItem.create({
-          id: randomUUID(),
+          id: this.ids.next(),
           productId: snapshot.id,
           itemName: itemDto.itemName?.trim() || snapshot.name,
           quantity: itemDto.quantity,

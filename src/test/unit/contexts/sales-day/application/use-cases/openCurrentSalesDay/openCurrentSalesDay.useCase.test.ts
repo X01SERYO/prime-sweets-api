@@ -7,6 +7,8 @@ import { OpenCurrentSalesDayUseCase } from '../../../../../../../contexts/sales-
 import { SalesDayAlreadyOpenError } from '../../../../../../../contexts/sales-day/domain/errors/salesDayAlreadyOpenError';
 import { InvalidSalesDayError } from '../../../../../../../contexts/sales-day/domain/errors/invalidSalesDay.error';
 
+const ids = { next: () => `id-${Math.random()}` };
+
 class InMemorySalesDayRepository implements SalesDayRepository {
   public salesDays: SalesDay[] = [];
 
@@ -42,7 +44,7 @@ class FixedDateProvider implements BusinessDateProvider {
 test('OpenCurrentSalesDayUseCase - opens a new sales day for seller and default business date', async () => {
   const repository = new InMemorySalesDayRepository();
   const dateProvider = new FixedDateProvider('2026-10-13');
-  const useCase = new OpenCurrentSalesDayUseCase(repository, dateProvider);
+  const useCase = new OpenCurrentSalesDayUseCase(repository, dateProvider, ids);
 
   const result = await useCase.run({ sellerId: 'seller-1' });
 
@@ -61,7 +63,7 @@ test('OpenCurrentSalesDayUseCase - fails if sales day for seller and date is alr
   const dateProvider = new FixedDateProvider('2026-10-13');
   await repository.save(SalesDay.create({ id: 'sd-1', sellerId: 'seller-1', date: '2026-10-13' }));
 
-  const useCase = new OpenCurrentSalesDayUseCase(repository, dateProvider);
+  const useCase = new OpenCurrentSalesDayUseCase(repository, dateProvider, ids);
   const result = await useCase.run({ sellerId: 'seller-1' });
 
   assert.equal(result.isSuccess, false);
@@ -71,7 +73,7 @@ test('OpenCurrentSalesDayUseCase - fails if sales day for seller and date is alr
 test('OpenCurrentSalesDayUseCase - fails on empty sellerId', async () => {
   const repository = new InMemorySalesDayRepository();
   const dateProvider = new FixedDateProvider('2026-10-13');
-  const useCase = new OpenCurrentSalesDayUseCase(repository, dateProvider);
+  const useCase = new OpenCurrentSalesDayUseCase(repository, dateProvider, ids);
 
   const result = await useCase.run({ sellerId: '   ' });
 

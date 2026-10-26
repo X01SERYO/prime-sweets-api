@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
 import { Result } from '../../../../../shared/application/result/result';
 import { Customer, CustomerPrimitives } from '../../../domain/entities/customer';
 import { CustomerRepository } from '../../ports/outbound/customer.repository';
@@ -7,7 +7,10 @@ import { InvalidCustomerError } from '../../../domain/errors/invalidCustomer.err
 import { CreateCustomerDto } from '../../dto/createCustomer.dto';
 
 export class CreateCustomerUseCase {
-  constructor(private readonly customerRepository: CustomerRepository) {}
+  constructor(
+    private readonly customerRepository: CustomerRepository,
+    private readonly ids: IdGenerator
+  ) {}
 
   async run(dto: CreateCustomerDto): Promise<Result<CustomerPrimitives>> {
     if (!dto.documentType || !dto.documentType.trim()) {
@@ -29,7 +32,7 @@ export class CreateCustomerUseCase {
     }
 
     const customer = Customer.create({
-      id: randomUUID(),
+      id: this.ids.next(),
       documentType: docType,
       documentNumber: docNumber,
       name: dto.name.trim(),

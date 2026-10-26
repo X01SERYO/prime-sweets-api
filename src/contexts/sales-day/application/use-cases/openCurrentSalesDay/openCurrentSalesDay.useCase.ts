@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
 import { Result } from '../../../../../shared/application/result/result';
 import { SalesDay, SalesDayPrimitives } from '../../../domain/entities/salesDay';
 import { SalesDayRepository } from '../../ports/outbound/salesDay.repository';
@@ -10,7 +10,8 @@ import { OpenSalesDayDto } from '../../dto/openSalesDay.dto';
 export class OpenCurrentSalesDayUseCase {
   constructor(
     private readonly salesDayRepository: SalesDayRepository,
-    private readonly dateProvider: BusinessDateProvider
+    private readonly dateProvider: BusinessDateProvider,
+    private readonly ids: IdGenerator
   ) {}
 
   async run(dto: OpenSalesDayDto): Promise<Result<SalesDayPrimitives>> {
@@ -30,7 +31,7 @@ export class OpenCurrentSalesDayUseCase {
     }
 
     const salesDay = SalesDay.create({
-      id: randomUUID(),
+      id: this.ids.next(),
       sellerId,
       date: targetDate
     });

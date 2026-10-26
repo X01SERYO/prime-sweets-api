@@ -9,6 +9,8 @@ import { SaleNotFoundError } from '../../../../../../../contexts/sales/domain/er
 import { SalesDayNotOpenForSaleError } from '../../../../../../../contexts/sales/domain/errors/salesDayNotOpenForSale.error';
 import { ProductNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/productNotFoundForSale.error';
 
+const ids = { next: () => `id-${Math.random()}` };
+
 test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
   const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' });
   let saved: Sale = sale;
@@ -43,7 +45,7 @@ test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider);
+  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
 
   const result = await useCase.run({
     saleId: 's-1',
@@ -84,7 +86,7 @@ test('AddSaleItemUseCase - fails if sale not found', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider);
+  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
   const result = await useCase.run({ saleId: 'unknown', productId: 'p-1', quantity: 1 });
 
   assert.equal(result.isSuccess, false);
@@ -118,7 +120,7 @@ test('AddSaleItemUseCase - fails if sales day is closed', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider);
+  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
   const result = await useCase.run({ saleId: 's-1', productId: 'p-1', quantity: 1 });
 
   assert.equal(result.isSuccess, false);
@@ -152,7 +154,7 @@ test('AddSaleItemUseCase - fails if product not found in catalog', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider);
+  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
   const result = await useCase.run({ saleId: 's-1', productId: 'non-existent', quantity: 1 });
 
   assert.equal(result.isSuccess, false);

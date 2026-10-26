@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
 import { Result } from '../../../../../shared/application/result/result';
 import { Brand, BrandPrimitives } from '../../../domain/entities/brand';
 import { BrandRepository } from '../../ports/outbound/brand.repository';
@@ -7,11 +7,14 @@ import { InvalidBrandError } from '../../../domain/errors/invalidBrand.error';
 import { CreateBrandDto } from '../../dto/createBrand.dto';
 
 export class CreateBrandUseCase {
-  constructor(private readonly brandRepository: BrandRepository) {}
+  constructor(
+    private readonly brandRepository: BrandRepository,
+    private readonly ids: IdGenerator
+  ) {}
 
   async run(dto: CreateBrandDto): Promise<Result<BrandPrimitives>> {
     try {
-      const brand = Brand.create(randomUUID(), dto.name, dto.code);
+      const brand = Brand.create(this.ids.next(), dto.name, dto.code);
       const byName = await this.brandRepository.findByName(brand.name);
       if (byName) {
         return Result.fail(new BrandAlreadyExistsError('name', brand.name));

@@ -4,6 +4,9 @@ export type UserPrimitives = {
   id: string;
   email: string;
   displayName: string;
+};
+
+export type StoredUser = UserPrimitives & {
   passwordHash: string;
 };
 
@@ -27,7 +30,7 @@ export class User {
     return this._passwordHash;
   }
 
-  static rehydrate(primitives: UserPrimitives): User {
+  static rehydrate(primitives: StoredUser): User {
     const id = primitives.id?.trim();
     const email = primitives.email?.trim().toLowerCase();
     const displayName = primitives.displayName?.trim();
@@ -53,8 +56,7 @@ export class User {
     return {
       id: this.id,
       email: this._email,
-      displayName: this._displayName,
-      passwordHash: this._passwordHash
+      displayName: this._displayName
     };
   }
 }

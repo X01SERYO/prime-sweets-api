@@ -2,16 +2,15 @@
   "compilerOptions": {
     "target": "ES2022",
     // JavaScript version emitted by TypeScript.
-    // ES2022 matches the baseline of Node 22.
+    // ES2022 matches the baseline of Node 24.
 
     "module": "CommonJS",
     // Module system used in the output JavaScript.
     // CommonJS is the native module system for Node.js.
 
     "moduleResolution": "node10",
-    // Classic Node resolution for CommonJS (the old "node" setting).
-    // "nodenext" would require file extensions on every relative import.
-    // ignoreDeprecations "6.0" is valid only on TypeScript 6; this project compiles with 5.9.
+    // Classic Node resolution for CommonJS. Keeps relative imports without a .js extension.
+    // The editor must use this project's TypeScript 5.9. A newer language service warns that node10 is deprecated.
 
     "outDir": "dist",
     // Directory where compiled JavaScript files are emitted.

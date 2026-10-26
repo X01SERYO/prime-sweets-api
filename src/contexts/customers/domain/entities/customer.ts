@@ -11,7 +11,7 @@ export type CustomerPrimitives = {
 };
 
 export class Customer {
-  constructor(
+  private constructor(
     readonly id: string,
     private _documentType: string,
     private _documentNumber: string,

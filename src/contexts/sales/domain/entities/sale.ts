@@ -23,7 +23,7 @@ export type SalePrimitives = {
 };
 
 export class Sale {
-  constructor(
+  private constructor(
     readonly id: string,
     readonly salesDayId: string,
     readonly customerId: string,

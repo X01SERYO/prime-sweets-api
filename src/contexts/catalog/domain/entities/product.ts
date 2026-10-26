@@ -13,7 +13,7 @@ export type ProductPrimitives = {
 };
 
 export class Product {
-  constructor(
+  private constructor(
     readonly id: string,
     readonly alegraId: string,
     readonly brandId: string | null,

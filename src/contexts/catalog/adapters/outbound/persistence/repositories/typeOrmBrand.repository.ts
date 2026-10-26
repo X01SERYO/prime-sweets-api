@@ -39,6 +39,6 @@ export class TypeOrmBrandRepository implements BrandRepository {
   }
 
   private toDomain(entity: BrandEntity): Brand {
-    return new Brand(entity.id, entity.name, entity.code);
+    return Brand.create(entity.id, entity.name, entity.code);
   }
 }

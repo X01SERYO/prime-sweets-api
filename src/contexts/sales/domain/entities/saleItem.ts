@@ -13,7 +13,7 @@ export type SaleItemPrimitives = {
 };
 
 export class SaleItem {
-  constructor(
+  private constructor(
     readonly id: string,
     readonly productId: string,
     private _itemName: string,

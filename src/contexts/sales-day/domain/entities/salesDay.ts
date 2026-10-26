@@ -17,7 +17,7 @@ export type SalesDayPrimitives = {
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export class SalesDay {
-  constructor(
+  private constructor(
     readonly id: string,
     private _sellerId: string,
     private _date: string,

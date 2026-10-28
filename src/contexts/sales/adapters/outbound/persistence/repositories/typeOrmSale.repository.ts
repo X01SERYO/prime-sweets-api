@@ -15,14 +15,14 @@ export class TypeOrmSaleRepository implements SaleRepository {
   async save(sale: Sale): Promise<void> {
     const entity = SaleMapper.toEntity(sale);
 
-    await this.repository.manager.transaction(async (transactionalEntityManager) => {
-      // First save or update the sale root record
-      await transactionalEntityManager.save(SaleEntity, entity);
+    const items = entity.items ?? [];
+    delete (entity as Partial<SaleEntity>).items;
 
-      // Replace sale items atomically to reflect additions, removals, or edits
+    await this.repository.manager.transaction(async (transactionalEntityManager) => {
       await transactionalEntityManager.delete(SaleItemEntity, { saleId: sale.id });
-      if (entity.items && entity.items.length > 0) {
-        await transactionalEntityManager.save(SaleItemEntity, entity.items);
+      await transactionalEntityManager.save(SaleEntity, entity);
+      if (items.length > 0) {
+        await transactionalEntityManager.save(SaleItemEntity, items);
       }
     });
   }

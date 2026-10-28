@@ -1,20 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodTypeAny, ZodError } from 'zod';
+import { ZodType, ZodError } from 'zod';
 
 export interface RequestValidationSchema {
-  body?: ZodTypeAny;
-  query?: ZodTypeAny;
-  params?: ZodTypeAny;
+  body?: ZodType;
+  query?: ZodType;
+  params?: ZodType;
+}
+
+function assignRequestField(req: Request, field: 'query' | 'params', value: unknown): void {
+  try {
+    (req as unknown as Record<string, unknown>)[field] = value;
+  } catch {
+    Object.defineProperty(req, field, {
+      value,
+      writable: true,
+      configurable: true,
+      enumerable: true
+    });
+  }
 }
 
 export function validateRequest(schema: RequestValidationSchema) {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       if (schema.params) {
-        req.params = schema.params.parse(req.params) as typeof req.params;
+        assignRequestField(req, 'params', schema.params.parse(req.params));
       }
       if (schema.query) {
-        req.query = schema.query.parse(req.query) as typeof req.query;
+        assignRequestField(req, 'query', schema.query.parse(req.query));
       }
       if (schema.body) {
         req.body = schema.body.parse(req.body);

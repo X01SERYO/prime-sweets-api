@@ -293,7 +293,7 @@ These appear in the PDR/SPEC as Version 1. They have **no** code paths in this r
 
 | Area | What is missing in code |
 |---|---|
-| Authentication | `AuthenticateSeller`, `LogoutSeller`. A seller may keep up to 3 sessions open (OQ-05). No session code exists yet. |
+| Authentication | Built. `POST /auth/login`, `GET /auth/session`, and `POST /auth/logout`. Sessions are stored in Postgres and survive a process restart until they expire. A seller keeps at most 3 open sessions; a new login closes the oldest. Business routes reject a missing or unknown token with `INVALID_SESSION`. |
 | Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |

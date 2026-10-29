@@ -1,5 +1,5 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { InMemorySessionStore } from '../../../contexts/identity/adapters/outbound/inMemorySession.store';
+import { TypeOrmSessionStore } from '../../../contexts/identity/adapters/outbound/persistence/typeOrmSession.store';
 import { TypeOrmCredentialStore } from '../../../contexts/identity/adapters/outbound/persistence/typeOrmCredential.store';
 import { ScryptPasswordMatcher } from '../../../contexts/identity/adapters/outbound/scryptPassword.matcher';
 import { GetSessionUseCase } from '../../../contexts/identity/application/use-cases/getSession/getSession.useCase';
@@ -11,7 +11,7 @@ export function registerIdentityDependencies(container: ContainerBuilder): void 
 
   container.register('identity.infrastructure.credential_store', TypeOrmCredentialStore).addArgument(dataSourceRef);
   container.register('identity.infrastructure.password_matcher', ScryptPasswordMatcher);
-  container.register('identity.infrastructure.session_store', InMemorySessionStore);
+  container.register('identity.infrastructure.session_store', TypeOrmSessionStore).addArgument(dataSourceRef);
 
   const credentials = new Reference('identity.infrastructure.credential_store');
   const passwords = new Reference('identity.infrastructure.password_matcher');

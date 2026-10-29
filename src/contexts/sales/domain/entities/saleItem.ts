@@ -10,6 +10,7 @@ export type SaleItemPrimitives = {
   wholesaleCost: number;
   totalPrice: number;
   profit: number;
+  createdAt: string;
 };
 
 export class SaleItem {
@@ -19,7 +20,8 @@ export class SaleItem {
     private _itemName: string,
     private _quantity: number,
     readonly wholesalePrice: number,
-    readonly wholesaleCost: number
+    readonly wholesaleCost: number,
+    readonly createdAt: Date
   ) {}
 
   get itemName(): string {
@@ -45,6 +47,7 @@ export class SaleItem {
     quantity: number;
     wholesalePrice: number;
     wholesaleCost: number;
+    createdAt?: Date;
   }): SaleItem {
     const trimmedId = params.id?.trim();
     if (!trimmedId) {
@@ -79,7 +82,8 @@ export class SaleItem {
       trimmedItemName,
       params.quantity,
       params.wholesalePrice,
-      params.wholesaleCost
+      params.wholesaleCost,
+      params.createdAt ?? new Date()
     );
   }
 
@@ -94,7 +98,8 @@ export class SaleItem {
       this._itemName,
       newQuantity,
       this.wholesalePrice,
-      this.wholesaleCost
+      this.wholesaleCost,
+      this.createdAt
     );
   }
 
@@ -110,7 +115,8 @@ export class SaleItem {
       trimmed,
       this._quantity,
       this.wholesalePrice,
-      this.wholesaleCost
+      this.wholesaleCost,
+      this.createdAt
     );
   }
 
@@ -123,7 +129,8 @@ export class SaleItem {
       wholesalePrice: this.wholesalePrice,
       wholesaleCost: this.wholesaleCost,
       totalPrice: this.totalPrice,
-      profit: this.profit
+      profit: this.profit,
+      createdAt: this.createdAt.toISOString()
     };
   }
 }

@@ -58,22 +58,72 @@ test('Sale aggregate - adds items and aggregates quantities, total amount, and p
   assert.equal(updatedSale.totalProfit, 2100); // 600 + 1500
 });
 
-test('Sale aggregate - adding same product accumulates quantity', () => {
+test('Sale aggregate - same product with different names stays as separate lines', () => {
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
     customerId: 'cust-50'
   });
 
-  const itemFirst = createSampleItem('p-1', 2, 1000, 700);
-  const itemSecond = createSampleItem('p-1', 3, 1000, 700);
+  const green = SaleItem.create({
+    id: 'item-green',
+    productId: 'p-1',
+    itemName: 'Caja A verde',
+    quantity: 2,
+    wholesalePrice: 1000,
+    wholesaleCost: 700,
+    createdAt: new Date('2026-10-29T10:00:00.000Z')
+  });
+  const blue = SaleItem.create({
+    id: 'item-blue',
+    productId: 'p-1',
+    itemName: 'Caja A azul',
+    quantity: 3,
+    wholesalePrice: 1000,
+    wholesaleCost: 700,
+    createdAt: new Date('2026-10-29T11:00:00.000Z')
+  });
 
-  const updated = sale.addItem(itemFirst).addItem(itemSecond);
+  const updated = sale.addItem(green).addItem(blue);
 
-  assert.equal(updated.items.length, 1);
+  assert.equal(updated.items.length, 2);
+  assert.equal(updated.items[0].itemName, 'Caja A azul');
+  assert.equal(updated.items[1].itemName, 'Caja A verde');
   assert.equal(updated.totalQuantity, 5);
   assert.equal(updated.totalAmount, 5000);
-  assert.equal(updated.totalProfit, 1500);
+});
+
+test('Sale aggregate - same product and same name accumulates quantity', () => {
+  const sale = Sale.create({
+    id: 'sale-001',
+    salesDayId: 'sd-100',
+    customerId: 'cust-50'
+  });
+
+  const first = SaleItem.create({
+    id: 'item-green-1',
+    productId: 'p-1',
+    itemName: 'Caja A verde',
+    quantity: 1,
+    wholesalePrice: 1000,
+    wholesaleCost: 700
+  });
+  const second = SaleItem.create({
+    id: 'item-green-2',
+    productId: 'p-1',
+    itemName: 'caja a verde',
+    quantity: 2,
+    wholesalePrice: 1000,
+    wholesaleCost: 700
+  });
+
+  const updated = sale.addItem(first).addItem(second);
+
+  assert.equal(updated.items.length, 1);
+  assert.equal(updated.items[0].id, 'item-green-1');
+  assert.equal(updated.items[0].itemName, 'Caja A verde');
+  assert.equal(updated.items[0].quantity, 3);
+  assert.equal(updated.totalAmount, 3000);
 });
 
 test('Sale aggregate - updates item quantity and custom item name in draft', () => {
@@ -83,11 +133,11 @@ test('Sale aggregate - updates item quantity and custom item name in draft', () 
     customerId: 'cust-50'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
-  const modifiedQty = sale.updateItemQuantity('p-1', 10);
+  const modifiedQty = sale.updateItemQuantity('item-p-1', 10);
   assert.equal(modifiedQty.totalQuantity, 10);
   assert.equal(modifiedQty.totalAmount, 10000);
 
-  const modifiedName = modifiedQty.updateItemName('p-1', 'Nombre Personalizado de Factura');
+  const modifiedName = modifiedQty.updateItemName('item-p-1', 'Nombre Personalizado de Factura');
   assert.equal(modifiedName.items[0].itemName, 'Nombre Personalizado de Factura');
   assert.equal(modifiedName.items[0].productId, 'p-1');
 });
@@ -101,7 +151,7 @@ test('Sale aggregate - removes item from draft', () => {
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .addItem(createSampleItem('p-2', 3, 2000, 1500));
 
-  const removed = sale.removeItem('p-1');
+  const removed = sale.removeItem('item-p-1');
   assert.equal(removed.items.length, 1);
   assert.equal(removed.items[0].productId, 'p-2');
   assert.equal(removed.totalQuantity, 3);
@@ -166,16 +216,16 @@ test('Sale aggregate - editing items on confirmed sale keeps the same invoice nu
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .confirm('INV-0001', '2026-10-20');
 
-  const modified = confirmed.updateItemQuantity('p-1', 5);
+  const modified = confirmed.updateItemQuantity('item-p-1', 5);
   assert.equal(modified.invoiceNumber, 'INV-0001');
   assert.equal(modified.totalQuantity, 5);
   assert.equal(modified.totalAmount, 5000);
 
   // itemName cannot be changed once confirmed (PDR rule)
-  assert.throws(() => modified.updateItemName('p-1', 'Otro Nombre'), SaleCannotBeModifiedError);
+  assert.throws(() => modified.updateItemName('item-p-1', 'Otro Nombre'), SaleCannotBeModifiedError);
 
   // Cannot remove all items from confirmed sale
-  assert.throws(() => modified.removeItem('p-1'), SaleMustContainItemsError);
+  assert.throws(() => modified.removeItem('item-p-1'), SaleMustContainItemsError);
 });
 
 test('Sale aggregate - rejects any modifications once voided', () => {
@@ -190,9 +240,9 @@ test('Sale aggregate - rejects any modifications once voided', () => {
   const voided = confirmed.void();
 
   assert.throws(() => voided.addItem(createSampleItem('p-2')), SaleAlreadyVoidedError);
-  assert.throws(() => voided.updateItemQuantity('p-1', 5), SaleAlreadyVoidedError);
-  assert.throws(() => voided.updateItemName('p-1', 'Nuevo Nombre'), SaleAlreadyVoidedError);
-  assert.throws(() => voided.removeItem('p-1'), SaleAlreadyVoidedError);
+  assert.throws(() => voided.updateItemQuantity('item-p-1', 5), SaleAlreadyVoidedError);
+  assert.throws(() => voided.updateItemName('item-p-1', 'Nuevo Nombre'), SaleAlreadyVoidedError);
+  assert.throws(() => voided.removeItem('item-p-1'), SaleAlreadyVoidedError);
 });
 
 test('Sale aggregate - voids a confirmed sale logically without modifying items or invoiceNumber', () => {

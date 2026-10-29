@@ -4,6 +4,10 @@ import { SaleMustContainItemsError } from '../errors/saleMustContainItems.error'
 import { SaleCannotBeModifiedError } from '../errors/saleCannotBeModified.error';
 import { SaleAlreadyVoidedError } from '../errors/saleAlreadyVoided.error';
 
+function newestFirst(items: SaleItem[]): SaleItem[] {
+  return [...items].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+}
+
 export type SaleStatus = 'DRAFT' | 'CONFIRMED' | 'VOIDED';
 
 export type SalePrimitives = {
@@ -49,7 +53,7 @@ export class Sale {
   }
 
   get items(): SaleItem[] {
-    return [...this._items];
+    return newestFirst(this._items);
   }
 
   get confirmedAt(): Date | null {
@@ -116,7 +120,7 @@ export class Sale {
     const status = params.status ?? 'DRAFT';
     const invoiceNumber = params.invoiceNumber ? params.invoiceNumber.trim() : null;
     const invoiceBusinessDate = params.invoiceBusinessDate ? params.invoiceBusinessDate.trim() : null;
-    const items = params.items ? [...params.items] : [];
+    const items = params.items ? newestFirst(params.items) : [];
     const createdAt = params.createdAt ?? new Date();
     const confirmedAt = params.confirmedAt ?? null;
     const voidedAt = params.voidedAt ?? null;
@@ -138,17 +142,17 @@ export class Sale {
   addItem(newItem: SaleItem): Sale {
     this.assertNotVoided();
 
-    const existingIndex = this._items.findIndex((item) => item.productId === newItem.productId);
-    let updatedItems: SaleItem[];
+    const sameName = newItem.itemName.trim().toLocaleLowerCase();
+    const existingIndex = this._items.findIndex(
+      (item) => item.productId === newItem.productId && item.itemName.trim().toLocaleLowerCase() === sameName
+    );
+    const updatedItems = [...this._items];
 
     if (existingIndex >= 0) {
       const existing = this._items[existingIndex];
-      const combinedQuantity = existing.quantity + newItem.quantity;
-      const updatedItem = existing.updateQuantity(combinedQuantity);
-      updatedItems = [...this._items];
-      updatedItems[existingIndex] = updatedItem;
+      updatedItems[existingIndex] = existing.updateQuantity(existing.quantity + newItem.quantity);
     } else {
-      updatedItems = [...this._items, newItem];
+      updatedItems.push(newItem);
     }
 
     return new Sale(
@@ -165,12 +169,12 @@ export class Sale {
     );
   }
 
-  updateItemQuantity(productId: string, quantity: number): Sale {
+  updateItemQuantity(itemId: string, quantity: number): Sale {
     this.assertNotVoided();
 
-    const existingIndex = this._items.findIndex((item) => item.productId === productId);
+    const existingIndex = this._items.findIndex((item) => item.id === itemId);
     if (existingIndex < 0) {
-      throw new InvalidSaleError(`Product "${productId}" is not in this sale`);
+      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
     }
 
     const updatedItem = this._items[existingIndex].updateQuantity(quantity);
@@ -191,12 +195,12 @@ export class Sale {
     );
   }
 
-  updateItemName(productId: string, itemName: string): Sale {
+  updateItemName(itemId: string, itemName: string): Sale {
     this.ensureIsDraft();
 
-    const existingIndex = this._items.findIndex((item) => item.productId === productId);
+    const existingIndex = this._items.findIndex((item) => item.id === itemId);
     if (existingIndex < 0) {
-      throw new InvalidSaleError(`Product "${productId}" is not in this sale`);
+      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
     }
 
     const updatedItem = this._items[existingIndex].updateItemName(itemName);
@@ -217,19 +221,19 @@ export class Sale {
     );
   }
 
-  removeItem(productId: string): Sale {
+  removeItem(itemId: string): Sale {
     this.assertNotVoided();
 
-    const existingIndex = this._items.findIndex((item) => item.productId === productId);
+    const existingIndex = this._items.findIndex((item) => item.id === itemId);
     if (existingIndex < 0) {
-      throw new InvalidSaleError(`Product "${productId}" is not in this sale`);
+      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
     }
 
     if (this.isConfirmed() && this._items.length === 1) {
       throw new SaleMustContainItemsError('A confirmed sale must contain at least one item');
     }
 
-    const updatedItems = this._items.filter((item) => item.productId !== productId);
+    const updatedItems = this._items.filter((item) => item.id !== itemId);
 
     return new Sale(
       this.id,
@@ -307,7 +311,7 @@ export class Sale {
       status: this._status,
       invoiceNumber: this._invoiceNumber,
       invoiceBusinessDate: this._invoiceBusinessDate,
-      items: this._items.map((item) => item.toPrimitives()),
+      items: this.items.map((item) => item.toPrimitives()),
       totalAmount: this.totalAmount,
       totalProfit: this.totalProfit,
       totalQuantity: this.totalQuantity,

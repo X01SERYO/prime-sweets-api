@@ -50,7 +50,7 @@ test('RemoveSaleItemUseCase - removes item from sale', async () => {
   };
 
   const useCase = new RemoveSaleItemUseCase(repo, salesDayChecker);
-  const result = await useCase.run({ saleId: 's-1', productId: 'p-1' });
+  const result = await useCase.run({ saleId: 's-1', itemId: 'it-1' });
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.items.length, 1);

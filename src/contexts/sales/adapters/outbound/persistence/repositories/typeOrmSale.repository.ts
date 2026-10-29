@@ -30,7 +30,8 @@ export class TypeOrmSaleRepository implements SaleRepository {
   async findById(id: string): Promise<Sale | null> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['items']
+      relations: ['items'],
+      order: { items: { createdAt: 'DESC' } }
     });
 
     if (!entity) return null;
@@ -41,7 +42,7 @@ export class TypeOrmSaleRepository implements SaleRepository {
     const entities = await this.repository.find({
       where: { salesDayId },
       relations: ['items'],
-      order: { createdAt: 'ASC' }
+      order: { createdAt: 'ASC', items: { createdAt: 'DESC' } }
     });
 
     return entities.map(SaleMapper.toDomain);
@@ -62,7 +63,7 @@ export class TypeOrmSaleRepository implements SaleRepository {
       query.andWhere('sale.status = :status', { status: filters.status });
     }
 
-    query.orderBy('sale.created_at', 'ASC');
+    query.orderBy('sale.created_at', 'ASC').addOrderBy('item.created_at', 'DESC');
 
     const entities = await query.getMany();
     return entities.map(SaleMapper.toDomain);

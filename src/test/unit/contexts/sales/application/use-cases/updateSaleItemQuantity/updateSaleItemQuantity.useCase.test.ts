@@ -41,7 +41,7 @@ test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
   };
 
   const useCase = new UpdateSaleItemQuantityUseCase(repo, salesDayChecker);
-  const result = await useCase.run({ saleId: 's-1', productId: 'p-1', quantity: 7 });
+  const result = await useCase.run({ saleId: 's-1', itemId: 'it-1', quantity: 7 });
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.items[0].quantity, 7);
@@ -79,7 +79,7 @@ test('UpdateSaleItemQuantityUseCase - fails if sales day is closed', async () =>
   };
 
   const useCase = new UpdateSaleItemQuantityUseCase(repo, salesDayChecker);
-  const result = await useCase.run({ saleId: 's-1', productId: 'p-1', quantity: 7 });
+  const result = await useCase.run({ saleId: 's-1', itemId: 'it-1', quantity: 7 });
 
   assert.equal(result.isSuccess, false);
   assert.ok(result.error instanceof SalesDayNotOpenForSaleError);

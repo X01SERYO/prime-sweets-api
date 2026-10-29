@@ -1,4 +1,4 @@
 export type RemoveSaleItemDto = {
   saleId: string;
-  productId: string;
+  itemId: string;
 };

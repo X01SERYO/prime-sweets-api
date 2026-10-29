@@ -1,5 +1,5 @@
 export type UpdateSaleItemQuantityDto = {
   saleId: string;
-  productId: string;
+  itemId: string;
   quantity: number;
 };

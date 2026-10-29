@@ -17,8 +17,8 @@ export class UpdateSaleItemNameUseCase {
     if (!dto.saleId || !dto.saleId.trim()) {
       return Result.fail(new InvalidSaleError('Sale id cannot be empty'));
     }
-    if (!dto.productId || !dto.productId.trim()) {
-      return Result.fail(new InvalidSaleError('Product id cannot be empty'));
+    if (!dto.itemId || !dto.itemId.trim()) {
+      return Result.fail(new InvalidSaleError('Sale item id cannot be empty'));
     }
     if (!dto.itemName || !dto.itemName.trim()) {
       return Result.fail(new InvalidSaleError('Item name cannot be empty'));
@@ -35,7 +35,7 @@ export class UpdateSaleItemNameUseCase {
     }
 
     try {
-      const updated = sale.updateItemName(dto.productId.trim(), dto.itemName.trim());
+      const updated = sale.updateItemName(dto.itemId.trim(), dto.itemName.trim());
       await this.saleRepository.save(updated);
       return Result.ok(updated.toPrimitives());
     } catch (err) {

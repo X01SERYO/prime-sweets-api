@@ -46,7 +46,7 @@ export function createSalesRouter(container: any) {
   });
 
   router.put(
-    '/:id/items/:productId/quantity',
+    '/:id/items/:itemId/quantity',
     validateRequest(updateSaleItemQuantitySchema),
     async (req: Request, res: Response) => {
       const useCase = container.get('sales.application.update_sale_item_quantity_use_case');
@@ -54,7 +54,7 @@ export function createSalesRouter(container: any) {
         res,
         await useCase.run({
           saleId: req.params.id,
-          productId: req.params.productId,
+          itemId: req.params.itemId,
           quantity: req.body.quantity
         })
       );
@@ -62,7 +62,7 @@ export function createSalesRouter(container: any) {
   );
 
   router.put(
-    '/:id/items/:productId/name',
+    '/:id/items/:itemId/name',
     validateRequest(updateSaleItemNameSchema),
     async (req: Request, res: Response) => {
       const useCase = container.get('sales.application.update_sale_item_name_use_case');
@@ -70,7 +70,7 @@ export function createSalesRouter(container: any) {
         res,
         await useCase.run({
           saleId: req.params.id,
-          productId: req.params.productId,
+          itemId: req.params.itemId,
           itemName: req.body.itemName
         })
       );
@@ -78,7 +78,7 @@ export function createSalesRouter(container: any) {
   );
 
   router.delete(
-    '/:id/items/:productId',
+    '/:id/items/:itemId',
     validateRequest(removeSaleItemSchema),
     async (req: Request, res: Response) => {
       const useCase = container.get('sales.application.remove_sale_item_use_case');
@@ -86,7 +86,7 @@ export function createSalesRouter(container: any) {
         res,
         await useCase.run({
           saleId: req.params.id,
-          productId: req.params.productId
+          itemId: req.params.itemId
         })
       );
     }

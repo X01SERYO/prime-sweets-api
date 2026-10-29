@@ -42,7 +42,7 @@ test('UpdateSaleItemNameUseCase - modifies transaction-time item name during dra
   const useCase = new UpdateSaleItemNameUseCase(repo, salesDayChecker);
   const result = await useCase.run({
     saleId: 's-1',
-    productId: 'p-1',
+    itemId: 'it-1',
     itemName: 'Nombre Personalizado en Tienda'
   });
 

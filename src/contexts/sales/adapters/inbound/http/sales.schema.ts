@@ -45,7 +45,7 @@ export const addSaleItemSchema: RequestValidationSchema = {
 export const updateSaleItemQuantitySchema: RequestValidationSchema = {
   params: z.object({
     id: z.string().trim().min(1, 'Sale id is required'),
-    productId: z.string().trim().min(1, 'productId is required')
+    itemId: z.string().trim().min(1, 'itemId is required')
   }),
   body: z.object({
     quantity: z.number().int().positive({ message: 'quantity must be a positive integer' })
@@ -55,7 +55,7 @@ export const updateSaleItemQuantitySchema: RequestValidationSchema = {
 export const updateSaleItemNameSchema: RequestValidationSchema = {
   params: z.object({
     id: z.string().trim().min(1, 'Sale id is required'),
-    productId: z.string().trim().min(1, 'productId is required')
+    itemId: z.string().trim().min(1, 'itemId is required')
   }),
   body: z.object({
     itemName: z.string().trim().min(1, 'itemName cannot be empty')
@@ -65,7 +65,7 @@ export const updateSaleItemNameSchema: RequestValidationSchema = {
 export const removeSaleItemSchema: RequestValidationSchema = {
   params: z.object({
     id: z.string().trim().min(1, 'Sale id is required'),
-    productId: z.string().trim().min(1, 'productId is required')
+    itemId: z.string().trim().min(1, 'itemId is required')
   })
 };
 

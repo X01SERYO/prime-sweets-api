@@ -21,7 +21,8 @@ export class SaleMapper {
         itemName: itemEntity.itemName,
         quantity: itemEntity.quantity,
         wholesalePrice: Number(itemEntity.wholesalePrice),
-        wholesaleCost: Number(itemEntity.wholesaleCost)
+        wholesaleCost: Number(itemEntity.wholesaleCost),
+        createdAt: itemEntity.createdAt
       })
     );
 
@@ -67,6 +68,7 @@ export class SaleMapper {
       itemEntity.wholesaleCost = item.wholesaleCost;
       itemEntity.totalPrice = item.totalPrice;
       itemEntity.profit = item.profit;
+      itemEntity.createdAt = new Date(item.createdAt);
       return itemEntity;
     });
 

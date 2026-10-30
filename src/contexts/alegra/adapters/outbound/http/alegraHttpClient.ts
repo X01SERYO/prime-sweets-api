@@ -1,5 +1,5 @@
-import { AlegraClient, AlegraItemUpdate } from '../../domain/interfaces/alegraClient.interface';
-import { AlegraRequestError } from '../../domain/errors/alegraRequest.error';
+import { AlegraClient, AlegraItemUpdate } from '../../../application/ports/outbound/alegraClient.port';
+import { AlegraRequestError } from '../../../domain/errors/alegraRequest.error';
 
 export class AlegraHttpClient implements AlegraClient {
   constructor(

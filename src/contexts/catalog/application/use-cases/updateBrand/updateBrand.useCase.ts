@@ -4,12 +4,12 @@ import { BrandRepository } from '../../ports/outbound/brand.repository';
 import { BrandAlreadyExistsError } from '../../../domain/errors/brandAlreadyExists.error';
 import { BrandNotFoundError } from '../../../domain/errors/brandNotFound.error';
 import { InvalidBrandError } from '../../../domain/errors/invalidBrand.error';
-import { UpdateBrandInterface } from '../../dto/updateBrand.dto';
+import { UpdateBrandDto } from '../../dto/updateBrand.dto';
 
 export class UpdateBrandUseCase {
   constructor(private readonly brandRepository: BrandRepository) {}
 
-  async run(dto: UpdateBrandInterface): Promise<Result<BrandPrimitives>> {
+  async run(dto: UpdateBrandDto): Promise<Result<BrandPrimitives>> {
     const brand = await this.brandRepository.findById(dto.id);
     if (!brand) {
       return Result.fail(new BrandNotFoundError(dto.id));

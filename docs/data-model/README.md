@@ -272,6 +272,6 @@ The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from conf
 
 ## Source file not in the schema
 
-`src/shared/infrastructure/persistence/typeorm/priceList.entity.ts` defines a `price_lists` entity (`id`, unique `code`, `name`, timestamps). It is **not** in `createTypeOrmOptions().entities` and **not** in the migration. It is not part of the verified database model.
+Channel prices live on `product_prices`. There is no `price_lists` table in the verified database model.
 
 Alegra wholesale/retail list **ids** used at runtime are environment values (`ALEGRA_PRICE_LIST_MAJOR_ID`, `ALEGRA_PRICE_LIST_MINOR_ID`), not rows in this database.

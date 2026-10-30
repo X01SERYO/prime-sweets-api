@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Brand } from '../../../../domain/entities/brand';
 import { BrandRepository } from '../../../../application/ports/outbound/brand.repository';
-import { BrandEntity } from '../../../../../../shared/infrastructure/persistence/typeorm/brand.entity';
+import { BrandEntity } from '../entities/brand.entity';
 
 export class TypeOrmBrandRepository implements BrandRepository {
   constructor(private readonly dataSource: DataSource) {}

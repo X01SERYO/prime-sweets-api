@@ -1,6 +1,6 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { getAppConfig } from '../../../shared/infrastructure/config/appConfig';
-import { AlegraHttpClient } from '../../../contexts/alegra/infrastructure/http/alegraHttpClient';
+import { AlegraHttpClient } from '../../../contexts/alegra/adapters/outbound/http/alegraHttpClient';
 import { SyncProductItemUseCase } from '../../../contexts/alegra/application/syncProductItem/syncProductItem.useCase';
 import { InProcessProductAlegraSyncService } from '../acl/inProcessProductAlegraSync.service';
 

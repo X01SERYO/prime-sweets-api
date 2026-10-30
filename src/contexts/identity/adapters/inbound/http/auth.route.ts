@@ -1,10 +1,11 @@
 import { Request, Response, Router } from 'express';
+import { AppContainer } from '../../../../../apps/dependency-injection/appContainer';
 import { httpResponse } from '../../../../../apps/controllers/httpResponse';
 import { bearerToken } from '../../../../../apps/http/bearerToken';
 import { validateRequest } from '../../../../../apps/middlewares/validateRequest';
 import { loginSchema } from './auth.schema';
 
-export function createAuthRouter(container: any) {
+export function createAuthRouter(container: AppContainer) {
   const router = Router();
 
   router.post('/login', validateRequest(loginSchema), async (req: Request, res: Response) => {

@@ -1,3 +1,4 @@
-import { CreateBrandInterface } from './createBrand.interface';
-
-export type CreateBrandDto = CreateBrandInterface;
+export type CreateBrandDto = {
+  name: string;
+  code: string;
+};

@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
+import { AppContainer } from '../../../../../apps/dependency-injection/appContainer';
 import { httpResponse } from '../../../../../apps/controllers/httpResponse';
+import { routeParam } from '../../../../../apps/http/bearerToken';
 import { validateRequest } from '../../../../../apps/middlewares/validateRequest';
 import {
   openSalesDaySchema,
@@ -7,7 +9,7 @@ import {
   salesDayIdParamSchema
 } from './salesDay.schema';
 
-export function createSalesDaysRouter(container: any) {
+export function createSalesDaysRouter(container: AppContainer) {
   const router = Router();
 
   router.post('/open', validateRequest(openSalesDaySchema), async (req: Request, res: Response) => {
@@ -38,7 +40,7 @@ export function createSalesDaysRouter(container: any) {
     return httpResponse(
       res,
       await useCase.run({
-        id: req.params.id
+        id: routeParam(req.params.id)
       })
     );
   });
@@ -48,7 +50,7 @@ export function createSalesDaysRouter(container: any) {
     return httpResponse(
       res,
       await useCase.run({
-        id: req.params.id
+        id: routeParam(req.params.id)
       })
     );
   });

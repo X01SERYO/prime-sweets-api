@@ -1,7 +1,8 @@
+import { AppContainer } from '../dependency-injection/appContainer';
 import { createApp } from './app';
 import { getAppConfig } from '../../shared/infrastructure/config/appConfig';
 
-export async function startApi(container: any) {
+export async function startApi(container: AppContainer) {
   const app = createApp(container);
   const port =
     container.hasParameter && container.hasParameter('config.port')

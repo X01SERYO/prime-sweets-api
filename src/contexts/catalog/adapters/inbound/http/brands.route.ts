@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
+import { AppContainer } from '../../../../../apps/dependency-injection/appContainer';
 import { httpResponse } from '../../../../../apps/controllers/httpResponse';
+import { routeParam } from '../../../../../apps/http/bearerToken';
 import { validateRequest } from '../../../../../apps/middlewares/validateRequest';
 import {
   brandIdParamSchema,
@@ -7,7 +9,7 @@ import {
   updateBrandSchema
 } from './brands.schema';
 
-export function createBrandsRouter(container: any) {
+export function createBrandsRouter(container: AppContainer) {
   const router = Router();
 
   router.get('/', async (_req: Request, res: Response) => {
@@ -17,7 +19,7 @@ export function createBrandsRouter(container: any) {
 
   router.get('/:id', validateRequest(brandIdParamSchema), async (req: Request, res: Response) => {
     const useCase = container.get('catalog.application.get_brand_use_case');
-    return httpResponse(res, await useCase.run(req.params.id));
+    return httpResponse(res, await useCase.run(routeParam(req.params.id)));
   });
 
   router.post('/', validateRequest(createBrandSchema), async (req: Request, res: Response) => {
@@ -30,7 +32,7 @@ export function createBrandsRouter(container: any) {
     return httpResponse(
       res,
       await useCase.run({
-        id: req.params.id,
+        id: routeParam(req.params.id),
         name: req.body.name,
         code: req.body.code
       })
@@ -39,7 +41,7 @@ export function createBrandsRouter(container: any) {
 
   router.delete('/:id', validateRequest(brandIdParamSchema), async (req: Request, res: Response) => {
     const useCase = container.get('catalog.application.delete_brand_use_case');
-    return httpResponse(res, await useCase.run(req.params.id));
+    return httpResponse(res, await useCase.run(routeParam(req.params.id)));
   });
 
   return router;

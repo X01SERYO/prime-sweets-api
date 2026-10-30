@@ -1,9 +1,9 @@
 import path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { getAppConfig } from '../../config/appConfig';
-import { BrandEntity } from './brand.entity';
-import { ProductEntity } from './product.entity';
-import { ProductPriceEntity } from './productPrice.entity';
+import { BrandEntity } from '../../../../contexts/catalog/adapters/outbound/persistence/entities/brand.entity';
+import { ProductEntity } from '../../../../contexts/catalog/adapters/outbound/persistence/entities/product.entity';
+import { ProductPriceEntity } from '../../../../contexts/catalog/adapters/outbound/persistence/entities/productPrice.entity';
 import { CustomerEntity } from '../../../../contexts/customers/adapters/outbound/persistence/customer.entity';
 import { SalesDayEntity } from '../../../../contexts/sales-day/adapters/outbound/persistence/salesDay.entity';
 import { SaleEntity } from '../../../../contexts/sales/adapters/outbound/persistence/sale.entity';

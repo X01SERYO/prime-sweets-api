@@ -1,4 +1,4 @@
-import { AlegraClient, AlegraPriceListItem } from '../../domain/interfaces/alegraClient.interface';
+import { AlegraClient, AlegraPriceListItem } from '../ports/outbound/alegraClient.port';
 
 export class SyncProductItemUseCase {
   constructor(

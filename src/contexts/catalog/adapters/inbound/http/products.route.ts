@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
+import { AppContainer } from '../../../../../apps/dependency-injection/appContainer';
 import { httpResponse } from '../../../../../apps/controllers/httpResponse';
+import { routeParam } from '../../../../../apps/http/bearerToken';
 import { validateRequest } from '../../../../../apps/middlewares/validateRequest';
 import {
   productIdParamSchema,
@@ -8,7 +10,7 @@ import {
   searchProductSchema
 } from './products.schema';
 
-export function createProductsRouter(container: any) {
+export function createProductsRouter(container: AppContainer) {
   const router = Router();
 
   router.get('/search', validateRequest(searchProductSchema), async (req: Request, res: Response) => {
@@ -39,7 +41,7 @@ export function createProductsRouter(container: any) {
 
   router.get('/:id', validateRequest(productIdParamSchema), async (req: Request, res: Response) => {
     const useCase = container.get('catalog.application.get_product_use_case');
-    return httpResponse(res, await useCase.run(req.params.id));
+    return httpResponse(res, await useCase.run(routeParam(req.params.id)));
   });
 
   router.post('/', validateRequest(createProductSchema), async (req: Request, res: Response) => {
@@ -52,7 +54,7 @@ export function createProductsRouter(container: any) {
     return httpResponse(
       res,
       await useCase.run({
-        id: req.params.id,
+        id: routeParam(req.params.id),
         name: req.body.name,
         wholesalePrice: req.body.wholesalePrice,
         retailPrice: req.body.retailPrice
@@ -62,7 +64,7 @@ export function createProductsRouter(container: any) {
 
   router.delete('/:id', validateRequest(productIdParamSchema), async (req: Request, res: Response) => {
     const useCase = container.get('catalog.application.delete_product_use_case');
-    return httpResponse(res, await useCase.run(req.params.id));
+    return httpResponse(res, await useCase.run(routeParam(req.params.id)));
   });
 
   return router;

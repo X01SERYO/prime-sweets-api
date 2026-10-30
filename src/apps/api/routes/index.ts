@@ -1,4 +1,5 @@
 import { Application } from 'express';
+import { AppContainer } from '../../dependency-injection/appContainer';
 import { createBrandsRouter } from '../../../contexts/catalog/adapters/inbound/http/brands.route';
 import { createProductsRouter } from '../../../contexts/catalog/adapters/inbound/http/products.route';
 import { createCustomersRouter } from '../../../contexts/customers/adapters/inbound/http/customers.route';
@@ -9,7 +10,7 @@ import { createInvoicesRouter } from '../../../contexts/fulfillment-output/adapt
 import { createAuthRouter } from '../../../contexts/identity/adapters/inbound/http/auth.route';
 import { requireSession } from '../../middlewares/requireSession';
 
-export function registerRoutes(app: Application, container: any) {
+export function registerRoutes(app: Application, container: AppContainer) {
   const session = requireSession(container);
   app.use('/auth', createAuthRouter(container));
   app.use('/brands', session, createBrandsRouter(container));

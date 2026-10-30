@@ -2,8 +2,8 @@ import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
 import { Product } from '../../../../domain/entities/product';
 import { ProductRepository } from '../../../../application/ports/outbound/product.repository';
-import { ProductEntity } from '../../../../../../shared/infrastructure/persistence/typeorm/product.entity';
-import { ProductPriceEntity } from '../../../../../../shared/infrastructure/persistence/typeorm/productPrice.entity';
+import { ProductEntity } from '../entities/product.entity';
+import { ProductPriceEntity } from '../entities/productPrice.entity';
 
 export class TypeOrmProductRepository implements ProductRepository {
   constructor(private readonly dataSource: DataSource) {}

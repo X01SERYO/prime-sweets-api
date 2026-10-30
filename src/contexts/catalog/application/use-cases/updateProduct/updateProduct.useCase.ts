@@ -68,7 +68,7 @@ export class UpdateProductUseCase {
         retailPrice: updated.retailPrice
       });
     } catch (error) {
-      return Result.fail(error instanceof Error ? error : new Error('Failed to sync product to Alegra'));
+      console.error('Alegra product sync failed after the local product was saved', error);
     }
 
     return Result.ok(updated.toPrimitives());

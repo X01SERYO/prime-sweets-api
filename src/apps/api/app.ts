@@ -1,7 +1,8 @@
 import express from 'express';
+import { AppContainer } from '../dependency-injection/appContainer';
 import { registerRoutes } from './routes';
 
-export function createApp(container: any) {
+export function createApp(container: AppContainer) {
   const app = express();
   app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');

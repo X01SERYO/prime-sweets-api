@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
+import { AppContainer } from '../../../../../apps/dependency-injection/appContainer';
 import { httpResponse } from '../../../../../apps/controllers/httpResponse';
+import { routeParam } from '../../../../../apps/http/bearerToken';
 import { validateRequest } from '../../../../../apps/middlewares/validateRequest';
 import {
   getCustomerSchema,
@@ -8,7 +10,7 @@ import {
   searchCustomerSchema
 } from './customers.schema';
 
-export function createCustomersRouter(container: any) {
+export function createCustomersRouter(container: AppContainer) {
   const router = Router();
 
   router.get('/search', validateRequest(searchCustomerSchema), async (req: Request, res: Response) => {
@@ -36,7 +38,7 @@ export function createCustomersRouter(container: any) {
 
   router.get('/:id', validateRequest(getCustomerSchema), async (req: Request, res: Response) => {
     const useCase = container.get('customers.application.get_customer_use_case');
-    return httpResponse(res, await useCase.run(req.params.id));
+    return httpResponse(res, await useCase.run(routeParam(req.params.id)));
   });
 
   router.post('/', validateRequest(createCustomerSchema), async (req: Request, res: Response) => {
@@ -60,7 +62,7 @@ export function createCustomersRouter(container: any) {
     return httpResponse(
       res,
       await useCase.run({
-        id: req.params.id,
+        id: routeParam(req.params.id),
         documentType: req.body.documentType,
         documentNumber: req.body.documentNumber,
         name: req.body.name,

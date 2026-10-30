@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { BrandEntity } from './brand.entity';
 import { ProductPriceEntity } from './productPrice.entity';
-import { moneyTransformer } from './money.transformer';
+import { moneyTransformer } from '../../../../../../shared/infrastructure/persistence/typeorm/money.transformer';
 
 @Entity('products')
 @Unique(['alegraId'])

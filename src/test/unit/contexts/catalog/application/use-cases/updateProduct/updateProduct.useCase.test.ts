@@ -27,6 +27,9 @@ function repository(): ProductRepository {
     async search() {
       return [stored];
     },
+    async nextProductCode() {
+      return 'GEN001';
+    },
     async save() {},
     async delete() {}
   };

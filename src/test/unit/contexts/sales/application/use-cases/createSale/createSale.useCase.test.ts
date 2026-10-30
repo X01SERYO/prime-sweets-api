@@ -48,6 +48,7 @@ function createMocks() {
       'prod-1',
       {
         id: 'prod-1',
+        code: 'COL001',
         name: 'Gomitas Ácidas',
         wholesalePrice: 1500,
         wholesaleCost: 900

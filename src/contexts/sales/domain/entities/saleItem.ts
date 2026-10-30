@@ -12,6 +12,7 @@ export function isSellableQuantity(quantity: number): boolean {
 export type SaleItemPrimitives = {
   id: string;
   productId: string;
+  productCode: string;
   itemName: string;
   quantity: number;
   wholesalePrice: number;
@@ -25,12 +26,17 @@ export class SaleItem {
   private constructor(
     readonly id: string,
     readonly productId: string,
+    private _productCode: string,
     private _itemName: string,
     private _quantity: number,
     readonly wholesalePrice: number,
     readonly wholesaleCost: number,
     readonly createdAt: Date
   ) {}
+
+  get productCode(): string {
+    return this._productCode;
+  }
 
   get itemName(): string {
     return this._itemName;
@@ -51,6 +57,7 @@ export class SaleItem {
   static create(params: {
     id: string;
     productId: string;
+    productCode?: string;
     itemName: string;
     quantity: number;
     wholesalePrice: number;
@@ -87,6 +94,7 @@ export class SaleItem {
     return new SaleItem(
       trimmedId,
       trimmedProductId,
+      params.productCode?.trim() ?? '',
       trimmedItemName,
       params.quantity,
       params.wholesalePrice,
@@ -103,6 +111,7 @@ export class SaleItem {
     return new SaleItem(
       this.id,
       this.productId,
+      this._productCode,
       this._itemName,
       newQuantity,
       this.wholesalePrice,
@@ -120,6 +129,7 @@ export class SaleItem {
     return new SaleItem(
       this.id,
       this.productId,
+      this._productCode,
       trimmed,
       this._quantity,
       this.wholesalePrice,
@@ -132,6 +142,7 @@ export class SaleItem {
     return {
       id: this.id,
       productId: this.productId,
+      productCode: this._productCode,
       itemName: this._itemName,
       quantity: this._quantity,
       wholesalePrice: this.wholesalePrice,

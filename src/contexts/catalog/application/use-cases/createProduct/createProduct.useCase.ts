@@ -42,12 +42,18 @@ export class CreateProductUseCase {
       return Result.fail(new ProductAlreadyExistsError(alegraId));
     }
 
+    let brandId: string | null = null;
+    let brandCode = 'GEN';
     if (dto.brandId) {
       const brand = await this.brandRepository.findById(dto.brandId);
       if (!brand) {
         return Result.fail(new BrandNotFoundError(dto.brandId));
       }
+      brandCode = brand.toPrimitives().code;
+      brandId = brand.toPrimitives().id;
     }
+
+    const code = await this.productRepository.nextProductCode(brandId, brandCode);
 
     const wholesalePrice = optionalNumber(dto.wholesalePrice, 'wholesalePrice');
     if (!wholesalePrice.isSuccess) return Result.fail(wholesalePrice.error!);
@@ -63,6 +69,7 @@ export class CreateProductUseCase {
     const product = Product.create({
       id: this.ids.next(),
       alegraId,
+      code,
       brandId: dto.brandId ?? null,
       name: dto.name ?? null,
       suggestedPrice: suggestedPrice.value ?? null,

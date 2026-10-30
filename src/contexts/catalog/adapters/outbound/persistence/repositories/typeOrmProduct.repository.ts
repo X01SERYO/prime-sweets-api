@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { DataSource } from 'typeorm';
 import { Product } from '../../../../domain/entities/product';
 import { ProductRepository } from '../../../../application/ports/outbound/product.repository';
+import { formatProductCode } from '../../../../domain/productCode';
 import { ProductEntity } from '../entities/product.entity';
 import { ProductPriceEntity } from '../entities/productPrice.entity';
 
@@ -54,11 +55,30 @@ export class TypeOrmProductRepository implements ProductRepository {
       .where('product.name ILIKE :pattern', { pattern })
       .orWhere('brand.name ILIKE :pattern', { pattern })
       .orWhere('brand.code ILIKE :pattern', { pattern })
-      .orWhere('product.alegraId ILIKE :pattern', { pattern })
+      .orWhere('product.code ILIKE :pattern', { pattern })
       .orderBy('product.name', 'ASC')
       .getMany();
 
     return entities.map((entity) => this.toDomain(entity));
+  }
+
+  async nextProductCode(brandId: string | null, brandCode: string): Promise<string> {
+    const query = this.productRepo.createQueryBuilder('product').select('product.code', 'code');
+    if (brandId) {
+      query.where('product.brand_id = :brandId', { brandId });
+    } else {
+      query.where('product.brand_id IS NULL');
+    }
+    const rows = await query.getRawMany<{ code: string }>();
+    const prefix = brandCode.trim().toUpperCase();
+    let max = 0;
+    for (const row of rows) {
+      const match = new RegExp(`^${prefix}(\\d+)$`).exec(row.code ?? '');
+      if (match) {
+        max = Math.max(max, Number(match[1]));
+      }
+    }
+    return formatProductCode(prefix, max + 1);
   }
 
   async delete(id: string): Promise<void> {
@@ -69,6 +89,7 @@ export class TypeOrmProductRepository implements ProductRepository {
     await this.productRepo.save({
       id: product.id,
       alegraId: product.alegraId,
+      code: product.code,
       brandId: product.brandId,
       name: product.name,
       suggestedPrice: product.suggestedPrice,
@@ -110,6 +131,7 @@ export class TypeOrmProductRepository implements ProductRepository {
     return Product.create({
       id: entity.id,
       alegraId: entity.alegraId,
+      code: entity.code,
       brandId: entity.brandId,
       name: entity.name,
       suggestedPrice: entity.suggestedPrice,

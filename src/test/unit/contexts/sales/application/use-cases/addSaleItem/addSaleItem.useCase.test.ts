@@ -39,7 +39,7 @@ test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
   const productProvider: ProductSnapshotProvider = {
     async getSnapshot(id) {
       if (id === 'p-100') {
-        return { id: 'p-100', name: 'Chocolatina Jet', wholesalePrice: 800, wholesaleCost: 500 };
+        return { id: 'p-100', code: 'NAC001', name: 'Chocolatina Jet', wholesalePrice: 800, wholesaleCost: 500 };
       }
       return null;
     }
@@ -116,7 +116,7 @@ test('AddSaleItemUseCase - fails if sales day is closed', async () => {
 
   const productProvider: ProductSnapshotProvider = {
     async getSnapshot() {
-      return { id: 'p-1', name: 'Item', wholesalePrice: 100, wholesaleCost: 50 };
+      return { id: 'p-1', code: 'COL001', name: 'Item', wholesalePrice: 100, wholesaleCost: 50 };
     }
   };
 

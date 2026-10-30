@@ -23,6 +23,9 @@ export class SaleItemEntity {
   @Column({ type: 'uuid', name: 'product_id', nullable: false })
   productId!: string;
 
+  @Column({ type: 'varchar', length: 16, name: 'product_code', nullable: false, default: '' })
+  productCode!: string;
+
   @Column({ type: 'varchar', length: 255, name: 'item_name', nullable: false })
   itemName!: string;
 

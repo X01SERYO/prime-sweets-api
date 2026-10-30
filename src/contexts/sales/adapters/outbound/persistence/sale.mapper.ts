@@ -18,6 +18,7 @@ export class SaleMapper {
       SaleItem.create({
         id: itemEntity.id,
         productId: itemEntity.productId,
+        productCode: itemEntity.productCode,
         itemName: itemEntity.itemName,
         quantity: Number(itemEntity.quantity),
         wholesalePrice: Number(itemEntity.wholesalePrice),
@@ -62,6 +63,7 @@ export class SaleMapper {
       itemEntity.id = item.id;
       itemEntity.saleId = primitives.id;
       itemEntity.productId = item.productId;
+      itemEntity.productCode = item.productCode;
       itemEntity.itemName = item.itemName;
       itemEntity.quantity = item.quantity;
       itemEntity.wholesalePrice = item.wholesalePrice;

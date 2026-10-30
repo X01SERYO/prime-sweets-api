@@ -55,6 +55,7 @@ export class CreateSaleUseCase {
         const saleItem = SaleItem.create({
           id: this.ids.next(),
           productId: snapshot.id,
+          productCode: snapshot.code,
           itemName: itemDto.itemName?.trim() || snapshot.name,
           quantity: itemDto.quantity,
           wholesalePrice: snapshot.wholesalePrice,

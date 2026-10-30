@@ -11,6 +11,7 @@ export class CatalogProductSnapshotAdapter implements ProductSnapshotProvider {
     const primitives = product.toPrimitives();
     return {
       id: primitives.id,
+      code: primitives.code,
       name: primitives.name ?? 'Sin nombre',
       wholesalePrice: primitives.wholesalePrice ?? 0,
       wholesaleCost: primitives.wholesaleCost ?? 0

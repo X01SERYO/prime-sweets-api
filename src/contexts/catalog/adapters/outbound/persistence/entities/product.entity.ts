@@ -22,6 +22,9 @@ export class ProductEntity {
   @Column({ name: 'alegra_id', type: 'varchar', length: 64, nullable: false })
   alegraId!: string;
 
+  @Column({ type: 'varchar', length: 16, nullable: false })
+  code!: string;
+
   @Column({ name: 'brand_id', type: 'uuid', nullable: true })
   brandId!: string | null;
 

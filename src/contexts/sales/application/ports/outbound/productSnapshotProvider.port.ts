@@ -1,5 +1,6 @@
 export type ProductSnapshot = {
   id: string;
+  code: string;
   name: string;
   wholesalePrice: number;
   wholesaleCost: number;

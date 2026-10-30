@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import { RequestValidationSchema } from '../../../../../apps/middlewares/validateRequest';
 
+const quantitySchema = z
+  .number()
+  .positive({ message: 'quantity must be greater than 0' })
+  .refine((value) => Math.abs(value * 1000 - Math.round(value * 1000)) < 1e-6, {
+    message: 'quantity supports up to 3 decimal places'
+  });
+
 export const createSaleSchema: RequestValidationSchema = {
   body: z.object({
     salesDayId: z.string().trim().min(1, 'salesDayId is required'),
@@ -10,7 +17,7 @@ export const createSaleSchema: RequestValidationSchema = {
         z.object({
           productId: z.string().trim().min(1, 'productId is required'),
           itemName: z.string().trim().min(1).optional(),
-          quantity: z.number().int().positive({ message: 'quantity must be a positive integer' })
+          quantity: quantitySchema
         })
       )
       .optional()
@@ -38,7 +45,7 @@ export const addSaleItemSchema: RequestValidationSchema = {
   body: z.object({
     productId: z.string().trim().min(1, 'productId is required'),
     itemName: z.string().trim().min(1).optional(),
-    quantity: z.number().int().positive({ message: 'quantity must be a positive integer' })
+    quantity: quantitySchema
   })
 };
 
@@ -48,7 +55,7 @@ export const updateSaleItemQuantitySchema: RequestValidationSchema = {
     itemId: z.string().trim().min(1, 'itemId is required')
   }),
   body: z.object({
-    quantity: z.number().int().positive({ message: 'quantity must be a positive integer' })
+    quantity: quantitySchema
   })
 };
 

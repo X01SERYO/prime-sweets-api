@@ -65,7 +65,7 @@ test('SaleItem entity - updates transaction-time itemName', () => {
   assert.equal(updated.productId, 'prod-100'); // productId remains unchanged
 });
 
-test('SaleItem entity - validates positive integer quantity', () => {
+test('SaleItem entity - accepts a decimal quantity and rejects zero or negative', () => {
   assert.throws(
     () =>
       SaleItem.create({
@@ -92,18 +92,16 @@ test('SaleItem entity - validates positive integer quantity', () => {
     InvalidQuantityError
   );
 
-  assert.throws(
-    () =>
-      SaleItem.create({
-        id: '1',
-        productId: 'p1',
-        itemName: 'Name',
-        quantity: 1.5,
-        wholesalePrice: 100,
-        wholesaleCost: 50
-      }),
-    InvalidQuantityError
-  );
+  const decimal = SaleItem.create({
+    id: '1',
+    productId: 'p1',
+    itemName: 'Name',
+    quantity: 1.5,
+    wholesalePrice: 100,
+    wholesaleCost: 50
+  });
+  assert.equal(decimal.quantity, 1.5);
+  assert.equal(decimal.totalPrice, 150);
 });
 
 test('SaleItem entity - validates prices, costs and mandatory fields', () => {

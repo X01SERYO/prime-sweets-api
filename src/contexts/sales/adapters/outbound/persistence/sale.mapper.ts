@@ -19,7 +19,7 @@ export class SaleMapper {
         id: itemEntity.id,
         productId: itemEntity.productId,
         itemName: itemEntity.itemName,
-        quantity: itemEntity.quantity,
+        quantity: Number(itemEntity.quantity),
         wholesalePrice: Number(itemEntity.wholesalePrice),
         wholesaleCost: Number(itemEntity.wholesaleCost),
         createdAt: itemEntity.createdAt

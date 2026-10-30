@@ -1,6 +1,14 @@
 import { InvalidSaleError } from '../errors/invalidSale.error';
 import { InvalidQuantityError } from '../errors/invalidQuantity.error';
 
+export function isSellableQuantity(quantity: number): boolean {
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    return false;
+  }
+  const thousandths = Math.round(quantity * 1000);
+  return Math.abs(quantity * 1000 - thousandths) < 1e-6;
+}
+
 export type SaleItemPrimitives = {
   id: string;
   productId: string;
@@ -64,8 +72,8 @@ export class SaleItem {
       throw new InvalidSaleError('Sale item name cannot be empty');
     }
 
-    if (!Number.isInteger(params.quantity) || params.quantity <= 0) {
-      throw new InvalidQuantityError('Quantity must be an integer greater than 0');
+    if (!isSellableQuantity(params.quantity)) {
+      throw new InvalidQuantityError('Quantity must be greater than 0');
     }
 
     if (typeof params.wholesalePrice !== 'number' || Number.isNaN(params.wholesalePrice) || params.wholesalePrice < 0) {

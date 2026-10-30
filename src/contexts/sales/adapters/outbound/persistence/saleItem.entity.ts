@@ -26,7 +26,7 @@ export class SaleItemEntity {
   @Column({ type: 'varchar', length: 255, name: 'item_name', nullable: false })
   itemName!: string;
 
-  @Column({ type: 'integer', nullable: false })
+  @Column({ type: 'numeric', precision: 12, scale: 3, nullable: false })
   quantity!: number;
 
   @Column({ type: 'numeric', precision: 12, scale: 2, name: 'wholesale_price', nullable: false })

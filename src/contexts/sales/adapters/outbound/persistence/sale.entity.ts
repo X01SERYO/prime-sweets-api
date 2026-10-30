@@ -38,7 +38,7 @@ export class SaleEntity {
   @Column({ type: 'numeric', precision: 12, scale: 2, name: 'total_profit', default: 0 })
   totalProfit!: number;
 
-  @Column({ type: 'integer', name: 'total_quantity', default: 0 })
+  @Column({ type: 'numeric', precision: 14, scale: 3, name: 'total_quantity', default: 0 })
   totalQuantity!: number;
 
   @Column({ type: 'timestamptz', name: 'confirmed_at', nullable: true })

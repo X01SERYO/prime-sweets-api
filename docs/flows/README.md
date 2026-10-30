@@ -4,7 +4,7 @@
 
 Only flows that exist in code are described as current. Version 1 store-to-store flows from the PDR/SPEC are listed as **pending**; they are not filled in.
 
-HTTP mapping for all current flows: success 200 (POST create 201), `NotFoundError` → 404, other `DomainError` → 400, untyped errors → 500. No authentication.
+HTTP mapping for all current flows: success 200 (POST create 201), `NotFoundError` → 404, other `DomainError` → 400, untyped errors → 500. Business routes require a bearer session. A missing or unknown token is `INVALID_SESSION` (401).
 
 ## 1. Brand CRUD
 
@@ -100,7 +100,7 @@ AlegraClient.updateItem  (PUT {base}/items/{alegraId})
 
 Retail price `0` is not added to the Alegra payload. Wholesale price `0` is added if the value is not null/undefined.
 
-If persist succeeds and Alegra then fails, the use case returns failure (`AlegraRequestError` or wrapped error). There is no compensating transaction or outbox.
+If persist succeeds and Alegra then fails, the failure is logged and the use case still returns the saved product. There is no compensating transaction or outbox.
 
 ## 4. Customer CRUD
 
@@ -180,24 +180,24 @@ Body: `salesDayId` (required UUID), `customerId` (required UUID), `items` (optio
 
 ### Add item to Sale — `POST /sales/:id/items`
 
-Body: `productId` (required), `itemName` (optional custom string), `quantity` (positive int).
+Body: `productId` (required), `itemName` (optional custom string), `quantity` (positive number, at most 3 decimal places).
 
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
 3. Fetch Catalog snapshot for product or `ProductNotFoundForSaleError`.
-4. Add item to sale (accumulates quantity if product already exists in sale).
+4. Add the item. Quantity accumulates only when the same product already has the same item name. A different name stays a separate line. Lines are kept newest first.
 5. Recalculate totals and persist.
 
-### Update item quantity — `PUT /sales/:id/items/:productId/quantity`
+### Update item quantity — `PUT /sales/:id/items/:itemId/quantity`
 
-Body: `quantity` (positive int).
+Body: `quantity` (positive number, at most 3 decimal places). The path identifies the sale item, not the product.
 
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
 3. Update item quantity and recalculate totals.
 4. Persist.
 
-### Update item name — `PUT /sales/:id/items/:productId/name`
+### Update item name — `PUT /sales/:id/items/:itemId/name`
 
 Body: `itemName` (non-empty string).
 
@@ -206,7 +206,7 @@ Body: `itemName` (non-empty string).
 3. Verify sale is in `DRAFT` status (item name cannot be modified after confirmation as per PDR).
 4. Persist updated transaction-time item name.
 
-### Remove item — `DELETE /sales/:id/items/:productId`
+### Remove item — `DELETE /sales/:id/items/:itemId`
 
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
@@ -232,7 +232,8 @@ Body: `itemName` (non-empty string).
 
 ### Get / List Sales — `GET /sales/:id`, `GET /sales?salesDayId=...&customerId=...&status=...`
 
-1. Retrieve sale by ID or list sales filtering by Sales Day, Customer, or Status.
+1. Retrieve one sale by id, or list sales filtered by Sales Day, customer, or status.
+2. The list is ordered by `createdAt` descending. Items on each sale are ordered by their own `createdAt` descending.
 
 ## 7. Load Sheet generation
 
@@ -265,7 +266,7 @@ Read model of invoice numbers already allocated on a Sales Day. Listing does not
 3. `OPEN` and `CLOSED` are both accepted. Closing the day is not a precondition for listing invoices.
 4. Read sales for that Sales Day. Keep sales whose status is `CONFIRMED` or `VOIDED` and that already have an `invoiceNumber`. `DRAFT` sales are omitted because confirmation is the only point that allocates a number.
 5. Return one summary per invoice: `saleId`, `salesDayId`, `customerId`, `invoiceNumber`, `status`, `confirmedAt`, `totalAmount`. Line items and the transaction-time `itemName` are not included.
-6. Order the summaries by `invoiceNumber` ascending. Digit-only numbers compare as integers, so `1000` follows `999`.
+6. Order the summaries by `invoiceNumber` descending. Digit-only numbers compare as integers, so `1000` comes before `999`.
 7. A Sales Day with no allocated invoices returns `[]`.
 
 ## 9. Invoice generation
@@ -289,11 +290,12 @@ Printing is not an API route. The UI on the PC opens the Windows print dialog wi
 
 ## Pending definition / not implemented
 
-These appear in the PDR/SPEC as Version 1. They have **no** code paths in this repository. Details belong in the SPEC when implemented; they are not specified here.
+Authentication is built: `POST /auth/login`, `GET /auth/session`, and `POST /auth/logout`. Sessions are stored in Postgres and survive a process restart until they expire. A seller keeps at most 3 open sessions; a new login closes the oldest. Business routes reject a missing or unknown token with `INVALID_SESSION`.
+
+These remaining areas appear in the PDR/SPEC and have **no** code paths here.
 
 | Area | What is missing in code |
 |---|---|
-| Authentication | Built. `POST /auth/login`, `GET /auth/session`, and `POST /auth/logout`. Sessions are stored in Postgres and survive a process restart until they expire. A seller keeps at most 3 open sessions; a new login closes the oldest. Business routes reject a missing or unknown token with `INVALID_SESSION`. |
 | Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
 | Catalog Excel migration | One-shot import with invalid/duplicate reporting |
 | Alegra inbound | Pull items/prices from Alegra into local catalog |

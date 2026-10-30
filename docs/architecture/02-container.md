@@ -45,5 +45,5 @@ Schema from migrations `1760000000001` through `1760000000008`. Catalog ORM enti
 | Topic | Current behavior |
 |---|---|
 | Deployable | One Node process. |
-| Alegra delivery | Synchronous on the same `UpdateProduct` request. Persist runs first; if Alegra then fails, the use case returns failure while local data may already be saved. |
-| Authentication | None on routes. |
+| Alegra delivery | Synchronous on the same `UpdateProduct` request. Persist runs first; if Alegra then fails, the error is logged and the saved product is still returned. |
+| Authentication | Bearer session on business routes. Sessions are rows in `sessions`. |

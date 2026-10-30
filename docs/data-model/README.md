@@ -186,7 +186,7 @@ Unique & Index: `IDX_sales_days_seller_date` on `(seller_id, date)`.
 | `invoice_business_date` | varchar(10) | nullable. Business date `YYYY-MM-DD` copied from the open Sales Day at confirmation |
 | `total_amount` | numeric(12,2) | NOT NULL, default `0` |
 | `total_profit` | numeric(12,2) | NOT NULL, default `0` |
-| `total_quantity` | integer | NOT NULL, default `0` |
+| `total_quantity` | numeric(14,3) | NOT NULL, default `0` |
 | `confirmed_at` | timestamptz | nullable |
 | `voided_at` | timestamptz | nullable |
 | `created_at` / `updated_at` | timestamptz | default `now()` |
@@ -201,14 +201,14 @@ Indexes: `IDX_sales_sales_day_id`, `IDX_sales_customer_id`. Unique index `UQ_sal
 | `sale_id` | uuid | NOT NULL, FK to `sales(id)` ON DELETE CASCADE |
 | `product_id` | uuid | NOT NULL, FK to `products(id)` |
 | `item_name` | varchar(255) | NOT NULL |
-| `quantity` | integer | NOT NULL |
+| `quantity` | numeric(12,3) | NOT NULL |
 | `wholesale_price` | numeric(12,2) | NOT NULL |
 | `wholesale_cost` | numeric(12,2) | NOT NULL |
 | `total_price` | numeric(12,2) | NOT NULL |
 | `profit` | numeric(12,2) | NOT NULL |
 | `created_at` / `updated_at` | timestamptz | default `now()` |
 
-Indexes: `IDX_sale_items_sale_id`, `IDX_sale_items_product_id`.
+Indexes: `IDX_sale_items_sale_id`, `IDX_sale_items_product_id`. Migration `1760000000011` changes `sale_items.quantity` and `sales.total_quantity` from integer to numeric so a line can store up to 3 decimal places.
 
 ### `invoice_sequences`
 
@@ -220,6 +220,19 @@ Indexes: `IDX_sale_items_sale_id`, `IDX_sale_items_product_id`.
 | `updated_at` | timestamptz | default `now()` |
 
 Migration `1760000000006` seeded `('default', 0, 'INV-')`. Migration `1760000000008` deletes that row. New numbers are allocated against the business date, not `'default'`.
+
+### `sessions`
+
+| Column | Type | Constraints |
+|---|---|---|
+| `token` | varchar(64) | PK |
+| `user_id` | uuid | NOT NULL |
+| `email` | varchar(255) | NOT NULL |
+| `display_name` | varchar(255) | NOT NULL |
+| `expires_at` | timestamptz | NOT NULL |
+| `created_at` | timestamptz | default `now()` |
+
+A seller keeps at most 3 open sessions. A new login closes the oldest.
 
 ## Domain mapping
 

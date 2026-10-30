@@ -18,6 +18,10 @@ class InMemorySalesDayRepository implements SalesDayRepository {
     return this.salesDays.find((sd) => sd.sellerId === sellerId && sd.date === date) ?? null;
   }
 
+  async findBySellerBetween(sellerId: string, fromDate: string, toDate: string): Promise<SalesDay[]> {
+    return this.salesDays.filter((sd) => sd.sellerId === sellerId && sd.date >= fromDate && sd.date <= toDate);
+  }
+
   async findActiveBySeller(sellerId: string): Promise<SalesDay | null> {
     return this.salesDays.find((sd) => sd.sellerId === sellerId && sd.isOpen()) ?? null;
   }

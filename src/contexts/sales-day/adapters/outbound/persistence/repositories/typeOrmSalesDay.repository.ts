@@ -20,6 +20,17 @@ export class TypeOrmSalesDayRepository implements SalesDayRepository {
     return entity ? this.toDomain(entity) : null;
   }
 
+  async findBySellerBetween(sellerId: string, fromDate: string, toDate: string): Promise<SalesDay[]> {
+    const entities = await this.repo
+      .createQueryBuilder('salesDay')
+      .where('salesDay.sellerId = :sellerId', { sellerId })
+      .andWhere('salesDay.date >= :fromDate', { fromDate })
+      .andWhere('salesDay.date <= :toDate', { toDate })
+      .orderBy('salesDay.date', 'DESC')
+      .getMany();
+    return entities.map(entity => this.toDomain(entity));
+  }
+
   async findActiveBySeller(sellerId: string): Promise<SalesDay | null> {
     const entity = await this.repo.findOne({ where: { sellerId, status: 'OPEN' } });
     return entity ? this.toDomain(entity) : null;

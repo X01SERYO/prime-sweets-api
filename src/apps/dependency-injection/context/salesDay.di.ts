@@ -4,6 +4,7 @@ import { TypeOrmSalesDayRepository } from '../../../contexts/sales-day/adapters/
 import { ColombianBusinessDateProvider } from '../../../contexts/sales-day/application/services/businessDate.provider';
 import { OpenCurrentSalesDayUseCase } from '../../../contexts/sales-day/application/use-cases/openCurrentSalesDay/openCurrentSalesDay.useCase';
 import { GetCurrentSalesDayUseCase } from '../../../contexts/sales-day/application/use-cases/getCurrentSalesDay/getCurrentSalesDay.useCase';
+import { ListRecentSalesDaysUseCase } from '../../../contexts/sales-day/application/use-cases/listRecentSalesDays/listRecentSalesDays.useCase';
 import { CloseSalesDayUseCase } from '../../../contexts/sales-day/application/use-cases/closeSalesDay/closeSalesDay.useCase';
 import { ReopenCurrentSalesDayUseCase } from '../../../contexts/sales-day/application/use-cases/reopenCurrentSalesDay/reopenCurrentSalesDay.useCase';
 
@@ -28,6 +29,11 @@ export function registerSalesDayDependencies(container: ContainerBuilder): void 
 
   container
     .register('sales_day.application.get_current_sales_day_use_case', GetCurrentSalesDayUseCase)
+    .addArgument(salesDayRepoRef)
+    .addArgument(dateProviderRef);
+
+  container
+    .register('sales_day.application.list_recent_sales_days_use_case', ListRecentSalesDaysUseCase)
     .addArgument(salesDayRepoRef)
     .addArgument(dateProviderRef);
 

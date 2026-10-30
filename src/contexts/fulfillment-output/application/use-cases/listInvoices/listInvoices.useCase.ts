@@ -27,8 +27,8 @@ function compareInvoiceNumbers(left: string, right: string): number {
   const leftNumber = Number(left);
   const rightNumber = Number(right);
   if (Number.isInteger(leftNumber) && Number.isInteger(rightNumber)) {
-    return leftNumber - rightNumber;
+    return rightNumber - leftNumber;
   }
 
-  return left.localeCompare(right);
+  return right.localeCompare(left);
 }

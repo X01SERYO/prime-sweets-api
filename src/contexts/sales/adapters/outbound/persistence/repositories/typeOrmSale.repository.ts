@@ -42,7 +42,7 @@ export class TypeOrmSaleRepository implements SaleRepository {
     const entities = await this.repository.find({
       where: { salesDayId },
       relations: ['items'],
-      order: { createdAt: 'ASC', items: { createdAt: 'DESC' } }
+      order: { createdAt: 'DESC', items: { createdAt: 'DESC' } }
     });
 
     return entities.map(SaleMapper.toDomain);
@@ -63,7 +63,7 @@ export class TypeOrmSaleRepository implements SaleRepository {
       query.andWhere('sale.status = :status', { status: filters.status });
     }
 
-    query.orderBy('sale.created_at', 'ASC').addOrderBy('item.created_at', 'DESC');
+    query.orderBy('sale.created_at', 'DESC').addOrderBy('item.created_at', 'DESC');
 
     const entities = await query.getMany();
     return entities.map(SaleMapper.toDomain);

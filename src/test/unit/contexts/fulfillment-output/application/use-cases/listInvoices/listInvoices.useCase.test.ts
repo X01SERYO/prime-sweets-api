@@ -48,7 +48,7 @@ function setup(status: 'OPEN' | 'CLOSED' | null) {
   };
 }
 
-test('ListInvoicesUseCase - returns allocated invoices ordered by invoice number for an open Sales Day', async () => {
+test('ListInvoicesUseCase - returns allocated invoices newest first for an open Sales Day', async () => {
   const { useCase } = setup('OPEN');
 
   const result = await useCase.run({ salesDayId: 'sd-1' });
@@ -56,9 +56,9 @@ test('ListInvoicesUseCase - returns allocated invoices ordered by invoice number
   assert.equal(result.isSuccess, true);
   assert.deepEqual(
     result.value?.map(invoice => invoice.invoiceNumber),
-    ['INV-00001', 'INV-00002']
+    ['INV-00002', 'INV-00001']
   );
-  assert.equal(result.value?.[1].status, 'VOIDED');
+  assert.equal(result.value?.[0].status, 'VOIDED');
 });
 
 test('ListInvoicesUseCase - returns allocated invoices when the Sales Day is closed', async () => {
@@ -70,7 +70,7 @@ test('ListInvoicesUseCase - returns allocated invoices when the Sales Day is clo
   assert.equal(result.value?.length, 2);
 });
 
-test('ListInvoicesUseCase - orders numeric invoice numbers so 1000 follows 999', async () => {
+test('ListInvoicesUseCase - orders numeric invoice numbers so 1000 comes before 999', async () => {
   const salesDayClosureQuery: SalesDayClosureQuery = {
     async findById(salesDayId) {
       return { id: salesDayId, status: 'OPEN' };
@@ -106,7 +106,7 @@ test('ListInvoicesUseCase - orders numeric invoice numbers so 1000 follows 999',
 
   assert.deepEqual(
     result.value?.map(invoice => invoice.invoiceNumber),
-    ['999', '1000']
+    ['1000', '999']
   );
 });
 

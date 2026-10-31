@@ -7,7 +7,9 @@ import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecke
 import { CustomerChecker } from '../../ports/outbound/customerChecker.port';
 import { ProductSnapshotProvider } from '../../ports/outbound/productSnapshotProvider.port';
 import { CreateSaleDto } from '../../dto/createSale.dto';
-import { SalesDayNotOpenForSaleError } from '../../../domain/errors/salesDayNotOpenForSale.error';
+import { DeliveryDateBeforeSaleError } from '../../../domain/errors/deliveryDateBeforeSale.error';
+import { DeliveryDateRequiredError } from '../../../domain/errors/deliveryDateRequired.error';
+import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
 import { CustomerNotFoundForSaleError } from '../../../domain/errors/customerNotFoundForSale.error';
 import { ProductNotFoundForSaleError } from '../../../domain/errors/productNotFoundForSale.error';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
@@ -29,9 +31,16 @@ export class CreateSaleUseCase {
       return Result.fail(new InvalidSaleError('Customer id cannot be empty'));
     }
 
-    const salesDayOpen = await this.salesDayStatusChecker.isSalesDayOpen(dto.salesDayId);
-    if (!salesDayOpen) {
-      return Result.fail(new SalesDayNotOpenForSaleError(dto.salesDayId));
+    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, dto.salesDayId.trim());
+    if (editable instanceof Error) {
+      return Result.fail(editable);
+    }
+    const deliveryDate = dto.deliveryDate?.trim() ?? '';
+    if (!deliveryDate) {
+      return Result.fail(new DeliveryDateRequiredError());
+    }
+    if (deliveryDate < editable.date) {
+      return Result.fail(new DeliveryDateBeforeSaleError());
     }
 
     const customerExists = await this.customerChecker.customerExists(dto.customerId);
@@ -42,7 +51,8 @@ export class CreateSaleUseCase {
     let sale = Sale.create({
       id: this.ids.next(),
       salesDayId: dto.salesDayId.trim(),
-      customerId: dto.customerId.trim()
+      customerId: dto.customerId.trim(),
+      deliveryDate
     });
 
     if (dto.items && dto.items.length > 0) {

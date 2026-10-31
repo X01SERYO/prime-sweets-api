@@ -7,7 +7,8 @@ import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecke
 import { ProductSnapshotProvider } from '../../ports/outbound/productSnapshotProvider.port';
 import { AddSaleItemDto } from '../../dto/addSaleItem.dto';
 import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { SalesDayNotOpenForSaleError } from '../../../domain/errors/salesDayNotOpenForSale.error';
+import { DeliveryDateRequiredError } from '../../../domain/errors/deliveryDateRequired.error';
+import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
 import { ProductNotFoundForSaleError } from '../../../domain/errors/productNotFoundForSale.error';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 
@@ -32,9 +33,12 @@ export class AddSaleItemUseCase {
       return Result.fail(new SaleNotFoundError(dto.saleId));
     }
 
-    const isOpen = await this.salesDayStatusChecker.isSalesDayOpen(sale.salesDayId);
-    if (!isOpen) {
-      return Result.fail(new SalesDayNotOpenForSaleError(sale.salesDayId));
+    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, sale.salesDayId);
+    if (editable instanceof Error) {
+      return Result.fail(editable);
+    }
+    if (!sale.deliveryDate) {
+      return Result.fail(new DeliveryDateRequiredError());
     }
 
     const snapshot = await this.productSnapshotProvider.getSnapshot(dto.productId.trim());

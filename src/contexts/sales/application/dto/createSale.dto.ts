@@ -7,5 +7,6 @@ export type CreateSaleItemDto = {
 export type CreateSaleDto = {
   salesDayId: string;
   customerId: string;
+  deliveryDate: string;
   items?: CreateSaleItemDto[];
 };

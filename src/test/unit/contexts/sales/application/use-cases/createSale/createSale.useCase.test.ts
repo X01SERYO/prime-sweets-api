@@ -6,7 +6,7 @@ import { SaleRepository } from '../../../../../../../contexts/sales/application/
 import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 import { CustomerChecker } from '../../../../../../../contexts/sales/application/ports/outbound/customerChecker.port';
 import { ProductSnapshot, ProductSnapshotProvider } from '../../../../../../../contexts/sales/application/ports/outbound/productSnapshotProvider.port';
-import { SalesDayNotOpenForSaleError } from '../../../../../../../contexts/sales/domain/errors/salesDayNotOpenForSale.error';
+import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
 import { CustomerNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/customerNotFoundForSale.error';
 import { ProductNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/productNotFoundForSale.error';
 
@@ -31,8 +31,8 @@ function createMocks() {
 
   let isOpen = true;
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return isOpen;
+    async findForEdit() {
+      return isOpen ? { kind: 'editable' as const, date: '2026-10-31' } : { kind: 'outside' as const };
     }
   };
 
@@ -83,7 +83,7 @@ test('CreateSaleUseCase - successfully creates a draft sale without initial item
 
   const result = await useCase.run({
     salesDayId: 'sd-001',
-    customerId: 'cust-001'
+    customerId: 'cust-001', deliveryDate: '2026-10-31'
   });
 
   assert.equal(result.isSuccess, true);
@@ -100,7 +100,7 @@ test('CreateSaleUseCase - creates sale with initial items snapshotting prices', 
 
   const result = await useCase.run({
     salesDayId: 'sd-001',
-    customerId: 'cust-001',
+    customerId: 'cust-001', deliveryDate: '2026-10-31',
     items: [
       {
         productId: 'prod-1',
@@ -126,11 +126,11 @@ test('CreateSaleUseCase - fails if sales day is closed', async () => {
   const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
   const result = await useCase.run({
     salesDayId: 'sd-001',
-    customerId: 'cust-001'
+    customerId: 'cust-001', deliveryDate: '2026-10-31'
   });
 
   assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SalesDayNotOpenForSaleError);
+  assert.ok(result.error instanceof SaleOutsideEditWindowError);
 });
 
 test('CreateSaleUseCase - fails if customer does not exist', async () => {
@@ -140,7 +140,7 @@ test('CreateSaleUseCase - fails if customer does not exist', async () => {
   const useCase = new CreateSaleUseCase(repo, salesDayChecker, customerChecker, productProvider, ids);
   const result = await useCase.run({
     salesDayId: 'sd-001',
-    customerId: 'cust-999'
+    customerId: 'cust-999', deliveryDate: '2026-10-31'
   });
 
   assert.equal(result.isSuccess, false);
@@ -153,7 +153,7 @@ test('CreateSaleUseCase - fails if initial item product is not found in catalog'
 
   const result = await useCase.run({
     salesDayId: 'sd-001',
-    customerId: 'cust-001',
+    customerId: 'cust-001', deliveryDate: '2026-10-31',
     items: [{ productId: 'non-existent', quantity: 2 }]
   });
 

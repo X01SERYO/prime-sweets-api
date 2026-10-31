@@ -26,6 +26,7 @@ import { OpenCurrentSalesDayUseCase } from '../../contexts/sales-day/application
 import { ReopenCurrentSalesDayUseCase } from '../../contexts/sales-day/application/use-cases/reopenCurrentSalesDay/reopenCurrentSalesDay.useCase';
 import { AddSaleItemUseCase } from '../../contexts/sales/application/use-cases/addSaleItem/addSaleItem.useCase';
 import { ConfirmSaleUseCase } from '../../contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
+import { SetSaleDeliveryDateUseCase } from '../../contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
 import { CreateSaleUseCase } from '../../contexts/sales/application/use-cases/createSale/createSale.useCase';
 import { GetSaleUseCase } from '../../contexts/sales/application/use-cases/getSale/getSale.useCase';
 import { ListSalesUseCase } from '../../contexts/sales/application/use-cases/listSales/listSales.useCase';
@@ -65,6 +66,7 @@ export interface AppContainer {
   get(id: 'sales.application.update_sale_item_quantity_use_case'): UpdateSaleItemQuantityUseCase;
   get(id: 'sales.application.update_sale_item_name_use_case'): UpdateSaleItemNameUseCase;
   get(id: 'sales.application.remove_sale_item_use_case'): RemoveSaleItemUseCase;
+  get(id: 'sales.application.set_sale_delivery_date_use_case'): SetSaleDeliveryDateUseCase;
   get(id: 'sales.application.confirm_sale_use_case'): ConfirmSaleUseCase;
   get(id: 'sales.application.void_sale_use_case'): VoidSaleUseCase;
   get(id: 'fulfillment.application.generate_load_sheet_use_case'): GenerateLoadSheetUseCase;

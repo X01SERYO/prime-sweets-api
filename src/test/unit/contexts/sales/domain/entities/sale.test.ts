@@ -22,7 +22,7 @@ test('Sale aggregate - creates a draft sale with zero totals by default', () => 
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
   assert.equal(sale.id, 'sale-001');
@@ -42,7 +42,7 @@ test('Sale aggregate - adds items and aggregates quantities, total amount, and p
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
   // item1: qty 2, price 1000, cost 700 => totalPrice 2000, profit 600
@@ -62,7 +62,7 @@ test('Sale aggregate - same product with different names stays as separate lines
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
   const green = SaleItem.create({
@@ -97,7 +97,7 @@ test('Sale aggregate - same product and same name accumulates quantity', () => {
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
   const first = SaleItem.create({
@@ -130,7 +130,7 @@ test('Sale aggregate - updates item quantity and custom item name in draft', () 
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
   const modifiedQty = sale.updateItemQuantity('item-p-1', 10);
@@ -146,7 +146,7 @@ test('Sale aggregate - removes item from draft', () => {
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .addItem(createSampleItem('p-2', 3, 2000, 1500));
@@ -161,7 +161,7 @@ test('Sale aggregate - confirms draft sale, allocating invoice number', () => {
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
   const confirmed = sale.confirm('INV-0001', '2026-10-20');
@@ -178,7 +178,7 @@ test('Sale aggregate - rejects confirmation if sale has no items', () => {
   const emptySale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
   assert.throws(() => emptySale.confirm('INV-0001', '2026-10-20'), SaleMustContainItemsError);
@@ -188,7 +188,7 @@ test('Sale aggregate - rejects confirmation if invoice number is missing or empt
   const sale = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
   assert.throws(() => sale.confirm('', '2026-10-20'), InvalidSaleError);
@@ -199,7 +199,7 @@ test('Sale aggregate - confirms only once', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .confirm('INV-0001', '2026-10-20');
@@ -211,7 +211,7 @@ test('Sale aggregate - editing items on confirmed sale keeps the same invoice nu
   const confirmed = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .confirm('INV-0001', '2026-10-20');
@@ -232,7 +232,7 @@ test('Sale aggregate - rejects any modifications once voided', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .confirm('INV-0001', '2026-10-20');
@@ -249,7 +249,7 @@ test('Sale aggregate - voids a confirmed sale logically without modifying items 
   const confirmed = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .confirm('INV-0001', '2026-10-20');
@@ -269,7 +269,7 @@ test('Sale aggregate - cannot void a sale that is still in DRAFT', () => {
   const draft = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
-    customerId: 'cust-50'
+    customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
   assert.throws(() => draft.void(), SaleCannotBeModifiedError);

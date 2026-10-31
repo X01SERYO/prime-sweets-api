@@ -15,7 +15,7 @@ test('UpdateSaleItemNameUseCase - modifies transaction-time item name during dra
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' }).addItem(item);
+  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
 
   let saved: Sale = sale;
   const repo: SaleRepository = {
@@ -34,8 +34,8 @@ test('UpdateSaleItemNameUseCase - modifies transaction-time item name during dra
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return true;
+    async findForEdit() {
+      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 

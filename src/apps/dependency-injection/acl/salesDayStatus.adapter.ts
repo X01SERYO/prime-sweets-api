@@ -1,21 +1,25 @@
 import { SalesDayRepository } from '../../../contexts/sales-day/application/ports/outbound/salesDay.repository';
-import { SalesDayBusinessDateQuery } from '../../../contexts/sales/application/ports/outbound/salesDayBusinessDate.port';
-import { SalesDayStatusChecker } from '../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
+import { BusinessDateProvider } from '../../../contexts/sales-day/application/services/businessDate.provider';
+import { isInsideEditWindow } from '../../../contexts/sales-day/domain/currentWeek';
+import { SalesDayEditGate, SalesDayStatusChecker } from '../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 
-export class SalesDayStatusAdapter implements SalesDayStatusChecker, SalesDayBusinessDateQuery {
-  constructor(private readonly salesDayRepository: SalesDayRepository) {}
+export class SalesDayStatusAdapter implements SalesDayStatusChecker {
+  constructor(
+    private readonly salesDayRepository: SalesDayRepository,
+    private readonly dates: BusinessDateProvider
+  ) {}
 
-  async isSalesDayOpen(salesDayId: string): Promise<boolean> {
+  async findForEdit(salesDayId: string): Promise<SalesDayEditGate> {
     const salesDay = await this.salesDayRepository.findById(salesDayId);
-    return salesDay ? salesDay.isOpen() : false;
-  }
-
-  async findOpenBusinessDate(salesDayId: string): Promise<string | null> {
-    const salesDay = await this.salesDayRepository.findById(salesDayId);
-    if (!salesDay || !salesDay.isOpen()) {
-      return null;
+    if (!salesDay) {
+      return { kind: 'missing' };
     }
-
-    return salesDay.date;
+    if (!isInsideEditWindow(salesDay.date, this.dates.getCurrentDate())) {
+      return { kind: 'outside' };
+    }
+    if (salesDay.status !== 'OPEN') {
+      return { kind: 'closed' };
+    }
+    return { kind: 'editable', date: salesDay.date };
   }
 }

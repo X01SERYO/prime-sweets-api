@@ -12,6 +12,7 @@ export const createSaleSchema: RequestValidationSchema = {
   body: z.object({
     salesDayId: z.string().trim().min(1, 'salesDayId is required'),
     customerId: z.string().trim().min(1, 'customerId is required'),
+    deliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'deliveryDate must be YYYY-MM-DD'),
     items: z
       .array(
         z.object({
@@ -79,6 +80,15 @@ export const removeSaleItemSchema: RequestValidationSchema = {
 export const confirmSaleSchema: RequestValidationSchema = {
   params: z.object({
     id: z.string().trim().min(1, 'Sale id is required')
+  })
+};
+
+export const setSaleDeliveryDateSchema: RequestValidationSchema = {
+  params: z.object({
+    id: z.string().trim().min(1, 'Sale id is required')
+  }),
+  body: z.object({
+    deliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'deliveryDate must be YYYY-MM-DD')
   })
 };
 

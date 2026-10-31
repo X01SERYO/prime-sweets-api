@@ -3,6 +3,8 @@ import { InvalidSaleError } from '../errors/invalidSale.error';
 import { SaleMustContainItemsError } from '../errors/saleMustContainItems.error';
 import { SaleCannotBeModifiedError } from '../errors/saleCannotBeModified.error';
 import { SaleAlreadyVoidedError } from '../errors/saleAlreadyVoided.error';
+import { DeliveryDateBeforeSaleError } from '../errors/deliveryDateBeforeSale.error';
+import { DeliveryDateRequiredError } from '../errors/deliveryDateRequired.error';
 
 function newestFirst(items: SaleItem[]): SaleItem[] {
   return [...items].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
@@ -14,6 +16,7 @@ export type SalePrimitives = {
   id: string;
   salesDayId: string;
   customerId: string;
+  deliveryDate: string;
   status: SaleStatus;
   invoiceNumber: string | null;
   invoiceBusinessDate: string | null;
@@ -31,6 +34,7 @@ export class Sale {
     readonly id: string,
     readonly salesDayId: string,
     readonly customerId: string,
+    private _deliveryDate: string,
     private _status: SaleStatus,
     private _invoiceNumber: string | null,
     private _invoiceBusinessDate: string | null,
@@ -39,6 +43,10 @@ export class Sale {
     private _confirmedAt: Date | null,
     private _voidedAt: Date | null
   ) {}
+
+  get deliveryDate(): string {
+    return this._deliveryDate;
+  }
 
   get status(): SaleStatus {
     return this._status;
@@ -94,6 +102,7 @@ export class Sale {
     id: string;
     salesDayId: string;
     customerId: string;
+    deliveryDate: string;
     status?: SaleStatus;
     invoiceNumber?: string | null;
     invoiceBusinessDate?: string | null;
@@ -117,6 +126,7 @@ export class Sale {
       throw new InvalidSaleError('Customer id cannot be empty');
     }
 
+    const deliveryDate = normalizeDeliveryDate(params.deliveryDate);
     const status = params.status ?? 'DRAFT';
     const invoiceNumber = params.invoiceNumber ? params.invoiceNumber.trim() : null;
     const invoiceBusinessDate = params.invoiceBusinessDate ? params.invoiceBusinessDate.trim() : null;
@@ -129,6 +139,7 @@ export class Sale {
       trimmedId,
       trimmedSalesDayId,
       trimmedCustomerId,
+      deliveryDate,
       status,
       invoiceNumber,
       invoiceBusinessDate,
@@ -159,6 +170,7 @@ export class Sale {
       this.id,
       this.salesDayId,
       this.customerId,
+      this._deliveryDate,
       this._status,
       this._invoiceNumber,
       this._invoiceBusinessDate,
@@ -185,6 +197,7 @@ export class Sale {
       this.id,
       this.salesDayId,
       this.customerId,
+      this._deliveryDate,
       this._status,
       this._invoiceNumber,
       this._invoiceBusinessDate,
@@ -211,6 +224,7 @@ export class Sale {
       this.id,
       this.salesDayId,
       this.customerId,
+      this._deliveryDate,
       this._status,
       this._invoiceNumber,
       this._invoiceBusinessDate,
@@ -239,10 +253,32 @@ export class Sale {
       this.id,
       this.salesDayId,
       this.customerId,
+      this._deliveryDate,
       this._status,
       this._invoiceNumber,
       this._invoiceBusinessDate,
       updatedItems,
+      this.createdAt,
+      this._confirmedAt,
+      this._voidedAt
+    );
+  }
+
+  setDeliveryDate(deliveryDate: string, salesDayDate: string): Sale {
+    this.assertNotVoided();
+    const next = normalizeDeliveryDate(deliveryDate);
+    if (next < salesDayDate) {
+      throw new DeliveryDateBeforeSaleError();
+    }
+    return new Sale(
+      this.id,
+      this.salesDayId,
+      this.customerId,
+      next,
+      this._status,
+      this._invoiceNumber,
+      this._invoiceBusinessDate,
+      this._items,
       this.createdAt,
       this._confirmedAt,
       this._voidedAt
@@ -270,6 +306,7 @@ export class Sale {
       this.id,
       this.salesDayId,
       this.customerId,
+      this._deliveryDate,
       'CONFIRMED',
       trimmedInvoice,
       trimmedDate,
@@ -293,6 +330,7 @@ export class Sale {
       this.id,
       this.salesDayId,
       this.customerId,
+      this._deliveryDate,
       'VOIDED',
       this._invoiceNumber,
       this._invoiceBusinessDate,
@@ -308,6 +346,7 @@ export class Sale {
       id: this.id,
       salesDayId: this.salesDayId,
       customerId: this.customerId,
+      deliveryDate: this._deliveryDate,
       status: this._status,
       invoiceNumber: this._invoiceNumber,
       invoiceBusinessDate: this._invoiceBusinessDate,
@@ -335,4 +374,12 @@ export class Sale {
       throw new SaleAlreadyVoidedError(this.id);
     }
   }
+}
+
+function normalizeDeliveryDate(value: string): string {
+  const trimmed = value?.trim() ?? '';
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    throw new DeliveryDateRequiredError();
+  }
+  return trimmed;
 }

@@ -1,18 +1,18 @@
 import { Result } from '../../../../../shared/application/result/result';
 import { SalePrimitives } from '../../../domain/entities/sale';
 import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { SalesDayBusinessDateQuery } from '../../ports/outbound/salesDayBusinessDate.port';
+import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecker.port';
+import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
 import { InvoiceNumberAllocator } from '../../ports/outbound/invoiceNumberAllocator.port';
 import { ConfirmSaleDto } from '../../dto/confirmSale.dto';
 import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { SalesDayNotOpenForSaleError } from '../../../domain/errors/salesDayNotOpenForSale.error';
 import { SaleCannotBeModifiedError } from '../../../domain/errors/saleCannotBeModified.error';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 
 export class ConfirmSaleUseCase {
   constructor(
     private readonly saleRepository: SaleRepository,
-    private readonly salesDayBusinessDateQuery: SalesDayBusinessDateQuery,
+    private readonly salesDayStatusChecker: SalesDayStatusChecker,
     private readonly invoiceNumberAllocator: InvoiceNumberAllocator
   ) {}
 
@@ -26,10 +26,11 @@ export class ConfirmSaleUseCase {
       return Result.fail(new SaleNotFoundError(dto.saleId));
     }
 
-    const businessDate = await this.salesDayBusinessDateQuery.findOpenBusinessDate(sale.salesDayId);
-    if (!businessDate) {
-      return Result.fail(new SalesDayNotOpenForSaleError(sale.salesDayId));
+    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, sale.salesDayId);
+    if (editable instanceof Error) {
+      return Result.fail(editable);
     }
+    const businessDate = editable.date;
 
     if (sale.isConfirmed()) {
       return Result.fail(new SaleCannotBeModifiedError('Sale is already confirmed'));

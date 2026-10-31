@@ -1,3 +1,9 @@
+export type SalesDayEditGate =
+  | { kind: 'editable'; date: string }
+  | { kind: 'closed' }
+  | { kind: 'outside' }
+  | { kind: 'missing' };
+
 export interface SalesDayStatusChecker {
-  isSalesDayOpen(salesDayId: string): Promise<boolean>;
+  findForEdit(salesDayId: string): Promise<SalesDayEditGate>;
 }

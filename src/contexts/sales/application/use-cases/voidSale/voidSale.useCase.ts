@@ -4,7 +4,7 @@ import { SaleRepository } from '../../ports/outbound/sale.repository';
 import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecker.port';
 import { VoidSaleDto } from '../../dto/voidSale.dto';
 import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { SalesDayNotOpenForSaleError } from '../../../domain/errors/salesDayNotOpenForSale.error';
+import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 
 export class VoidSaleUseCase {
@@ -23,9 +23,9 @@ export class VoidSaleUseCase {
       return Result.fail(new SaleNotFoundError(dto.saleId));
     }
 
-    const isOpen = await this.salesDayStatusChecker.isSalesDayOpen(sale.salesDayId);
-    if (!isOpen) {
-      return Result.fail(new SalesDayNotOpenForSaleError(sale.salesDayId));
+    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, sale.salesDayId);
+    if (editable instanceof Error) {
+      return Result.fail(editable);
     }
 
     try {

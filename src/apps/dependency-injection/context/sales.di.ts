@@ -10,6 +10,7 @@ import { UpdateSaleItemQuantityUseCase } from '../../../contexts/sales/applicati
 import { UpdateSaleItemNameUseCase } from '../../../contexts/sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
 import { RemoveSaleItemUseCase } from '../../../contexts/sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
 import { ConfirmSaleUseCase } from '../../../contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
+import { SetSaleDeliveryDateUseCase } from '../../../contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
 import { VoidSaleUseCase } from '../../../contexts/sales/application/use-cases/voidSale/voidSale.useCase';
 import { GetSaleUseCase } from '../../../contexts/sales/application/use-cases/getSale/getSale.useCase';
 import { ListSalesUseCase } from '../../../contexts/sales/application/use-cases/listSales/listSales.useCase';
@@ -30,7 +31,8 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
 
   container
     .register('sales.infrastructure.sales_day_status_adapter', SalesDayStatusAdapter)
-    .addArgument(salesDayRepoRef);
+    .addArgument(salesDayRepoRef)
+    .addArgument(new Reference('sales_day.application.date_provider'));
 
   container
     .register('sales.infrastructure.customer_checker_adapter', CustomerCheckerAdapter)
@@ -74,6 +76,11 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
 
   container
     .register('sales.application.remove_sale_item_use_case', RemoveSaleItemUseCase)
+    .addArgument(saleRepoRef)
+    .addArgument(salesDayCheckerRef);
+
+  container
+    .register('sales.application.set_sale_delivery_date_use_case', SetSaleDeliveryDateUseCase)
     .addArgument(saleRepoRef)
     .addArgument(salesDayCheckerRef);
 

@@ -5,8 +5,8 @@ import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
 
 test('ListSalesUseCase - returns list of sales primitives', async () => {
-  const sale1 = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' });
-  const sale2 = Sale.create({ id: 's-2', salesDayId: 'sd-1', customerId: 'c-2' });
+  const sale1 = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
+  const sale2 = Sale.create({ id: 's-2', salesDayId: 'sd-1', customerId: 'c-2', deliveryDate: '2026-10-31' });
 
   const repo: SaleRepository = {
     async save() {},

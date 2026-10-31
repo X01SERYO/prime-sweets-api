@@ -6,7 +6,7 @@ import { SaleRepository } from '../../../../../../../contexts/sales/application/
 import { SaleNotFoundError } from '../../../../../../../contexts/sales/domain/errors/saleNotFound.error';
 
 test('GetSaleUseCase - returns sale primitives when found', async () => {
-  const sale = Sale.create({ id: 'sale-1', salesDayId: 'sd-1', customerId: 'c-1' });
+  const sale = Sale.create({ id: 'sale-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
   const repo: SaleRepository = {
     async save() {},
     async findById(id) {

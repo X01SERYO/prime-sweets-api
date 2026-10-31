@@ -5,7 +5,7 @@ import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
 import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
-import { SalesDayNotOpenForSaleError } from '../../../../../../../contexts/sales/domain/errors/salesDayNotOpenForSale.error';
+import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
 
 test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
   const item = SaleItem.create({
@@ -16,7 +16,7 @@ test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' }).addItem(item);
+  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
 
   let saved: Sale = sale;
   const repo: SaleRepository = {
@@ -35,8 +35,8 @@ test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return true;
+    async findForEdit() {
+      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 
@@ -57,7 +57,7 @@ test('UpdateSaleItemQuantityUseCase - fails if sales day is closed', async () =>
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' }).addItem(item);
+  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
 
   const repo: SaleRepository = {
     async save() {},
@@ -73,8 +73,8 @@ test('UpdateSaleItemQuantityUseCase - fails if sales day is closed', async () =>
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return false;
+    async findForEdit() {
+      return { kind: 'outside' };
     }
   };
 
@@ -82,5 +82,5 @@ test('UpdateSaleItemQuantityUseCase - fails if sales day is closed', async () =>
   const result = await useCase.run({ saleId: 's-1', itemId: 'it-1', quantity: 7 });
 
   assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SalesDayNotOpenForSaleError);
+  assert.ok(result.error instanceof SaleOutsideEditWindowError);
 });

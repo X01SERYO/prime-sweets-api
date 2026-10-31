@@ -24,6 +24,7 @@ function sale(params: {
     id: params.id,
     salesDayId: 'sd-1',
     customerId: params.customerId,
+    deliveryDate: '2026-10-31',
     status: params.status,
     invoiceNumber: params.invoiceNumber,
     items: [item],

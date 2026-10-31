@@ -6,7 +6,7 @@ import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/sa
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
 import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 import { SaleAlreadyVoidedError } from '../../../../../../../contexts/sales/domain/errors/saleAlreadyVoided.error';
-import { SalesDayNotOpenForSaleError } from '../../../../../../../contexts/sales/domain/errors/salesDayNotOpenForSale.error';
+import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
 
 test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async () => {
   const item = SaleItem.create({
@@ -17,7 +17,7 @@ test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async (
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
+  const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
     .addItem(item)
     .confirm('INV-0001', '2026-10-20');
 
@@ -38,8 +38,8 @@ test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async (
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return true;
+    async findForEdit() {
+      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 
@@ -61,7 +61,7 @@ test('VoidSaleUseCase - fails if already voided', async () => {
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const voided = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
+  const voided = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
     .addItem(item)
     .confirm('INV-0001', '2026-10-20')
     .void();
@@ -80,8 +80,8 @@ test('VoidSaleUseCase - fails if already voided', async () => {
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return true;
+    async findForEdit() {
+      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 
@@ -101,7 +101,7 @@ test('VoidSaleUseCase - fails if sales day is closed', async () => {
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
+  const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
     .addItem(item)
     .confirm('INV-0001', '2026-10-20');
 
@@ -119,8 +119,8 @@ test('VoidSaleUseCase - fails if sales day is closed', async () => {
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return false;
+    async findForEdit() {
+      return { kind: 'outside' };
     }
   };
 
@@ -128,5 +128,5 @@ test('VoidSaleUseCase - fails if sales day is closed', async () => {
   const result = await useCase.run({ saleId: 's-1' });
 
   assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SalesDayNotOpenForSaleError);
+  assert.ok(result.error instanceof SaleOutsideEditWindowError);
 });

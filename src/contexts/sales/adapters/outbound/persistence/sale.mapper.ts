@@ -32,6 +32,7 @@ export class SaleMapper {
       id: entity.id,
       salesDayId: entity.salesDayId,
       customerId: entity.customerId,
+      deliveryDate: String(entity.deliveryDate).slice(0, 10),
       status: toSaleStatus(entity.status),
       invoiceNumber: entity.invoiceNumber,
       invoiceBusinessDate: entity.invoiceBusinessDate,
@@ -49,6 +50,7 @@ export class SaleMapper {
     entity.id = primitives.id;
     entity.salesDayId = primitives.salesDayId;
     entity.customerId = primitives.customerId;
+    entity.deliveryDate = primitives.deliveryDate;
     entity.status = primitives.status;
     entity.invoiceNumber = primitives.invoiceNumber;
     entity.invoiceBusinessDate = primitives.invoiceBusinessDate;

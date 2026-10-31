@@ -23,7 +23,7 @@ test('RemoveSaleItemUseCase - removes item from sale', async () => {
     wholesalePrice: 500,
     wholesaleCost: 300
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1' })
+  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
     .addItem(item1)
     .addItem(item2);
 
@@ -44,8 +44,8 @@ test('RemoveSaleItemUseCase - removes item from sale', async () => {
   };
 
   const salesDayChecker: SalesDayStatusChecker = {
-    async isSalesDayOpen() {
-      return true;
+    async findForEdit() {
+      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 

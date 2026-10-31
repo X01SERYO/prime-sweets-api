@@ -20,7 +20,7 @@ function sale(id: string, status: 'DRAFT' | 'CONFIRMED' | 'VOIDED', items: SaleI
   return Sale.create({
     id,
     salesDayId: 'sd-1',
-    customerId: 'c-1',
+    customerId: 'c-1', deliveryDate: '2026-10-31',
     status,
     invoiceNumber: status === 'DRAFT' ? null : `INV-${id}`,
     items

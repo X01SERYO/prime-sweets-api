@@ -5,8 +5,8 @@ import { ConfirmedSaleItemsQuery } from '../../../contexts/fulfillment-output/ap
 export class ConfirmedSaleItemsAdapter implements ConfirmedSaleItemsQuery {
   constructor(private readonly saleRepository: SaleRepository) {}
 
-  async findConfirmedBySalesDayId(salesDayId: string): Promise<ConfirmedSaleItemContribution[]> {
-    const sales = await this.saleRepository.list({ salesDayId, status: 'CONFIRMED' });
+  async findConfirmedByDeliveryDate(deliveryDate: string): Promise<ConfirmedSaleItemContribution[]> {
+    const sales = await this.saleRepository.list({ deliveryDate, status: 'CONFIRMED' });
 
     return sales
       .filter((sale) => sale.isConfirmed())

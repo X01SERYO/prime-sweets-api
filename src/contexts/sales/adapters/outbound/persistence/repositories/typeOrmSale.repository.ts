@@ -55,6 +55,10 @@ export class TypeOrmSaleRepository implements SaleRepository {
       query.andWhere('sale.sales_day_id = :salesDayId', { salesDayId: filters.salesDayId });
     }
 
+    if (filters?.deliveryDate) {
+      query.andWhere('sale.delivery_date = :deliveryDate', { deliveryDate: filters.deliveryDate });
+    }
+
     if (filters?.customerId) {
       query.andWhere('sale.customer_id = :customerId', { customerId: filters.customerId });
     }

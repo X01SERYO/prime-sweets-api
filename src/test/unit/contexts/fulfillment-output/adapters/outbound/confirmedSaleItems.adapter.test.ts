@@ -51,9 +51,9 @@ test('ConfirmedSaleItemsAdapter - reads confirmed sales only and drops transacti
     }
   };
 
-  const contributions = await new ConfirmedSaleItemsAdapter(repository).findConfirmedBySalesDayId('sd-1');
+  const contributions = await new ConfirmedSaleItemsAdapter(repository).findConfirmedByDeliveryDate('2026-10-31');
 
-  assert.deepEqual(filters, { salesDayId: 'sd-1', status: 'CONFIRMED' });
+  assert.deepEqual(filters, { deliveryDate: '2026-10-31', status: 'CONFIRMED' });
   assert.equal(contributions.length, 2);
   assert.equal(contributions.some((contribution) => 'itemName' in contribution), false);
   assert.deepEqual(

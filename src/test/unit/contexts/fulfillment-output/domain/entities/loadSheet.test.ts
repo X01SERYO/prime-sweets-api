@@ -6,7 +6,7 @@ import { LoadSheetProductNameMissingError } from '../../../../../../contexts/ful
 
 test('LoadSheet - aggregates different item contributions of the same product into one row', () => {
   const loadSheet = LoadSheet.compose({
-    salesDayId: 'sd-1',
+    deliveryDate: 'sd-1',
     contributions: [
       {
         productId: 'p-123',
@@ -54,7 +54,7 @@ test('LoadSheet - aggregates different item contributions of the same product in
 
 test('LoadSheet - shows the catalog price and the price groups when unit prices differ', () => {
   const loadSheet = LoadSheet.compose({
-    salesDayId: 'sd-1',
+    deliveryDate: 'sd-1',
     contributions: [
       {
         productId: 'p-1',
@@ -94,7 +94,7 @@ test('LoadSheet - uses the catalog name and ignores a missing product', () => {
   assert.throws(
     () =>
       LoadSheet.compose({
-        salesDayId: 'sd-1',
+        deliveryDate: 'sd-1',
         contributions: [
           {
             productId: 'missing',
@@ -115,7 +115,7 @@ test('LoadSheet - rejects a blank catalog name', () => {
   assert.throws(
     () =>
       LoadSheet.compose({
-        salesDayId: 'sd-1',
+        deliveryDate: 'sd-1',
         contributions: [
           {
             productId: 'p-1',
@@ -134,7 +134,7 @@ test('LoadSheet - rejects a blank catalog name', () => {
 
 test('LoadSheet - sorts lines by brand, then catalog name, then productId', () => {
   const loadSheet = LoadSheet.compose({
-    salesDayId: 'sd-1',
+    deliveryDate: 'sd-1',
     contributions: [
       { productId: 'p-b', quantity: 1, wholesaleCost: 1, wholesaleSalePrice: 2, totalPrice: 2, profit: 1 },
       { productId: 'p-a2', quantity: 1, wholesaleCost: 1, wholesaleSalePrice: 2, totalPrice: 2, profit: 1 },
@@ -155,10 +155,10 @@ test('LoadSheet - sorts lines by brand, then catalog name, then productId', () =
 
 test('LoadSheet - returns no lines when there are no contributions', () => {
   const loadSheet = LoadSheet.compose({
-    salesDayId: 'sd-1',
+    deliveryDate: 'sd-1',
     contributions: [],
     displays: []
   });
 
-  assert.deepEqual(loadSheet.toPrimitives(), { salesDayId: 'sd-1', lines: [] });
+  assert.deepEqual(loadSheet.toPrimitives(), { deliveryDate: 'sd-1', lines: [] });
 });

@@ -22,7 +22,7 @@ export type LoadSheetLinePrimitives = {
 };
 
 export type LoadSheetPrimitives = {
-  salesDayId: string;
+  deliveryDate: string;
   lines: LoadSheetLinePrimitives[];
 };
 
@@ -83,12 +83,12 @@ function priceGroups(items: ConfirmedSaleItemContribution[]): LoadSheetPriceGrou
 
 export class LoadSheet {
   private constructor(
-    readonly salesDayId: string,
+    readonly deliveryDate: string,
     private readonly lines: LoadSheetLinePrimitives[]
   ) {}
 
   static compose(params: {
-    salesDayId: string;
+    deliveryDate: string;
     contributions: ConfirmedSaleItemContribution[];
     displays: CatalogProductDisplay[];
   }): LoadSheet {
@@ -151,12 +151,12 @@ export class LoadSheet {
       return left.productId.localeCompare(right.productId);
     });
 
-    return new LoadSheet(params.salesDayId, lines);
+    return new LoadSheet(params.deliveryDate, lines);
   }
 
   toPrimitives(): LoadSheetPrimitives {
     return {
-      salesDayId: this.salesDayId,
+      deliveryDate: this.deliveryDate,
       lines: this.lines.map((line) => ({ ...line }))
     };
   }

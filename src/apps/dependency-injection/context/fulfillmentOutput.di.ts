@@ -34,7 +34,6 @@ export function registerFulfillmentOutputDependencies(container: ContainerBuilde
 
   container
     .register('fulfillment.application.generate_load_sheet_use_case', GenerateLoadSheetUseCase)
-    .addArgument(new Reference('fulfillment.infrastructure.sales_day_closure_query'))
     .addArgument(new Reference('fulfillment.infrastructure.confirmed_sale_items_query'))
     .addArgument(new Reference('fulfillment.infrastructure.catalog_product_display_query'));
 

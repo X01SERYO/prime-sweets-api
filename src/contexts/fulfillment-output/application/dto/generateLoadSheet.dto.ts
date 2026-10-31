@@ -1,3 +1,3 @@
 export interface GenerateLoadSheetDto {
-  salesDayId: string;
+  deliveryDate: string;
 }

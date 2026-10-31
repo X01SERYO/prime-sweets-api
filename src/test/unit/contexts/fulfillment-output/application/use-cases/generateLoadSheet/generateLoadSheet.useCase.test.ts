@@ -1,15 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GenerateLoadSheetUseCase } from '../../../../../../../contexts/fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
-import { SalesDayClosureQuery } from '../../../../../../../contexts/fulfillment-output/application/ports/outbound/salesDayClosureQuery.port';
 import { ConfirmedSaleItemsQuery } from '../../../../../../../contexts/fulfillment-output/application/ports/outbound/confirmedSaleItemsQuery.port';
 import { CatalogProductDisplayQuery } from '../../../../../../../contexts/fulfillment-output/application/ports/outbound/catalogProductDisplayQuery.port';
 import { ConfirmedSaleItemContribution, CatalogProductDisplay } from '../../../../../../../contexts/fulfillment-output/domain/entities/loadSheet';
-import { SalesDayNotClosedError } from '../../../../../../../contexts/fulfillment-output/domain/errors/salesDayNotClosed.error';
-import { SalesDayNotFoundForLoadSheetError } from '../../../../../../../contexts/fulfillment-output/domain/errors/salesDayNotFoundForLoadSheet.error';
+import { InvalidLoadSheetDeliveryDateError } from '../../../../../../../contexts/fulfillment-output/domain/errors/invalidLoadSheetDeliveryDate.error';
 import { ProductNotFoundForLoadSheetError } from '../../../../../../../contexts/fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
 
-function setup(status: 'OPEN' | 'CLOSED' | null = 'CLOSED') {
+function setup() {
   let itemsRequested = false;
   const contributions: ConfirmedSaleItemContribution[] = [
     {
@@ -33,15 +31,8 @@ function setup(status: 'OPEN' | 'CLOSED' | null = 'CLOSED') {
     { productId: 'p-1', brand: 'Acme', name: 'Catalog Soda', wholesaleCost: 600, wholesaleSalePrice: 1000 }
   ];
 
-  const salesDayClosureQuery: SalesDayClosureQuery = {
-    async findById(salesDayId) {
-      if (!status) return null;
-      return { id: salesDayId, status };
-    }
-  };
-
   const confirmedSaleItemsQuery: ConfirmedSaleItemsQuery = {
-    async findConfirmedBySalesDayId() {
+    async findConfirmedByDeliveryDate() {
       itemsRequested = true;
       return contributions;
     }
@@ -54,19 +45,19 @@ function setup(status: 'OPEN' | 'CLOSED' | null = 'CLOSED') {
   };
 
   return {
-    useCase: new GenerateLoadSheetUseCase(salesDayClosureQuery, confirmedSaleItemsQuery, catalogProductDisplayQuery),
+    useCase: new GenerateLoadSheetUseCase(confirmedSaleItemsQuery, catalogProductDisplayQuery),
     wasItemsRequested: () => itemsRequested,
     displays
   };
 }
 
-test('GenerateLoadSheetUseCase - aggregates confirmed items for a closed Sales Day', async () => {
-  const { useCase } = setup('CLOSED');
+test('GenerateLoadSheetUseCase - aggregates confirmed items for a delivery date', async () => {
+  const { useCase } = setup();
 
-  const result = await useCase.run({ salesDayId: 'sd-1' });
+  const result = await useCase.run({ deliveryDate: '2026-10-31' });
 
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.salesDayId, 'sd-1');
+  assert.equal(result.value?.deliveryDate, '2026-10-31');
   assert.equal(result.value?.lines.length, 1);
   assert.equal(result.value?.lines[0].name, 'Catalog Soda');
   assert.equal(result.value?.lines[0].quantity, 15);
@@ -74,33 +65,19 @@ test('GenerateLoadSheetUseCase - aggregates confirmed items for a closed Sales D
   assert.equal(result.value?.lines[0].profit, 6000);
 });
 
-test('GenerateLoadSheetUseCase - rejects an open Sales Day before reading sales', async () => {
-  const { useCase, wasItemsRequested } = setup('OPEN');
+test('GenerateLoadSheetUseCase - rejects a missing delivery date before reading sales', async () => {
+  const { useCase, wasItemsRequested } = setup();
 
-  const result = await useCase.run({ salesDayId: 'sd-1' });
+  const result = await useCase.run({ deliveryDate: '' });
 
   assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SalesDayNotClosedError);
+  assert.ok(result.error instanceof InvalidLoadSheetDeliveryDateError);
   assert.equal(wasItemsRequested(), false);
 });
 
-test('GenerateLoadSheetUseCase - fails when the Sales Day does not exist', async () => {
-  const { useCase } = setup(null);
-
-  const result = await useCase.run({ salesDayId: 'missing' });
-
-  assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SalesDayNotFoundForLoadSheetError);
-});
-
 test('GenerateLoadSheetUseCase - fails when a sold product is missing from the catalog', async () => {
-  const salesDayClosureQuery: SalesDayClosureQuery = {
-    async findById(salesDayId) {
-      return { id: salesDayId, status: 'CLOSED' };
-    }
-  };
   const confirmedSaleItemsQuery: ConfirmedSaleItemsQuery = {
-    async findConfirmedBySalesDayId() {
+    async findConfirmedByDeliveryDate() {
       return [
         {
           productId: 'gone',
@@ -118,13 +95,9 @@ test('GenerateLoadSheetUseCase - fails when a sold product is missing from the c
       return [];
     }
   };
-  const useCase = new GenerateLoadSheetUseCase(
-    salesDayClosureQuery,
-    confirmedSaleItemsQuery,
-    catalogProductDisplayQuery
-  );
+  const useCase = new GenerateLoadSheetUseCase(confirmedSaleItemsQuery, catalogProductDisplayQuery);
 
-  const result = await useCase.run({ salesDayId: 'sd-1' });
+  const result = await useCase.run({ deliveryDate: '2026-10-31' });
 
   assert.equal(result.isSuccess, false);
   assert.ok(result.error instanceof ProductNotFoundForLoadSheetError);

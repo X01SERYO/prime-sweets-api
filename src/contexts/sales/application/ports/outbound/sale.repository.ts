@@ -2,6 +2,7 @@ import { Sale } from '../../../domain/entities/sale';
 
 export type ListSalesFilters = {
   salesDayId?: string;
+  deliveryDate?: string;
   customerId?: string;
   status?: 'DRAFT' | 'CONFIRMED' | 'VOIDED';
 };

@@ -1,36 +1,31 @@
 import { Result } from '../../../../../shared/application/result/result';
 import { LoadSheet, LoadSheetPrimitives } from '../../../domain/entities/loadSheet';
-import { SalesDayNotClosedError } from '../../../domain/errors/salesDayNotClosed.error';
-import { SalesDayNotFoundForLoadSheetError } from '../../../domain/errors/salesDayNotFoundForLoadSheet.error';
+import { InvalidLoadSheetDeliveryDateError } from '../../../domain/errors/invalidLoadSheetDeliveryDate.error';
 import { GenerateLoadSheetDto } from '../../dto/generateLoadSheet.dto';
 import { CatalogProductDisplayQuery } from '../../ports/outbound/catalogProductDisplayQuery.port';
 import { ConfirmedSaleItemsQuery } from '../../ports/outbound/confirmedSaleItemsQuery.port';
-import { SalesDayClosureQuery } from '../../ports/outbound/salesDayClosureQuery.port';
+
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export class GenerateLoadSheetUseCase {
   constructor(
-    private readonly salesDayClosureQuery: SalesDayClosureQuery,
     private readonly confirmedSaleItemsQuery: ConfirmedSaleItemsQuery,
     private readonly catalogProductDisplayQuery: CatalogProductDisplayQuery
   ) {}
 
   async run(dto: GenerateLoadSheetDto): Promise<Result<LoadSheetPrimitives>> {
-    const salesDay = await this.salesDayClosureQuery.findById(dto.salesDayId);
-    if (!salesDay) {
-      return Result.fail(new SalesDayNotFoundForLoadSheetError(dto.salesDayId));
+    const deliveryDate = dto.deliveryDate?.trim() ?? '';
+    if (!DATE_REGEX.test(deliveryDate)) {
+      return Result.fail(new InvalidLoadSheetDeliveryDateError());
     }
 
-    if (salesDay.status !== 'CLOSED') {
-      return Result.fail(new SalesDayNotClosedError(dto.salesDayId));
-    }
-
-    const contributions = await this.confirmedSaleItemsQuery.findConfirmedBySalesDayId(dto.salesDayId);
-    const productIds = [...new Set(contributions.map((contribution) => contribution.productId))];
+    const contributions = await this.confirmedSaleItemsQuery.findConfirmedByDeliveryDate(deliveryDate);
+    const productIds = [...new Set(contributions.map(contribution => contribution.productId))];
     const displays = await this.catalogProductDisplayQuery.findByProductIds(productIds);
 
     try {
       const loadSheet = LoadSheet.compose({
-        salesDayId: dto.salesDayId,
+        deliveryDate,
         contributions,
         displays
       });

@@ -43,7 +43,7 @@ Required: `alegraId` (non-empty trim). Optional: `name`, `brandId`, `suggestedPr
 1. Reject duplicate `alegraId` (`ProductAlreadyExistsError`).
 2. If `brandId` is set, brand must exist (`BrandNotFoundError`).
 3. Numeric money fields, when present, must be ≥ 0 (`InvalidProductError`).
-4. Persist product and channel prices. **Does not** call Alegra. The code assumes `alegraId` already identifies an Alegra item.
+4. Persist product and channel prices. A non-blank `name` is stored with `toLocaleUpperCase('es-CO')`. **Does not** call Alegra. The code assumes `alegraId` already identifies an Alegra item.
 
 ### List / get / search product — `GET /products`, `GET /products/search?q=...`, `GET /products/:id`
 
@@ -53,7 +53,7 @@ Required: `alegraId` (non-empty trim). Optional: `name`, `brandId`, `suggestedPr
 
 ### Update product — `PUT /products/:id`
 
-See flow 3. Updatable fields in this use case: `name`, `wholesalePrice`, `retailPrice` only.
+See flow 3. Updatable fields in this use case: `name`, `wholesalePrice`, `retailPrice` only. A new `name` is stored in uppercase (`es-CO`).
 
 ### Delete product — `DELETE /products/:id`
 
@@ -110,7 +110,7 @@ Required: `documentType`, `documentNumber`, `name` (non-empty strings). Optional
 
 1. Validate required fields (`InvalidCustomerError`).
 2. Reject duplicate document type + number combination (`CustomerAlreadyExistsError`). Document type is compared without case. The document number is exact.
-3. Persist `customers` with generated UUID. A concurrent insert that hits `UQ_customers_document` is returned as the same `CustomerAlreadyExistsError`.
+3. Persist `customers` with generated UUID. `name` is stored with `toLocaleUpperCase('es-CO')`. A concurrent insert that hits `UQ_customers_document` is returned as the same `CustomerAlreadyExistsError`.
 
 ### List / get / search customer — `GET /customers`, `GET /customers/search?q=...`, `GET /customers/:id`
 
@@ -124,7 +124,7 @@ Body may include `documentType`, `documentNumber`, `name`, `phone`, `email`, `ad
 
 1. Load customer or `CustomerNotFoundError`.
 2. Reject if updating to a `(documentType, documentNumber)` combination already belonging to a different customer (`CustomerAlreadyExistsError`). A concurrent update that hits `UQ_customers_document` returns the same error.
-3. Apply `Customer.update` (invariants: non-empty trimmed strings).
+3. Apply `Customer.update` (invariants: non-empty trimmed strings). A new `name` is stored in uppercase (`es-CO`).
 4. Persist.
 
 ## 5. Sales Day lifecycle
@@ -185,7 +185,7 @@ Body: `productId` (required), `itemName` (optional custom string), `quantity` (p
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
 3. Fetch Catalog snapshot for product or `ProductNotFoundForSaleError`.
-4. Add the item. Quantity accumulates only when the same product already has the same item name. A different name stays a separate line. Lines are kept newest first.
+4. Add the item. `catalogName` is the Catalog name in uppercase. `itemName` is that catalog name, plus a lowercase suffix when the seller added text after it (`BON BON BUM rojo`). Quantity accumulates only when the same product already has the same item name. A different name stays a separate line. Lines are kept newest first.
 5. Recalculate totals and persist.
 
 ### Update item quantity — `PUT /sales/:id/items/:itemId/quantity`
@@ -204,7 +204,7 @@ Body: `itemName` (non-empty string).
 1. Load sale or `SaleNotFoundError`.
 2. Verify that Sales Day is `OPEN`.
 3. Verify sale is in `DRAFT` status (item name cannot be modified after confirmation as per PDR).
-4. Persist updated transaction-time item name.
+4. Persist the transaction-time item name with the same uppercase catalog name and lowercase suffix.
 
 ### Remove item — `DELETE /sales/:id/items/:itemId`
 
@@ -280,13 +280,13 @@ Builds a document representation from an existing confirmed Sale. It does not cr
 3. Reject unless status is `CONFIRMED` (`SaleNotInvoiceableError`, 400, `SALE_NOT_INVOICEABLE`). `DRAFT` and `VOIDED` are rejected.
 4. A confirmed sale without `invoiceNumber` → `InvoiceNumberMissingError` (400, `INVOICE_NUMBER_MISSING`). A confirmed sale without `confirmedAt` → `InvoiceSaleDateMissingError` (400, `INVOICE_SALE_DATE_MISSING`).
 5. Load the customer through `InvoiceCustomerQuery`. Missing customer → `CustomerNotFoundForInvoiceError` (404, `CUSTOMER_NOT_FOUND`). The document shows `documentType`, `documentNumber`, and `name`.
-6. Load the company profile through `CompanyProfileQuery`. The adapter reads the profile already parsed by `loadAppConfig` from `COMPANY_NAME`, `COMPANY_NIT`, `COMPANY_CITY`, `COMPANY_COUNTRY`, `COMPANY_TELEPHONE`, `COMPANY_LOGO`, and `COMPANY_LEGAL_TEXT`. If any value is missing, generation fails with `CompanyProfileNotConfiguredError` (400, `COMPANY_PROFILE_NOT_CONFIGURED`). Those values are not hardcoded. A blank profile does not stop the API from starting.
+6. Load the company profile through `CompanyProfileQuery`. The adapter reads the profile already parsed by `loadAppConfig` from `COMPANY_NAME`, `COMPANY_NIT`, `COMPANY_CITY`, `COMPANY_COUNTRY`, `COMPANY_TELEPHONE`, `COMPANY_LOGO`, and `COMPANY_LEGAL_TEXT`. If any value is missing, generation fails with `CompanyProfileNotConfiguredError` (400, `COMPANY_PROFILE_NOT_CONFIGURED`). Those values are not hardcoded. A blank profile does not stop the API from starting. `COMPANY_LOGO` is the path `/company/logo.webp`. `GET /company/logo.webp` serves `public/company/logo.webp` with no session. The UI resolves that path against the API base URL. The color logo in the application header is not this file.
 7. The tax regime text is the specified constant `Régimen simplificado`. It is not a company setting and it does not add a tax amount.
 8. Each line uses the transaction-time `itemName` as the product name, plus `productId`, quantity, the snapshotted unit wholesale price, and the line total. Line order follows the sale. Catalog product name is not substituted.
 9. `subtotal` and `total` are both the sum of the line totals. No separate tax total is defined.
 10. `saleDate` is `confirmedAt`. The returned `invoiceNumber` is the one already stored on the sale.
 
-Printing is not an API route. The UI on the PC opens the Windows print dialog with the document from `GET /invoices/:saleId`. For several invoices, or for every allocated invoice of the Sales Day, the UI loads each selected document and prints them in one dialog with a page break between invoices. Reprinting requests the same document again. The API does not record a printed mark. The Load Sheet is not printed.
+Printing is not an API route. The UI prints a confirmed sale only after the Sales Day is closed. It opens one browser print dialog for the selected documents, in ascending invoice-number order, with a page break between them, on a 70 mm page with no margin. The printed ticket omits `productId` and `subtotal`, adds payment method `Efectivo` and a due date equal to the sale date, and includes `legalText`. The on-screen preview omits `legalText`. Reprinting requests the same document again. The API does not record a printed mark. The Load Sheet is not printed.
 
 ## Pending definition / not implemented
 

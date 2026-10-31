@@ -205,7 +205,7 @@ The transaction-time `SaleItem.itemName` is never an aggregation key and is neve
 
 ### Invoice rendering
 
-The invoice renderer receives an existing Sale, including each SaleItem `productId` and transaction-time `itemName`, plus customer/company data, and produces the required document representation. The invoice displays the transaction-time `itemName` and the product ID. Rendering must be deterministic for the same input state.
+The invoice renderer receives an existing Sale, including each SaleItem `productId` and transaction-time `itemName`, plus customer/company data, and produces the required document representation. The document keeps `productId` and uses `itemName` as the product name. The printed ticket does not show the product ID. Rendering must be deterministic for the same input state. Customer names and Catalog product names are uppercase. A line suffix after the catalog name is lowercase.
 
 Rendering is not a domain operation that changes the Sale aggregate.
 

@@ -155,33 +155,13 @@ Historical Load Sheet persistence is not required by the current business proces
 
 The invoice is generated from an existing sale. Generating or regenerating an invoice does not create a sale and does not allocate a new invoice number. An invoice may be printed more than once.
 
-The invoice contains, at minimum:
+The API document contains the company profile, the constant tax regime `Régimen simplificado`, the customer document and name, the invoice number, `saleDate` (`confirmedAt`), each line (`productId`, transaction-time `itemName`, quantity, unit value, line total), `subtotal`, and `total`. `subtotal` and `total` are the same sum. The document does not include a payment method or a due date.
 
-- company logo;
-- company name;
-- NIT;
-- city and country;
-- telephone;
-- tax regime text: `Régimen simplificado`;
-- customer document and name;
-- invoice number;
-- sale date;
-- product ID;
-- product name;
-- quantity;
-- unit value;
-- line total;
-- subtotal;
-- invoice total;
-- the existing legal text supplied by the business.
+The printed ticket, owned by the UI, uses that document on a 70 mm roll with no page margin. It does not show `productId` or `subtotal`. It shows, in order: the black company logo, company name, NIT, city and country, telephone, tax regime, customer document and name, the word Factura and the invoice number, the sale date, payment method `Efectivo`, due date equal to the sale date, then the lines, then the invoice total, then the legal text. The line columns are quantity, product name, unit value, and line total. The on-screen preview uses the same order and omits the legal text. The header of the application uses a separate color logo that is not the invoice logo.
 
-The invoice uses the transaction-time `itemName` captured on each SaleItem. The product ID remains visible so the item remains unambiguous even when the seller customized the display name. The product table follows the existing Excel invoice structure:
+Customer names and Catalog product names are stored in uppercase. A suffix the seller adds to a line stays lowercase after the uppercase catalog name (`BON BON BUM rojo`).
 
-```text
-ID | PRODUCT | QTY | UNIT VALUE | TOTAL VALUE
-```
-
-The existing thermal-paper width and invoice layout are constraints. Printing uses the Windows print dialog on the PC that already has the thermal printer. The UI owns that dialog, the selection of one invoice, several invoices, or all invoices of the Sales Day, and the page break between invoices. The API supplies the invoice document and does not talk to the printer. Reprinting prints that same document again. Nothing records that an invoice was printed. The Load Sheet is not printed. The printer model is the one already installed in Windows for the current paper roll.
+Printing uses the Windows print dialog on the PC that already has the thermal printer. The UI owns that dialog, the selection of one invoice, several invoices, or all invoices of the Sales Day, and the page break between invoices. The API supplies the invoice document and does not talk to the printer. Reprinting prints that same document again. Nothing records that an invoice was printed. The Load Sheet is not printed. The printer model is the one already installed in Windows for the current paper roll.
 
 ## 13. End-to-End Flow
 

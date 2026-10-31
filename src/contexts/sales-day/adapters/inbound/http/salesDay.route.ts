@@ -6,7 +6,7 @@ import { validateRequest } from '../../../../../apps/middlewares/validateRequest
 import {
   openSalesDaySchema,
   getCurrentSalesDaySchema,
-  listRecentSalesDaysSchema,
+  listCurrentWeekSalesDaysSchema,
   salesDayIdParamSchema
 } from './salesDay.schema';
 
@@ -25,8 +25,8 @@ export function createSalesDaysRouter(container: AppContainer) {
     );
   });
 
-  router.get('/recent', validateRequest(listRecentSalesDaysSchema), async (req: Request, res: Response) => {
-    const useCase = container.get('sales_day.application.list_recent_sales_days_use_case');
+  router.get('/current-week', validateRequest(listCurrentWeekSalesDaysSchema), async (req: Request, res: Response) => {
+    const useCase = container.get('sales_day.application.list_current_week_sales_days_use_case');
     return httpResponse(
       res,
       await useCase.run({

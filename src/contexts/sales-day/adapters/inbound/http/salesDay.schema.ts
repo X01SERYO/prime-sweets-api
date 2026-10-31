@@ -14,7 +14,7 @@ export const getCurrentSalesDaySchema = {
   })
 };
 
-export const listRecentSalesDaysSchema = {
+export const listCurrentWeekSalesDaysSchema = {
   query: z.object({
     sellerId: z.string().trim().min(1, 'sellerId is required')
   })

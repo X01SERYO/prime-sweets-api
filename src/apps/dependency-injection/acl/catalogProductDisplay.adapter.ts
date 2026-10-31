@@ -29,7 +29,9 @@ export class CatalogProductDisplayAdapter implements CatalogProductDisplayQuery 
       displays.push({
         productId: primitives.id,
         brand,
-        name: primitives.name ?? ''
+        name: primitives.name ?? '',
+        wholesaleCost: primitives.wholesaleCost,
+        wholesaleSalePrice: primitives.wholesalePrice
       });
     }
 

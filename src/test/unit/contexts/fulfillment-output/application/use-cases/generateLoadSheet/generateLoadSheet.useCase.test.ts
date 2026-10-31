@@ -29,7 +29,9 @@ function setup(status: 'OPEN' | 'CLOSED' | null = 'CLOSED') {
       profit: 2000
     }
   ];
-  const displays: CatalogProductDisplay[] = [{ productId: 'p-1', brand: 'Acme', name: 'Catalog Soda' }];
+  const displays: CatalogProductDisplay[] = [
+    { productId: 'p-1', brand: 'Acme', name: 'Catalog Soda', wholesaleCost: 600, wholesaleSalePrice: 1000 }
+  ];
 
   const salesDayClosureQuery: SalesDayClosureQuery = {
     async findById(salesDayId) {

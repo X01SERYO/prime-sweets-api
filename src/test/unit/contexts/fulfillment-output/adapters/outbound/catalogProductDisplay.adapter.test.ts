@@ -56,5 +56,7 @@ test('CatalogProductDisplayAdapter - resolves catalog name and brand, skipping m
     'missing'
   ]);
 
-  assert.deepEqual(displays, [{ productId: 'p-1', brand: 'Acme', name: 'Catalog Soda' }]);
+  assert.deepEqual(displays, [
+    { productId: 'p-1', brand: 'Acme', name: 'CATALOG SODA', wholesaleCost: 10, wholesaleSalePrice: 20 }
+  ]);
 });

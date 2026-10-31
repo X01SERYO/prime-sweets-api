@@ -29,7 +29,9 @@ test('LoadSheet - aggregates different item contributions of the same product in
       {
         productId: 'p-123',
         brand: 'Acme',
-        name: 'Catalog Soda'
+        name: 'Catalog Soda',
+        wholesaleCost: 600,
+        wholesaleSalePrice: 1000
       }
     ]
   });
@@ -45,11 +47,12 @@ test('LoadSheet - aggregates different item contributions of the same product in
     name: 'Catalog Soda',
     quantity: 15,
     totalPrice: 15000,
-    profit: 6000
+    profit: 6000,
+    priceGroups: []
   });
 });
 
-test('LoadSheet - keeps one row when transaction-time unit prices differ and does not average them', () => {
+test('LoadSheet - shows the catalog price and the price groups when unit prices differ', () => {
   const loadSheet = LoadSheet.compose({
     salesDayId: 'sd-1',
     contributions: [
@@ -70,7 +73,7 @@ test('LoadSheet - keeps one row when transaction-time unit prices differ and doe
         profit: 150
       }
     ],
-    displays: [{ productId: 'p-1', brand: null, name: 'Mixed' }]
+    displays: [{ productId: 'p-1', brand: null, name: 'Mixed', wholesaleCost: 55, wholesaleSalePrice: 180 }]
   });
 
   const line = loadSheet.toPrimitives().lines[0];
@@ -78,8 +81,13 @@ test('LoadSheet - keeps one row when transaction-time unit prices differ and doe
   assert.equal(line.quantity, 2);
   assert.equal(line.totalPrice, 300);
   assert.equal(line.profit, 210);
-  assert.equal(line.wholesaleCost, null);
-  assert.equal(line.wholesaleSalePrice, null);
+  assert.equal(line.wholesaleCost, 55);
+  assert.equal(line.wholesaleSalePrice, 180);
+  assert.equal(line.priceGroups.length, 2);
+  assert.equal(line.priceGroups[0].wholesaleSalePrice, 100);
+  assert.equal(line.priceGroups[0].quantity, 1);
+  assert.equal(line.priceGroups[1].wholesaleSalePrice, 200);
+  assert.equal(line.priceGroups[1].quantity, 1);
 });
 
 test('LoadSheet - uses the catalog name and ignores a missing product', () => {
@@ -118,7 +126,7 @@ test('LoadSheet - rejects a blank catalog name', () => {
             profit: 1
           }
         ],
-        displays: [{ productId: 'p-1', brand: 'Acme', name: '   ' }]
+        displays: [{ productId: 'p-1', brand: 'Acme', name: '   ', wholesaleCost: 1, wholesaleSalePrice: 2 }]
       }),
     LoadSheetProductNameMissingError
   );
@@ -133,9 +141,9 @@ test('LoadSheet - sorts lines by brand, then catalog name, then productId', () =
       { productId: 'p-a1', quantity: 1, wholesaleCost: 1, wholesaleSalePrice: 2, totalPrice: 2, profit: 1 }
     ],
     displays: [
-      { productId: 'p-b', brand: null, name: 'Zed' },
-      { productId: 'p-a2', brand: 'Acme', name: 'Beta' },
-      { productId: 'p-a1', brand: 'Acme', name: 'Alpha' }
+      { productId: 'p-b', brand: null, name: 'Zed', wholesaleCost: 1, wholesaleSalePrice: 2 },
+      { productId: 'p-a2', brand: 'Acme', name: 'Beta', wholesaleCost: 1, wholesaleSalePrice: 2 },
+      { productId: 'p-a1', brand: 'Acme', name: 'Alpha', wholesaleCost: 1, wholesaleSalePrice: 2 }
     ]
   });
 

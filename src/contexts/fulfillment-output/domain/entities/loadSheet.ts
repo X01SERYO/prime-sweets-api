@@ -1,6 +1,14 @@
 import { LoadSheetProductNameMissingError } from '../errors/loadSheetProductNameMissing.error';
 import { ProductNotFoundForLoadSheetError } from '../errors/productNotFoundForLoadSheet.error';
 
+export type LoadSheetPriceGroupPrimitives = {
+  wholesaleCost: number;
+  wholesaleSalePrice: number;
+  quantity: number;
+  totalPrice: number;
+  profit: number;
+};
+
 export type LoadSheetLinePrimitives = {
   productId: string;
   brand: string | null;
@@ -10,6 +18,7 @@ export type LoadSheetLinePrimitives = {
   quantity: number;
   totalPrice: number;
   profit: number;
+  priceGroups: LoadSheetPriceGroupPrimitives[];
 };
 
 export type LoadSheetPrimitives = {
@@ -30,19 +39,46 @@ export type CatalogProductDisplay = {
   productId: string;
   brand: string | null;
   name: string;
+  wholesaleCost: number | null;
+  wholesaleSalePrice: number | null;
 };
 
 function roundMoney(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function uniqueNumber(values: number[]): number | null {
-  if (values.length === 0) {
-    return null;
+function priceKey(cost: number, salePrice: number): string {
+  return `${cost}|${salePrice}`;
+}
+
+function priceGroups(items: ConfirmedSaleItemContribution[]): LoadSheetPriceGroupPrimitives[] {
+  const groups = new Map<string, LoadSheetPriceGroupPrimitives>();
+
+  for (const item of items) {
+    const key = priceKey(item.wholesaleCost, item.wholesaleSalePrice);
+    const existing = groups.get(key);
+    if (!existing) {
+      groups.set(key, {
+        wholesaleCost: item.wholesaleCost,
+        wholesaleSalePrice: item.wholesaleSalePrice,
+        quantity: item.quantity,
+        totalPrice: roundMoney(item.totalPrice),
+        profit: roundMoney(item.profit)
+      });
+      continue;
+    }
+
+    existing.quantity += item.quantity;
+    existing.totalPrice = roundMoney(existing.totalPrice + item.totalPrice);
+    existing.profit = roundMoney(existing.profit + item.profit);
   }
 
-  const first = values[0];
-  return values.every((value) => value === first) ? first : null;
+  return [...groups.values()].sort((left, right) => {
+    if (left.wholesaleSalePrice !== right.wholesaleSalePrice) {
+      return left.wholesaleSalePrice - right.wholesaleSalePrice;
+    }
+    return left.wholesaleCost - right.wholesaleCost;
+  });
 }
 
 export class LoadSheet {
@@ -81,16 +117,23 @@ export class LoadSheet {
       const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
       const totalPrice = roundMoney(items.reduce((sum, item) => sum + item.totalPrice, 0));
       const profit = roundMoney(items.reduce((sum, item) => sum + item.profit, 0));
+      const prices = priceGroups(items);
+      const singlePrice = prices[0];
+      const mixedPrices = prices.length > 1;
+      if (!singlePrice) {
+        continue;
+      }
 
       lines.push({
         productId,
         brand: display.brand,
-        wholesaleCost: uniqueNumber(items.map((item) => item.wholesaleCost)),
-        wholesaleSalePrice: uniqueNumber(items.map((item) => item.wholesaleSalePrice)),
+        wholesaleCost: mixedPrices ? display.wholesaleCost : singlePrice.wholesaleCost,
+        wholesaleSalePrice: mixedPrices ? display.wholesaleSalePrice : singlePrice.wholesaleSalePrice,
         name,
         quantity,
         totalPrice,
-        profit
+        profit,
+        priceGroups: mixedPrices ? prices : []
       });
     }
 

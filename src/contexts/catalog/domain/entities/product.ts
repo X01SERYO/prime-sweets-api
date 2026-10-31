@@ -1,3 +1,11 @@
+function upperName(name: string | null | undefined): string | null {
+  if (name == null) {
+    return null;
+  }
+  const trimmed = name.trim();
+  return trimmed ? trimmed.toLocaleUpperCase('es-CO') : null;
+}
+
 export type ProductPrimitives = {
   id: string;
   alegraId: string;
@@ -48,7 +56,7 @@ export class Product {
       params.alegraId,
       params.code?.trim() || params.alegraId,
       params.brandId ?? null,
-      params.name ?? null,
+      upperName(params.name),
       params.suggestedPrice ?? null,
       params.units ?? 0,
       params.pack ?? 0,
@@ -65,7 +73,7 @@ export class Product {
       this.alegraId,
       this.code,
       this.brandId,
-      params.name !== undefined ? params.name : this.name,
+      params.name !== undefined ? upperName(params.name) : this.name,
       this.suggestedPrice,
       this.units,
       this.pack,

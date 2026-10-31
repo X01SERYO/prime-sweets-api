@@ -81,7 +81,7 @@ export class Customer {
       params.id.trim(),
       trimmedDocType,
       trimmedDocNumber,
-      trimmedName,
+      trimmedName.toLocaleUpperCase('es-CO'),
       phone,
       email,
       address
@@ -120,7 +120,7 @@ export class Customer {
       if (!trimmed) {
         throw new InvalidCustomerError('Customer name cannot be empty');
       }
-      newName = trimmed;
+      newName = trimmed.toLocaleUpperCase('es-CO');
     }
 
     const newPhone =

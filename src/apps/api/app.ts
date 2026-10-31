@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import { AppContainer } from '../dependency-injection/appContainer';
 import { registerRoutes } from './routes';
@@ -15,6 +16,7 @@ export function createApp(container: AppContainer) {
     next();
   });
   app.use(express.json());
+  app.use('/company', express.static(path.join(process.cwd(), 'public', 'company')));
 
   registerRoutes(app, container);
 

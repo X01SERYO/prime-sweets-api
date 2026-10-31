@@ -265,12 +265,17 @@ test('Sale aggregate - voids a confirmed sale logically without modifying items 
   assert.throws(() => voided.void(), SaleAlreadyVoidedError);
 });
 
-test('Sale aggregate - cannot void a sale that is still in DRAFT', () => {
+test('Sale aggregate - voids a draft and keeps it without an invoice number', () => {
   const draft = Sale.create({
     id: 'sale-001',
     salesDayId: 'sd-100',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
-  assert.throws(() => draft.void(), SaleCannotBeModifiedError);
+  const voided = draft.void();
+
+  assert.equal(voided.status, 'VOIDED');
+  assert.equal(voided.invoiceNumber, null);
+  assert.ok(voided.voidedAt);
+  assert.throws(() => voided.void(), SaleAlreadyVoidedError);
 });

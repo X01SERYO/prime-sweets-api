@@ -322,10 +322,6 @@ export class Sale {
       throw new SaleAlreadyVoidedError(this.id);
     }
 
-    if (this._status === 'DRAFT') {
-      throw new SaleCannotBeModifiedError('Cannot void a sale that is still in DRAFT status');
-    }
-
     return new Sale(
       this.id,
       this.salesDayId,

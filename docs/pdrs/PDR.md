@@ -268,7 +268,7 @@ Neither document operation creates a new Sale or allocates a new invoice number.
 - mobile-specific native application;
 - device-specific roles;
 - Bluetooth/USB/Wi-Fi printer integration;
-- changing the current delivery process;
+- changing the current delivery process in Version 1 (the delivery-day Load Sheet and same-week edits are [PDR-002](./PDR-002.md));
 - long-term Load Sheet archival as a business requirement;
 - changing the current legal invoice content without business confirmation.
 

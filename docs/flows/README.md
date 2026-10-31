@@ -140,6 +140,16 @@ Body: `sellerId` (required), `date` (optional, defaults to current business date
 3. If already open, reject with `SalesDayAlreadyOpenError`. If closed, reject with `InvalidSalesDayError`.
 4. Create and persist `SalesDay` with status `OPEN` and `openedAt = now()`.
 
+### List current week — `GET /sales-days/current-week?sellerId=...`
+
+Query: `sellerId` (required). The business date is today in `America/Bogota`.
+
+1. Reject an empty `sellerId`.
+2. The window is Monday of that date through today. A future day of the same week is excluded. A day before Monday is excluded.
+3. Return that seller's Sales Days in the window, newest first. An empty window returns `[]`.
+
+Sale commands for a day inside that window succeed only while the day is `OPEN`. A closed day fails with `SALES_DAY_NOT_OPEN` until it is reopened. A day before Monday fails with `SALE_OUTSIDE_EDIT_WINDOW`. `POST /sales` requires `deliveryDate` on or after the Sales Day date. `PATCH /sales/:id/delivery-date` changes it while the sale is inside the window and the day is open.
+
 ### Get current Sales Day — `GET /sales-days/current?sellerId=...`
 
 Query: `sellerId` (required), `date` (optional, defaults to current business date).
@@ -251,7 +261,7 @@ Operational projection for a closed Sales Day. It is not stored. Generating it d
    - `totalPrice` = sum of confirmed item total prices
    - `profit` = sum of confirmed item profits
 7. Resolve `name` and `brand` from Catalog by `productId`. `name` is the Catalog product name. A missing product → `ProductNotFoundForLoadSheetError` (404, `PRODUCT_NOT_FOUND`). A blank Catalog name → `LoadSheetProductNameMissingError` (400, `LOAD_SHEET_PRODUCT_NAME_MISSING`). The Load Sheet does not fall back to `itemName`. `brand` is the Catalog brand name, or `null` when the product has no brand.
-8. `wholesaleCost` and `wholesaleSalePrice` are the transaction-time unit snapshots from the confirmed sale items. They are copied when every contribution in the product group shares the same unit cost and the same unit sale price. When those snapshots differ, the row stays a single `productId` group, the two unit fields are `null`, and the summed quantity, total price, and profit are unchanged. Values are not averaged and the group is not split.
+8. `wholesaleCost` and `wholesaleSalePrice` are the transaction-time unit snapshots when every contribution in the product group shares the same unit cost and the same unit sale price. When those snapshots differ, the row stays one `productId` group and those two fields become the current Catalog wholesale cost and wholesale sale price. The summed quantity, total price, and profit are unchanged. `priceGroups` lists each distinct cost and sale price with its own quantity, total, and profit. The UI shows an alert on that row and expands the groups. Values are not averaged.
 9. Rows are ordered by brand name (null last), then Catalog name, then `productId`.
 10. A closed day with no confirmed items returns `lines: []`.
 
@@ -297,8 +307,6 @@ These remaining areas appear in the PDR/SPEC and have **no** code paths here.
 | Area | What is missing in code |
 |---|---|
 | Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
-| Catalog Excel migration | One-shot import with invalid/duplicate reporting |
-| Alegra inbound | Pull items/prices from Alegra into local catalog |
-| Product create/delete sync | Create and delete do not update Alegra |
+| Catalog Excel migration, Alegra inbound, product create/delete sync, current-week edits, and Load Sheet by delivery date | Specified in [PDR-002](../pdrs/PDR-002.md) and [SPEC-002](../specs/SPEC-002.md). No code paths in this repository yet. |
 
 Open questions remain in the PDR OQ register. This document does not resolve them.

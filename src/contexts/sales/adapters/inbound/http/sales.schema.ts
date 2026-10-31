@@ -35,6 +35,11 @@ export const listSalesSchema: RequestValidationSchema = {
   query: z.object({
     salesDayId: z.string().trim().optional(),
     customerId: z.string().trim().optional(),
+    deliveryDate: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'deliveryDate must be YYYY-MM-DD')
+      .optional(),
     status: z.enum(['DRAFT', 'CONFIRMED', 'VOIDED']).optional()
   })
 };

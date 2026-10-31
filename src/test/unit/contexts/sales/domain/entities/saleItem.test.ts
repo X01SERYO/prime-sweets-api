@@ -60,9 +60,10 @@ test('SaleItem entity - updates transaction-time itemName', () => {
     wholesaleCost: 800
   });
 
-  const updated = item.updateItemName('Galletas Edición Especial');
-  assert.equal(updated.itemName, 'Galletas Edición Especial');
-  assert.equal(updated.productId, 'prod-100'); // productId remains unchanged
+  const updated = item.updateItemName('Galletas Original edición especial');
+  assert.equal(updated.itemName, 'Galletas Original edición especial');
+  assert.equal(updated.catalogName, 'Galletas Original');
+  assert.equal(updated.productId, 'prod-100');
 });
 
 test('SaleItem entity - accepts a decimal quantity and rejects zero or negative', () => {

@@ -13,6 +13,7 @@ export type SaleItemPrimitives = {
   id: string;
   productId: string;
   productCode: string;
+  catalogName: string;
   itemName: string;
   quantity: number;
   wholesalePrice: number;
@@ -28,6 +29,7 @@ export class SaleItem {
     readonly productId: string,
     private _productCode: string,
     private _itemName: string,
+    private _catalogName: string,
     private _quantity: number,
     readonly wholesalePrice: number,
     readonly wholesaleCost: number,
@@ -40,6 +42,10 @@ export class SaleItem {
 
   get itemName(): string {
     return this._itemName;
+  }
+
+  get catalogName(): string {
+    return this._catalogName;
   }
 
   get quantity(): number {
@@ -59,6 +65,7 @@ export class SaleItem {
     productId: string;
     productCode?: string;
     itemName: string;
+    catalogName?: string;
     quantity: number;
     wholesalePrice: number;
     wholesaleCost: number;
@@ -91,11 +98,14 @@ export class SaleItem {
       throw new InvalidSaleError('Wholesale cost must be a number greater than or equal to 0');
     }
 
+    const catalogName = params.catalogName?.trim() || trimmedItemName;
+
     return new SaleItem(
       trimmedId,
       trimmedProductId,
       params.productCode?.trim() ?? '',
       trimmedItemName,
+      catalogName,
       params.quantity,
       params.wholesalePrice,
       params.wholesaleCost,
@@ -113,6 +123,7 @@ export class SaleItem {
       this.productId,
       this._productCode,
       this._itemName,
+      this._catalogName,
       newQuantity,
       this.wholesalePrice,
       this.wholesaleCost,
@@ -131,6 +142,7 @@ export class SaleItem {
       this.productId,
       this._productCode,
       trimmed,
+      this._catalogName,
       this._quantity,
       this.wholesalePrice,
       this.wholesaleCost,
@@ -144,6 +156,7 @@ export class SaleItem {
       productId: this.productId,
       productCode: this._productCode,
       itemName: this._itemName,
+      catalogName: this._catalogName,
       quantity: this._quantity,
       wholesalePrice: this.wholesalePrice,
       wholesaleCost: this.wholesaleCost,

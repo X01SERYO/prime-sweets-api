@@ -47,6 +47,7 @@ export class AddSaleItemUseCase {
         id: this.ids.next(),
         productId: snapshot.id,
         productCode: snapshot.code,
+        catalogName: snapshot.name,
         itemName: dto.itemName?.trim() || snapshot.name,
         quantity: dto.quantity,
         wholesalePrice: snapshot.wholesalePrice,

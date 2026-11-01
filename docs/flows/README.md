@@ -191,6 +191,6 @@ These remaining areas appear in the PDR/SPEC and have **no** code paths here.
 | Area | What is missing in code |
 |---|---|
 | Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
-| Catalog Excel migration and Alegra inbound product sync | Specified in [PDR-002](../pdrs/PDR-002.md). No code paths in this repository yet. |
+| Catalog Excel migration, Alegra inbound pull, and create/retire sync | Specified in [PDR-003](../pdrs/PDR-003.md). Update sync is implemented. Create, logical delete, Excel import, and the inbound pull have no code paths yet. |
 
 Open questions remain in the PDR OQ register. This document does not resolve them.

@@ -6,9 +6,9 @@ export class InProcessProductAlegraSyncService implements ProductAlegraSyncServi
 
   async sync(input: {
     alegraId: string;
-    name: string | null;
-    wholesalePrice: number | null;
-    retailPrice: number | null;
+    name?: string | null;
+    wholesalePrice?: number;
+    retailPrice?: number;
   }): Promise<void> {
     await this.syncProductItemUseCase.run(input);
   }

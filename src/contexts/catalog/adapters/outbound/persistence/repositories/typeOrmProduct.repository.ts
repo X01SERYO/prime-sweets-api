@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { DataSource } from 'typeorm';
+import { Brackets, DataSource, In } from 'typeorm';
 import { Product } from '../../../../domain/entities/product';
 import { ProductRepository } from '../../../../application/ports/outbound/product.repository';
 import { formatProductCode } from '../../../../domain/productCode';
@@ -20,7 +20,7 @@ export class TypeOrmProductRepository implements ProductRepository {
   async findById(id: string): Promise<Product | null> {
     const entity = await this.productRepo.findOne({
       where: { id },
-      relations: ['prices']
+      relations: ['prices', 'brand']
     });
     return entity ? this.toDomain(entity) : null;
   }
@@ -28,14 +28,14 @@ export class TypeOrmProductRepository implements ProductRepository {
   async findByAlegraId(alegraId: string): Promise<Product | null> {
     const entity = await this.productRepo.findOne({
       where: { alegraId },
-      relations: ['prices']
+      relations: ['prices', 'brand']
     });
     return entity ? this.toDomain(entity) : null;
   }
 
   async findAll(): Promise<Product[]> {
     const entities = await this.productRepo.find({
-      relations: ['prices'],
+      relations: ['prices', 'brand'],
       order: { name: 'ASC' }
     });
     return entities.map((entity) => this.toDomain(entity));
@@ -60,6 +60,50 @@ export class TypeOrmProductRepository implements ProductRepository {
       .getMany();
 
     return entities.map((entity) => this.toDomain(entity));
+  }
+
+  async page(term: string | undefined, page: number, pageSize: number): Promise<{ items: Product[]; total: number }> {
+    const filtered = this.productRepo.createQueryBuilder('product').leftJoin('product.brand', 'brand');
+    const sanitized = term?.trim();
+    if (sanitized) {
+      const pattern = `%${sanitized}%`;
+      filtered.andWhere(
+        new Brackets(query => {
+          query
+            .where('product.code ILIKE :pattern', { pattern })
+            .orWhere('product.name ILIKE :pattern', { pattern })
+            .orWhere('brand.name ILIKE :pattern', { pattern })
+            .orWhere('brand.code ILIKE :pattern', { pattern });
+        })
+      );
+    }
+
+    const total = await filtered.clone().getCount();
+    const rows = await filtered
+      .clone()
+      .select('product.id', 'id')
+      .orderBy('product.code', 'ASC')
+      .addOrderBy('product.id', 'ASC')
+      .offset((page - 1) * pageSize)
+      .limit(pageSize)
+      .getRawMany<{ id: string }>();
+    const ids = rows.map(row => row.id);
+    if (ids.length === 0) {
+      return { items: [], total };
+    }
+
+    const entities = await this.productRepo.find({
+      where: { id: In(ids) },
+      relations: ['prices', 'brand']
+    });
+    const byId = new Map(entities.map(entity => [entity.id, entity]));
+    return {
+      items: ids.flatMap(id => {
+        const entity = byId.get(id);
+        return entity ? [this.toDomain(entity)] : [];
+      }),
+      total
+    };
   }
 
   async nextProductCode(brandId: string | null, brandCode: string): Promise<string> {
@@ -133,6 +177,7 @@ export class TypeOrmProductRepository implements ProductRepository {
       alegraId: entity.alegraId,
       code: entity.code,
       brandId: entity.brandId,
+      brandName: entity.brand?.name ?? null,
       name: entity.name,
       suggestedPrice: entity.suggestedPrice,
       units: entity.units,

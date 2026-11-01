@@ -27,30 +27,41 @@ export const createProductSchema = {
   })
 };
 
+const updateMoney = z.number().nonnegative();
+const updateCount = z.number().int().nonnegative();
+
 export const updateProductSchema = {
   params: z.object({
     id: z.string().trim().min(1, 'Product id is required')
   }),
   body: z
     .object({
-      name: z.string().trim().min(1, 'name cannot be empty').nullable().optional(),
-      wholesalePrice: optionalNonNegativeNumber,
-      retailPrice: optionalNonNegativeNumber
+      name: z.string().trim().min(1, 'name cannot be empty').optional(),
+      wholesaleCost: updateMoney.optional(),
+      wholesalePrice: updateMoney.optional(),
+      retailCost: updateMoney.optional(),
+      retailPrice: updateMoney.optional(),
+      units: updateCount.optional(),
+      pack: updateCount.optional()
     })
     .refine(
       (data) =>
         data.name !== undefined ||
+        data.wholesaleCost !== undefined ||
         data.wholesalePrice !== undefined ||
-        data.retailPrice !== undefined,
-      {
-        message: 'At least one of name, wholesalePrice, or retailPrice must be provided'
-      }
+        data.retailCost !== undefined ||
+        data.retailPrice !== undefined ||
+        data.units !== undefined ||
+        data.pack !== undefined,
+      { message: 'At least one field must be provided' }
     )
 };
 
 export const searchProductSchema = {
   query: z.object({
     q: z.string().optional(),
-    search: z.string().optional()
+    search: z.string().optional(),
+    page: z.coerce.number().int().positive().optional(),
+    pageSize: z.coerce.number().int().min(1).max(50).optional()
   })
 };

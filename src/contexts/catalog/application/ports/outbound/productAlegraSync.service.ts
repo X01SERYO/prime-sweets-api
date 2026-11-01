@@ -1,8 +1,8 @@
 export interface ProductAlegraSyncService {
   sync(input: {
     alegraId: string;
-    name: string | null;
-    wholesalePrice: number | null;
-    retailPrice: number | null;
+    name?: string | null;
+    wholesalePrice?: number;
+    retailPrice?: number;
   }): Promise<void>;
 }

@@ -1,4 +1,4 @@
-# SPEC-002 — Delivery days replace Sales Days, and catalog backlog
+# SPEC-002 — Delivery days replace Sales Days
 
 **Status:** Proposed (revised 2026-11-01)
 **Language:** English
@@ -131,15 +131,7 @@ Customers, catalog tables, users, and company profile are not touched.
 
 The migration assumes `sales` is empty. Update the seed so it creates no sales or Sales Days.
 
-## 7. Catalog backlog
-
-Implement in `catalog` and `alegra`. Do not import those adapters from `sales`.
-
-- **Excel migration.** One-shot script over the product workbook (columns in SPEC.md § 18). Invalid rows and duplicate Alegra ids or codes go to a report. No silent skips, no invented prices. Valid rows create missing brands and upsert products and prices. The catalog already loaded is final; the script must be idempotent on it.
-- **Alegra inbound.** Pull items and prices through the existing port and upsert. Products Alegra omits are left in place.
-- **Create and delete.** `CreateProduct` and `DeleteProduct` call Alegra after the local commit. A failure is logged and does not roll back.
-
-## 8. Tests
+## 7. Tests
 
 - Create needs no Sales Day and stores `sellerId`, `captureDate`, `deliveryDate`.
 - Delivery date before today or after Sunday is rejected; on Sunday only Sunday is accepted.
@@ -149,12 +141,12 @@ Implement in `catalog` and `alegra`. Do not import those adapters from `sales`.
 - The invoice document carries `deliveryDate`.
 - Re-dating a draft updates it in place.
 - Re-dating a confirmed sale voids it on the old date (number kept) and returns a new confirmed sale on the new date with the same lines and the next number of that date. A failure in any step leaves nothing changed.
-- Excel report lists invalid and duplicate keys. Create and delete call Alegra after the local save.
 
-## 9. Definition of done
+Catalog administration is [SPEC-003](./SPEC-003.md).
+
+## 8. Definition of done
 
 - No `sales-day` code remains.
 - Domain and use cases enforce the date range and status rules. Controllers do not.
 - Load Sheet, invoices, and sales lists are keyed by delivery date.
 - Architecture, data-model, and flows describe the code that landed.
-- Catalog items are covered by § 8 or listed in `technical-debt.md`.

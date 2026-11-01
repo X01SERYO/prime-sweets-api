@@ -6,20 +6,24 @@ import { ProductNotFoundError } from '../../../domain/errors/productNotFound.err
 import { InvalidProductError } from '../../../domain/errors/invalidProduct.error';
 import { UpdateProductDto } from '../../dto/updateProduct.dto';
 
-function optionalNumber(value: unknown, field: string): Result<number | null | undefined> {
+function presentMoney(value: unknown, field: string): Result<number | undefined> {
   if (value === undefined) {
     return Result.ok(undefined);
   }
-  if (value === null || value === '') {
-    return Result.ok(null);
-  }
-
-  const parsed = Number(value);
-  if (Number.isNaN(parsed) || parsed < 0) {
+  if (value === null || value === '' || typeof value !== 'number' || Number.isNaN(value) || value < 0) {
     return Result.fail(new InvalidProductError(`${field} must be a number greater than or equal to 0`));
   }
+  return Result.ok(value);
+}
 
-  return Result.ok(parsed);
+function presentCount(value: unknown, field: string): Result<number | undefined> {
+  if (value === undefined) {
+    return Result.ok(undefined);
+  }
+  if (value === null || value === '' || typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
+    return Result.fail(new InvalidProductError(`${field} must be an integer greater than or equal to 0`));
+  }
+  return Result.ok(value);
 }
 
 export class UpdateProductUseCase {
@@ -34,24 +38,45 @@ export class UpdateProductUseCase {
       return Result.fail(new ProductNotFoundError(dto.id));
     }
 
-    if (dto.name === undefined && dto.wholesalePrice === undefined && dto.retailPrice === undefined) {
-      return Result.fail(new InvalidProductError('name, wholesalePrice or retailPrice is required'));
+    const fields = [
+      dto.name,
+      dto.wholesaleCost,
+      dto.wholesalePrice,
+      dto.retailCost,
+      dto.retailPrice,
+      dto.units,
+      dto.pack
+    ];
+    if (fields.every(field => field === undefined)) {
+      return Result.fail(new InvalidProductError('At least one field is required'));
     }
 
-    const wholesalePrice = optionalNumber(dto.wholesalePrice, 'wholesalePrice');
-    if (!wholesalePrice.isSuccess) return Result.fail(wholesalePrice.error!);
-    const retailPrice = optionalNumber(dto.retailPrice, 'retailPrice');
-    if (!retailPrice.isSuccess) return Result.fail(retailPrice.error!);
-
-    const name = dto.name === undefined ? undefined : dto.name === null ? null : String(dto.name).trim();
+    const name = dto.name === undefined ? undefined : String(dto.name).trim();
     if (name === '') {
       return Result.fail(new InvalidProductError('name cannot be empty'));
     }
 
+    const wholesaleCost = presentMoney(dto.wholesaleCost, 'wholesaleCost');
+    if (!wholesaleCost.isSuccess) return Result.fail(wholesaleCost.error!);
+    const wholesalePrice = presentMoney(dto.wholesalePrice, 'wholesalePrice');
+    if (!wholesalePrice.isSuccess) return Result.fail(wholesalePrice.error!);
+    const retailCost = presentMoney(dto.retailCost, 'retailCost');
+    if (!retailCost.isSuccess) return Result.fail(retailCost.error!);
+    const retailPrice = presentMoney(dto.retailPrice, 'retailPrice');
+    if (!retailPrice.isSuccess) return Result.fail(retailPrice.error!);
+    const units = presentCount(dto.units, 'units');
+    if (!units.isSuccess) return Result.fail(units.error!);
+    const pack = presentCount(dto.pack, 'pack');
+    if (!pack.isSuccess) return Result.fail(pack.error!);
+
     const updated = product.update({
       name,
+      wholesaleCost: wholesaleCost.value,
       wholesalePrice: wholesalePrice.value,
-      retailPrice: retailPrice.value
+      retailCost: retailCost.value,
+      retailPrice: retailPrice.value,
+      units: units.value,
+      pack: pack.value
     });
 
     try {
@@ -60,15 +85,20 @@ export class UpdateProductUseCase {
       return Result.fail(error instanceof Error ? error : new Error('Failed to persist product'));
     }
 
-    try {
-      await this.productAlegraSyncService.sync({
-        alegraId: updated.alegraId,
-        name: updated.name,
-        wholesalePrice: updated.wholesalePrice,
-        retailPrice: updated.retailPrice
-      });
-    } catch (error) {
-      console.error('Alegra product sync failed after the local product was saved', error);
+    const notifyName = dto.name !== undefined;
+    const notifyWholesale = dto.wholesalePrice !== undefined;
+    const notifyRetail = dto.retailPrice !== undefined;
+    if (notifyName || notifyWholesale || notifyRetail) {
+      try {
+        await this.productAlegraSyncService.sync({
+          alegraId: updated.alegraId,
+          ...(notifyName ? { name: updated.name } : {}),
+          ...(notifyWholesale ? { wholesalePrice: updated.wholesalePrice ?? 0 } : {}),
+          ...(notifyRetail ? { retailPrice: updated.retailPrice ?? 0 } : {})
+        });
+      } catch (error) {
+        console.error('Alegra product sync failed after the local product was saved', error);
+      }
     }
 
     return Result.ok(updated.toPrimitives());

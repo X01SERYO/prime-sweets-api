@@ -45,6 +45,10 @@ class MockProductRepository implements ProductRepository {
     return this.products.filter((p) => p.name?.toLowerCase().includes(term.toLowerCase()));
   }
 
+  async page(): Promise<{ items: Product[]; total: number }> {
+    return { items: this.products, total: this.products.length };
+  }
+
   async nextProductCode(): Promise<string> {
     return 'GEN001';
   }

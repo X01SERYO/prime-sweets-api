@@ -9,11 +9,14 @@ This index is the map of project documents. Runtime descriptions below match the
 | Document | Role | Status vs code |
 |---|---|---|
 | [pdrs/PDR.md](./pdrs/PDR.md) | Product design requirement for Version 1 | Proposal. Not a description of the running API. |
-| [pdrs/PDR-002.md](./pdrs/PDR-002.md) | Current week, delivery date, returns as sale edits, and the catalog backlog | Proposal. Not implemented. |
+| [pdrs/PDR-002.md](./pdrs/PDR-002.md) | Current week, delivery date, and returns as sale edits | Proposal. Delivery-day behavior is in the code. This file stays the feature record. |
+| [pdrs/PDR-003.md](./pdrs/PDR-003.md) | Product administration and Alegra | Proposal. Not implemented. |
 | [specs/SPEC.md](./specs/SPEC.md) | Backend implementation specification for Version 1 | Proposed target. Use it as the implementation guide. Update *this* docs set as SPEC steps land; do not copy unimplemented SPEC content into architecture, data-model, or flows as if it existed. |
-| [specs/SPEC-002.md](./specs/SPEC-002.md) | Implementation guide for PDR-002 | Proposed. Do not copy it into architecture, data-model, or flows until the code lands. |
+| [specs/SPEC-002.md](./specs/SPEC-002.md) | Implementation guide for PDR-002 | Proposed. Do not copy unimplemented parts into architecture, data-model, or flows. |
+| [specs/SPEC-003.md](./specs/SPEC-003.md) | Implementation guide for PDR-003 | Proposed. Do not copy it into architecture, data-model, or flows until the code lands. |
 | [adrs/ADR-001.md](./adrs/ADR-001.md) | Architecture decision: modular monolith, DDD bounded contexts, hexagon per context | Proposed. Binding for Version 1. Current runtime shape is in `architecture/`. |
 | [adrs/ADR-002.md](./adrs/ADR-002.md) | Week window and delivery date stay in Sales and Fulfillment Output | Proposed. Binding for PDR-002. |
+| [adrs/ADR-003.md](./adrs/ADR-003.md) | Product administration stays in catalog and Alegra | Proposed. Binding for PDR-003. |
 | [architecture/](./architecture/README.md) | C4 model of **the current API** | Implemented. One C4 set only. |
 | [data-model/](./data-model/README.md) | Entities, tables, and relations verified in code and migrations | Catalog, customers, sales, and the invoice sequence. There is no Sales Day table. Load Sheet, invoice list, and invoice document are projections and have no table. |
 | [flows/](./flows/README.md) | Business/application flows verified in code | Identity, catalog, customers, sales by delivery date, Load Sheet, invoice listing, invoice generation, and Alegra outbound sync. Remaining gaps are listed, not invented. |

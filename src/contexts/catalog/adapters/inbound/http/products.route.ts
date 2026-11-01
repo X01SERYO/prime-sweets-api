@@ -35,8 +35,10 @@ export function createProductsRouter(container: AppContainer) {
       const searchUseCase = container.get('catalog.application.search_products_use_case');
       return httpResponse(res, await searchUseCase.run({ query }));
     }
+    const page = numberQuery(req.query.page);
+    const pageSize = numberQuery(req.query.pageSize);
     const useCase = container.get('catalog.application.list_products_use_case');
-    return httpResponse(res, await useCase.run());
+    return httpResponse(res, await useCase.run({ page, pageSize, query }));
   });
 
   router.get('/:id', validateRequest(productIdParamSchema), async (req: Request, res: Response) => {
@@ -56,8 +58,12 @@ export function createProductsRouter(container: AppContainer) {
       await useCase.run({
         id: routeParam(req.params.id),
         name: req.body.name,
+        wholesaleCost: req.body.wholesaleCost,
         wholesalePrice: req.body.wholesalePrice,
-        retailPrice: req.body.retailPrice
+        retailCost: req.body.retailCost,
+        retailPrice: req.body.retailPrice,
+        units: req.body.units,
+        pack: req.body.pack
       })
     );
   });
@@ -68,4 +74,15 @@ export function createProductsRouter(container: AppContainer) {
   });
 
   return router;
+}
+
+function numberQuery(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+  return undefined;
 }

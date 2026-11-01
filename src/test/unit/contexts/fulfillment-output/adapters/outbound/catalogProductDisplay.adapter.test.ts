@@ -28,6 +28,9 @@ test('CatalogProductDisplayAdapter - resolves catalog name and brand, skipping m
     async search() {
       return [];
     },
+    async page() {
+      return { items: [], total: 0 };
+    },
     async nextProductCode() {
       return 'ACM001';
     },

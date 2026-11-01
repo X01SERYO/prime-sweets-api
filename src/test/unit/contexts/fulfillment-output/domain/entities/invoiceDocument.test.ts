@@ -24,6 +24,7 @@ test('InvoiceDocument - renders the transaction-time item name and keeps the inv
     customer,
     invoiceNumber: 'INV-00007',
     saleDate: '2026-10-13T15:00:00.000Z',
+    deliveryDate: '2026-11-05',
     lines: [
       { productId: 'p-1', itemName: 'Green Soda', quantity: 2, unitValue: 1000, totalValue: 2000 },
       { productId: 'p-1', itemName: 'Red Soda', quantity: 1, unitValue: 1000, totalValue: 1000 }
@@ -34,6 +35,7 @@ test('InvoiceDocument - renders the transaction-time item name and keeps the inv
     customer,
     invoiceNumber: 'INV-00007',
     saleDate: '2026-10-13T15:00:00.000Z',
+    deliveryDate: '2026-11-05',
     lines: [
       { productId: 'p-1', itemName: 'Green Soda', quantity: 2, unitValue: 1000, totalValue: 2000 },
       { productId: 'p-1', itemName: 'Red Soda', quantity: 1, unitValue: 1000, totalValue: 1000 }
@@ -44,6 +46,8 @@ test('InvoiceDocument - renders the transaction-time item name and keeps the inv
 
   assert.deepEqual(second.toPrimitives(), document);
   assert.equal(document.invoiceNumber, 'INV-00007');
+  assert.equal(document.saleDate, '2026-10-13T15:00:00.000Z');
+  assert.equal(document.deliveryDate, '2026-11-05');
   assert.equal(document.taxRegime, SIMPLIFIED_TAX_REGIME);
   assert.deepEqual(
     document.lines.map(line => line.productName),

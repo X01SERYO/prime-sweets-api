@@ -1,6 +1,6 @@
-# Business and application flows (current)
+﻿# Business and application flows (current)
 
-**Sources:** HTTP routers, catalog, customer, Sales Day, sales, Load Sheet, invoice list, and invoice generation use cases, `loadAppConfig`, and TypeORM repositories.
+**Sources:** HTTP routers, catalog, customer, sales, Load Sheet, invoice list, and invoice generation use cases, `loadAppConfig`, and TypeORM repositories.
 
 Only flows that exist in code are described as current. Version 1 store-to-store flows from the PDR/SPEC are listed as **pending**; they are not filled in.
 
@@ -127,176 +127,60 @@ Body may include `documentType`, `documentNumber`, `name`, `phone`, `email`, `ad
 3. Apply `Customer.update` (invariants: non-empty trimmed strings). A new `name` is stored in uppercase (`es-CO`).
 4. Persist.
 
-## 5. Sales Day lifecycle
+## 5. Delivery day
 
-Controls daily operational editability for a seller.
+There is no Sales Day. A sale stores `sellerId` (the session user), `captureDate` (the business day it was taken), and `deliveryDate`. Allowed delivery dates are today through Sunday of the current week in `America/Bogota`. A day never locks. A draft cannot be voided. A confirmed sale can be edited or voided on any week.
 
-### Open Sales Day — `POST /sales-days/open`
+### Change delivery date — `PATCH /sales/:id/delivery-date`
 
-Body: `sellerId` (required), `date` (optional, defaults to current business date in Colombia `America/Bogota`).
+1. Same date is a no-op.
+2. A `DRAFT` updates `deliveryDate` in place.
+3. A `CONFIRMED` sale is voided and keeps its invoice number. A new confirmed sale is saved in the same transaction with a new id, the same customer, seller, capture date, and item snapshots, the new delivery date, and the next invoice number for that date. The two rows are not linked.
+4. A `VOIDED` sale is rejected.
 
-1. Validate input format (`validateRequest` with Zod).
-2. Check if a Sales Day already exists for that seller and date (`findBySellerAndDate`).
-3. If already open, reject with `SalesDayAlreadyOpenError`. If closed, reject with `InvalidSalesDayError`.
-4. Create and persist `SalesDay` with status `OPEN` and `openedAt = now()`.
+## 6. Sales and invoice numbering
 
-### List current week — `GET /sales-days/current-week?sellerId=...`
+### Create sale — `POST /sales`
 
-Query: `sellerId` (required). The business date is today in `America/Bogota`.
+Body: `customerId`, `deliveryDate`. `sellerId` comes from the session, not the body.
 
-1. Reject an empty `sellerId`.
-2. The window is Monday of that date through today. A future day of the same week is excluded. A day before Monday is excluded.
-3. Return that seller's Sales Days in the window, newest first. An empty window returns `[]`.
+1. Reject a delivery date before today or after Sunday (`DELIVERY_DATE_OUT_OF_RANGE`).
+2. Reject an unknown customer.
+3. Persist a `DRAFT` with `captureDate` equal to today.
 
-Sale commands for a day inside that window succeed only while the day is `OPEN`. A closed day fails with `SALES_DAY_NOT_OPEN` until it is reopened. A day before Monday fails with `SALE_OUTSIDE_EDIT_WINDOW`. `POST /sales` requires `deliveryDate` on or after the Sales Day date. `PATCH /sales/:id/delivery-date` changes it while the sale is inside the window and the day is open.
+### Add, update, and remove items
 
-### Get current Sales Day — `GET /sales-days/current?sellerId=...`
+Item commands do not check a day status. Quantity is a positive number with at most 3 decimal places. `itemName` can change only while the sale is `DRAFT`. A confirmed sale cannot be left with zero items. The same product with the same item name accumulates quantity. A different name stays a separate line.
 
-Query: `sellerId` (required), `date` (optional, defaults to current business date).
+### Confirm — `POST /sales/:id/confirm`
 
-1. Query repository by `sellerId` and target date.
-2. If not found, return `SalesDayNotFoundError`.
-3. Return Sales Day primitives.
+1. The sale must be a `DRAFT` with at least one item.
+2. `allocateNext(deliveryDate)` takes the next number for that delivery date (`001`, `002`, …).
+3. `invoiceBusinessDate` is today (the confirmation date). `saleDate` on the invoice document is `confirmedAt`. `deliveryDate` is stored separately.
 
-### Close Sales Day — `POST /sales-days/:id/close`
+### Void — `POST /sales/:id/void`
 
-1. Load Sales Day by `id` or `SalesDayNotFoundError`.
-2. Apply `SalesDay.close()`. If already closed, reject with `SalesDayAlreadyClosedError`.
-3. Set status to `CLOSED`, record `closedAt = now()`, and persist.
+Only a `CONFIRMED` sale can be voided. The invoice number stays. A `DRAFT` is rejected with `SALE_CANNOT_BE_MODIFIED`.
 
-### Reopen current Sales Day — `POST /sales-days/:id/reopen`
+### List — `GET /sales?deliveryDate=&customerId=&status=`
 
-1. Load Sales Day by `id` or `SalesDayNotFoundError`.
-2. Check current business date via `BusinessDateProvider` (`America/Bogota`).
-3. If the Sales Day date is historical (different from current business date), reject with `SalesDayCannotBeReopenedError`.
-4. If already open, reject with `SalesDayAlreadyOpenError`.
-5. Set status back to `OPEN`, clear `closedAt`, and persist.
+Returns drafts, confirmed sales, and voided sales for that delivery date. Ordered by `createdAt` descending.
 
-## 6. Sales and Invoice Numbering lifecycle
+## 7. Load Sheet — `GET /load-sheets?deliveryDate=`
 
-Controls draft capture, transaction-time item customization, wholesale price snapshotting, atomic invoice allocation, and logical voiding.
+Built in memory from `CONFIRMED` items whose sale delivery date matches. Drafts and voided sales contribute nothing. Grouping, catalog names, and price groups are unchanged. The day does not need to be closed.
 
-### Create Sale — `POST /sales`
+## 8. Invoice list — `GET /invoices?deliveryDate=`
 
-Body: `salesDayId` (required UUID), `customerId` (required UUID), `items` (optional array of `{ productId, itemName?, quantity }`).
+Returns `CONFIRMED` and `VOIDED` sales that already have an invoice number for that delivery date. Drafts are omitted. `salesDayId` is not a query parameter.
 
-1. Validate input payload with Zod.
-2. Check that target Sales Day is `OPEN` via `SalesDayStatusChecker`. If closed, reject with `SalesDayNotOpenForSaleError`.
-3. Check that Customer exists via `CustomerChecker`. If not found, reject with `CustomerNotFoundForSaleError`.
-4. Create `Sale` in `DRAFT` status.
-5. If items are provided, snapshot Catalog `wholesalePrice`, `wholesaleCost`, and default name for each product via `ProductSnapshotProvider`.
-6. Calculate totals: `totalAmount = sum(quantity * wholesalePrice)`, `totalProfit = sum(totalPrice - (quantity * wholesaleCost))`.
-7. Persist and return 201 with created sale.
+## 9. Invoice document — `GET /invoices/:saleId`
 
-### Add item to Sale — `POST /sales/:id/items`
-
-Body: `productId` (required), `itemName` (optional custom string), `quantity` (positive number, at most 3 decimal places).
-
-1. Load sale or `SaleNotFoundError`.
-2. Verify that Sales Day is `OPEN`.
-3. Fetch Catalog snapshot for product or `ProductNotFoundForSaleError`.
-4. Add the item. `catalogName` is the Catalog name in uppercase. `itemName` is that catalog name, plus a lowercase suffix when the seller added text after it (`BON BON BUM rojo`). Quantity accumulates only when the same product already has the same item name. A different name stays a separate line. Lines are kept newest first.
-5. Recalculate totals and persist.
-
-### Update item quantity — `PUT /sales/:id/items/:itemId/quantity`
-
-Body: `quantity` (positive number, at most 3 decimal places). The path identifies the sale item, not the product.
-
-1. Load sale or `SaleNotFoundError`.
-2. Verify that Sales Day is `OPEN`.
-3. Update item quantity and recalculate totals.
-4. Persist.
-
-### Update item name — `PUT /sales/:id/items/:itemId/name`
-
-Body: `itemName` (non-empty string).
-
-1. Load sale or `SaleNotFoundError`.
-2. Verify that Sales Day is `OPEN`.
-3. Verify sale is in `DRAFT` status (item name cannot be modified after confirmation as per PDR).
-4. Persist the transaction-time item name with the same uppercase catalog name and lowercase suffix.
-
-### Remove item — `DELETE /sales/:id/items/:itemId`
-
-1. Load sale or `SaleNotFoundError`.
-2. Verify that Sales Day is `OPEN`.
-3. Remove item. If sale is already confirmed, it cannot be left with 0 items (`SaleMustContainItemsError`).
-4. Recalculate totals and persist.
-
-### Confirm Sale — `POST /sales/:id/confirm`
-
-1. Load sale or `SaleNotFoundError`.
-2. Verify that Sales Day is `OPEN`.
-3. Verify that sale is in `DRAFT` status and contains at least 1 item.
-4. Read the business date of that open Sales Day. The allocator does not use the clock.
-5. Allocate the next invoice number for that date in `invoice_sequences`. The row id is the business date (`YYYY-MM-DD`). The database increments it atomically. The visible number is digits only: `001`, `002`, …, `999`, then `1000` without padding. Every business date starts at `001`. Two sellers on the same calendar date share that counter.
-6. Transition sale to `CONFIRMED`, set `confirmedAt = now()`, and store `invoiceNumber` together with `invoiceBusinessDate`. The pair is unique for the company. Persist and return the confirmed sale. Void keeps both and does not return the number.
-
-### Void Sale — `POST /sales/:id/void`
-
-1. Load sale or `SaleNotFoundError`.
-2. Verify that Sales Day is `OPEN`.
-3. Verify that sale is `CONFIRMED`.
-4. Transition sale to `VOIDED`, record `voidedAt = now()`. The allocated `invoiceNumber` and `invoiceBusinessDate` stay on the sale. That number is not reused on the same business date.
-5. Persist and return voided sale.
-
-### Get / List Sales — `GET /sales/:id`, `GET /sales?salesDayId=...&customerId=...&status=...`
-
-1. Retrieve one sale by id, or list sales filtered by Sales Day, customer, or status.
-2. The list is ordered by `createdAt` descending. Items on each sale are ordered by their own `createdAt` descending.
-
-## 7. Load Sheet generation
-
-Operational projection for a closed Sales Day. It is not stored. Generating it does not write sales, allocate an invoice number, or change a Sale.
-
-### Generate Load Sheet — `GET /load-sheets/:salesDayId`
-
-1. HTTP `validateRequest` (Zod) requires a non-empty `salesDayId`. The use case does not repeat empty or type checks.
-2. Load the Sales Day through `SalesDayClosureQuery`. Missing day → `SalesDayNotFoundForLoadSheetError` (404, `SALES_DAY_NOT_FOUND`).
-3. Reject unless status is `CLOSED` (`SalesDayNotClosedError`, 400, `SALES_DAY_NOT_CLOSED`). An open day, including a reopened current day, is rejected before sales are read.
-4. Read sale items only from sales whose status is `CONFIRMED`. `DRAFT` and `VOIDED` sales contribute nothing. The transaction-time `itemName` is not part of the query result.
-5. Group contributions by `productId` only. Distinct `itemName` values for the same product stay on one row.
-6. For each product:
-   - `quantity` = sum of confirmed item quantities
-   - `totalPrice` = sum of confirmed item total prices
-   - `profit` = sum of confirmed item profits
-7. Resolve `name` and `brand` from Catalog by `productId`. `name` is the Catalog product name. A missing product → `ProductNotFoundForLoadSheetError` (404, `PRODUCT_NOT_FOUND`). A blank Catalog name → `LoadSheetProductNameMissingError` (400, `LOAD_SHEET_PRODUCT_NAME_MISSING`). The Load Sheet does not fall back to `itemName`. `brand` is the Catalog brand name, or `null` when the product has no brand.
-8. `wholesaleCost` and `wholesaleSalePrice` are the transaction-time unit snapshots when every contribution in the product group shares the same unit cost and the same unit sale price. When those snapshots differ, the row stays one `productId` group and those two fields become the current Catalog wholesale cost and wholesale sale price. The summed quantity, total price, and profit are unchanged. `priceGroups` lists each distinct cost and sale price with its own quantity, total, and profit. The UI shows an alert on that row and expands the groups. Values are not averaged.
-9. Rows are ordered by brand name (null last), then Catalog name, then `productId`.
-10. A closed day with no confirmed items returns `lines: []`.
-
-## 8. Invoice listing
-
-Read model of invoice numbers already allocated on a Sales Day. Listing does not create a Sale, does not allocate an invoice number, and does not change Sale state. It is not stored as its own table.
-
-### List invoices — `GET /invoices?salesDayId=...`
-
-1. HTTP `validateRequest` (Zod) requires a non-empty `salesDayId`. The use case does not repeat empty or type checks.
-2. Load the Sales Day through `SalesDayClosureQuery`. Missing day → `SalesDayNotFoundForInvoiceError` (404, `SALES_DAY_NOT_FOUND`).
-3. `OPEN` and `CLOSED` are both accepted. Closing the day is not a precondition for listing invoices.
-4. Read sales for that Sales Day. Keep sales whose status is `CONFIRMED` or `VOIDED` and that already have an `invoiceNumber`. `DRAFT` sales are omitted because confirmation is the only point that allocates a number.
-5. Return one summary per invoice: `saleId`, `salesDayId`, `customerId`, `invoiceNumber`, `status`, `confirmedAt`, `totalAmount`. Line items and the transaction-time `itemName` are not included.
-6. Order the summaries by `invoiceNumber` descending. Digit-only numbers compare as integers, so `1000` comes before `999`.
-7. A Sales Day with no allocated invoices returns `[]`.
-
-## 9. Invoice generation
-
-Builds a document representation from an existing confirmed Sale. It does not create a Sale, does not allocate an invoice number, does not change Sale or SaleItem state, and is not stored. Calling it again with the same sale, customer, and company profile returns the same document. Printing is not part of this step.
-
-### Generate invoice — `GET /invoices/:saleId`
-
-1. HTTP `validateRequest` (Zod) requires a non-empty `saleId`. The use case does not repeat empty or type checks.
-2. Load the sale through `InvoiceSaleQuery`. Missing sale → `SaleNotFoundForInvoiceError` (404, `SALE_NOT_FOUND`).
-3. Reject unless status is `CONFIRMED` (`SaleNotInvoiceableError`, 400, `SALE_NOT_INVOICEABLE`). `DRAFT` and `VOIDED` are rejected.
-4. A confirmed sale without `invoiceNumber` → `InvoiceNumberMissingError` (400, `INVOICE_NUMBER_MISSING`). A confirmed sale without `confirmedAt` → `InvoiceSaleDateMissingError` (400, `INVOICE_SALE_DATE_MISSING`).
-5. Load the customer through `InvoiceCustomerQuery`. Missing customer → `CustomerNotFoundForInvoiceError` (404, `CUSTOMER_NOT_FOUND`). The document shows `documentType`, `documentNumber`, and `name`.
-6. Load the company profile through `CompanyProfileQuery`. The adapter reads the profile already parsed by `loadAppConfig` from `COMPANY_NAME`, `COMPANY_NIT`, `COMPANY_CITY`, `COMPANY_COUNTRY`, `COMPANY_TELEPHONE`, `COMPANY_LOGO`, and `COMPANY_LEGAL_TEXT`. If any value is missing, generation fails with `CompanyProfileNotConfiguredError` (400, `COMPANY_PROFILE_NOT_CONFIGURED`). Those values are not hardcoded. A blank profile does not stop the API from starting. `COMPANY_LOGO` is the path `/company/logo.webp`. `GET /company/logo.webp` serves `public/company/logo.webp` with no session. The UI resolves that path against the API base URL. The color logo in the application header is not this file.
-7. The tax regime text is the specified constant `Régimen simplificado`. It is not a company setting and it does not add a tax amount.
-8. Each line uses the transaction-time `itemName` as the product name, plus `productId`, quantity, the snapshotted unit wholesale price, and the line total. Line order follows the sale. Catalog product name is not substituted.
-9. `subtotal` and `total` are both the sum of the line totals. No separate tax total is defined.
-10. `saleDate` is `confirmedAt`. The returned `invoiceNumber` is the one already stored on the sale.
-
-Printing is not an API route. The UI prints a confirmed sale only after the Sales Day is closed. It opens one browser print dialog for the selected documents, in ascending invoice-number order, with a page break between them, on a 70 mm page with no margin. The printed ticket omits `productId` and `subtotal`, adds payment method `Efectivo` and a due date equal to the sale date, and includes `legalText`. The on-screen preview omits `legalText`. Reprinting requests the same document again. The API does not record a printed mark. The Load Sheet is not printed.
+1. A missing sale is `SALE_NOT_FOUND`.
+2. `CONFIRMED` and `VOIDED` sales are accepted. A `DRAFT` is `SALE_NOT_INVOICEABLE`.
+3. A voided document sets `voided: true`. The UI draws a diagonal "ANULADA" mark and does not print it.
+4. `saleDate` is `confirmedAt`. `deliveryDate` is the sale delivery date. The printed label is "Fecha de entrega".
+5. The API does not print. The UI prints confirmed documents through one browser dialog, 70 mm, no margin, page break between invoices. It does not record a printed mark.
 
 ## Pending definition / not implemented
 
@@ -307,6 +191,6 @@ These remaining areas appear in the PDR/SPEC and have **no** code paths here.
 | Area | What is missing in code |
 |---|---|
 | Invoice printing in the API | No API print route. The UI prints through the Windows dialog using the invoice document. Resolved in PDR OQ-03 and OQ-04. |
-| Catalog Excel migration, Alegra inbound, product create/delete sync, current-week edits, and Load Sheet by delivery date | Specified in [PDR-002](../pdrs/PDR-002.md) and [SPEC-002](../specs/SPEC-002.md). No code paths in this repository yet. |
+| Catalog Excel migration and Alegra inbound product sync | Specified in [PDR-002](../pdrs/PDR-002.md). No code paths in this repository yet. |
 
 Open questions remain in the PDR OQ register. This document does not resolve them.

@@ -1,11 +1,12 @@
 import { DataSource, Repository } from 'typeorm';
 import { Sale } from '../../../../domain/entities/sale';
 import { ListSalesFilters, SaleRepository } from '../../../../application/ports/outbound/sale.repository';
+import { SaleBatch } from '../../../../application/ports/outbound/saleBatch.port';
 import { SaleEntity } from '../sale.entity';
 import { SaleItemEntity } from '../saleItem.entity';
 import { SaleMapper } from '../sale.mapper';
 
-export class TypeOrmSaleRepository implements SaleRepository {
+export class TypeOrmSaleRepository implements SaleRepository, SaleBatch {
   constructor(private readonly dataSource: DataSource) {}
 
   private get repository(): Repository<SaleEntity> {
@@ -13,16 +14,24 @@ export class TypeOrmSaleRepository implements SaleRepository {
   }
 
   async save(sale: Sale): Promise<void> {
-    const entity = SaleMapper.toEntity(sale);
+    await this.saveAll([sale]);
+  }
 
-    const items = entity.items ?? [];
-    delete (entity as Partial<SaleEntity>).items;
+  async saveAll(sales: Sale[]): Promise<void> {
+    const prepared = sales.map(sale => {
+      const entity = SaleMapper.toEntity(sale);
+      const items = entity.items ?? [];
+      delete (entity as Partial<SaleEntity>).items;
+      return { saleId: sale.id, entity, items };
+    });
 
     await this.repository.manager.transaction(async (transactionalEntityManager) => {
-      await transactionalEntityManager.delete(SaleItemEntity, { saleId: sale.id });
-      await transactionalEntityManager.save(SaleEntity, entity);
-      if (items.length > 0) {
-        await transactionalEntityManager.save(SaleItemEntity, items);
+      for (const row of prepared) {
+        await transactionalEntityManager.delete(SaleItemEntity, { saleId: row.saleId });
+        await transactionalEntityManager.save(SaleEntity, row.entity);
+        if (row.items.length > 0) {
+          await transactionalEntityManager.save(SaleItemEntity, row.items);
+        }
       }
     });
   }

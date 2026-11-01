@@ -26,6 +26,7 @@ function sale(status: InvoiceSaleView['status'] = 'CONFIRMED'): InvoiceSaleView 
     customerId: 'c-1',
     status,
     invoiceNumber: status === 'DRAFT' ? null : 'INV-00001',
+    deliveryDate: '2026-11-05',
     confirmedAt: status === 'DRAFT' ? null : '2026-10-13T15:00:00.000Z',
     lines: [{ productId: 'p-1', itemName: 'Custom label', quantity: 2, unitValue: 1000, totalValue: 2000 }]
   };
@@ -59,17 +60,21 @@ test('GenerateInvoiceUseCase - renders a confirmed sale without allocating a new
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.invoiceNumber, 'INV-00001');
+  assert.equal(result.value?.saleDate, '2026-10-13T15:00:00.000Z');
+  assert.equal(result.value?.deliveryDate, '2026-11-05');
   assert.equal(result.value?.lines[0].productName, 'Custom label');
   assert.equal(result.value?.customerName, 'Ada');
   assert.equal(result.value?.companyName, 'Configured Company');
 });
 
-test('GenerateInvoiceUseCase - rejects a draft and a voided sale', async () => {
+test('GenerateInvoiceUseCase - rejects a draft and renders a voided sale as voided', async () => {
   const draft = await setup(sale('DRAFT')).run({ saleId: 's-1' });
   const voided = await setup(sale('VOIDED')).run({ saleId: 's-1' });
 
   assert.ok(draft.error instanceof SaleNotInvoiceableError);
-  assert.ok(voided.error instanceof SaleNotInvoiceableError);
+  assert.equal(voided.isSuccess, true);
+  assert.equal(voided.value?.voided, true);
+  assert.equal(voided.value?.invoiceNumber, 'INV-00001');
 });
 
 test('GenerateInvoiceUseCase - fails when the sale does not exist', async () => {

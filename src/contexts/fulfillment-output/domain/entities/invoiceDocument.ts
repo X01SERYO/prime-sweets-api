@@ -46,6 +46,8 @@ export type InvoiceDocumentPrimitives = {
   customerName: string;
   invoiceNumber: string;
   saleDate: string;
+  deliveryDate: string;
+  voided: boolean;
   lines: InvoiceLinePrimitives[];
   subtotal: number;
   total: number;
@@ -63,6 +65,8 @@ export class InvoiceDocument {
     customer: InvoiceCustomerView;
     invoiceNumber: string;
     saleDate: string;
+    deliveryDate: string;
+    voided?: boolean;
     lines: InvoiceLineSource[];
   }): InvoiceDocument {
     const lines = params.lines.map(line => ({
@@ -88,6 +92,8 @@ export class InvoiceDocument {
       customerName: params.customer.name,
       invoiceNumber: params.invoiceNumber,
       saleDate: params.saleDate,
+      deliveryDate: params.deliveryDate,
+      voided: params.voided === true,
       lines,
       subtotal,
       total: subtotal

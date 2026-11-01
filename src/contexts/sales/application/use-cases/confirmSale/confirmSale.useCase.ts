@@ -30,9 +30,9 @@ export class ConfirmSaleUseCase {
     }
 
     try {
-      const businessDate = this.calendar.today();
-      const invoiceNumber = await this.invoiceNumberAllocator.allocateNext(businessDate);
-      const confirmed = sale.confirm(invoiceNumber, businessDate);
+      const confirmationDate = this.calendar.today();
+      const invoiceNumber = await this.invoiceNumberAllocator.allocateNext(sale.deliveryDate);
+      const confirmed = sale.confirm(invoiceNumber, confirmationDate);
       await this.saleRepository.save(confirmed);
 
       return Result.ok(confirmed.toPrimitives());

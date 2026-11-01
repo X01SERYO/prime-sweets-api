@@ -5,6 +5,7 @@ export type InvoiceSaleView = {
   customerId: string;
   status: 'DRAFT' | 'CONFIRMED' | 'VOIDED';
   invoiceNumber: string | null;
+  deliveryDate: string;
   confirmedAt: string | null;
   lines: InvoiceLineSource[];
 };

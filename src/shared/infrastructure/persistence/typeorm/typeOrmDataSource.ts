@@ -5,7 +5,6 @@ import { BrandEntity } from '../../../../contexts/catalog/adapters/outbound/pers
 import { ProductEntity } from '../../../../contexts/catalog/adapters/outbound/persistence/entities/product.entity';
 import { ProductPriceEntity } from '../../../../contexts/catalog/adapters/outbound/persistence/entities/productPrice.entity';
 import { CustomerEntity } from '../../../../contexts/customers/adapters/outbound/persistence/customer.entity';
-import { SalesDayEntity } from '../../../../contexts/sales-day/adapters/outbound/persistence/salesDay.entity';
 import { SaleEntity } from '../../../../contexts/sales/adapters/outbound/persistence/sale.entity';
 import { SaleItemEntity } from '../../../../contexts/sales/adapters/outbound/persistence/saleItem.entity';
 import { InvoiceSequenceEntity } from '../../../../contexts/sales/adapters/outbound/persistence/invoiceSequence.entity';
@@ -27,7 +26,6 @@ export function createTypeOrmOptions(): DataSourceOptions {
       ProductEntity,
       ProductPriceEntity,
       CustomerEntity,
-      SalesDayEntity,
       SaleEntity,
       SaleItemEntity,
       InvoiceSequenceEntity,

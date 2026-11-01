@@ -49,10 +49,10 @@ function repositoryWith(initial: Sale): SaleRepository {
 
 const calendar: BusinessCalendar = { today: () => '2026-11-04' };
 
-test('ConfirmSaleUseCase - assigns 001, 002 and 003 on the confirmation date', async () => {
+test('ConfirmSaleUseCase - numbers by delivery date and keeps the confirmation date', async () => {
   const first = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-11-05' }).addItem(item('it-1'));
   const second = Sale.create({ id: 's-2', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-2', deliveryDate: '2026-11-05' }).addItem(item('it-2'));
-  const third = Sale.create({ id: 's-3', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-3', deliveryDate: '2026-11-05' }).addItem(item('it-3'));
+  const third = Sale.create({ id: 's-3', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-3', deliveryDate: '2026-11-06' }).addItem(item('it-3'));
   const sales = new Map<string, Sale>([
     [first.id, first],
     [second.id, second],
@@ -79,7 +79,7 @@ test('ConfirmSaleUseCase - assigns 001, 002 and 003 on the confirmation date', a
   assert.equal(firstResult.value?.invoiceBusinessDate, '2026-11-04');
   assert.equal(secondResult.value?.invoiceNumber, '002');
   assert.equal(secondResult.value?.invoiceBusinessDate, '2026-11-04');
-  assert.equal(thirdResult.value?.invoiceNumber, '003');
+  assert.equal(thirdResult.value?.invoiceNumber, '001');
   assert.equal(thirdResult.value?.invoiceBusinessDate, '2026-11-04');
 });
 

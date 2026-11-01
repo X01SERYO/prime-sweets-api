@@ -317,7 +317,7 @@ test('Sale aggregate - start records the seller and the capture date, and reject
   );
 });
 
-test('Sale aggregate - voids a draft and keeps it without an invoice number', () => {
+test('Sale aggregate - rejects voiding a draft', () => {
   const draft = Sale.create({
     id: 'sale-001',
     sellerId: 'seller-1',
@@ -325,10 +325,6 @@ test('Sale aggregate - voids a draft and keeps it without an invoice number', ()
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
-  const voided = draft.void();
-
-  assert.equal(voided.status, 'VOIDED');
-  assert.equal(voided.invoiceNumber, null);
-  assert.ok(voided.voidedAt);
-  assert.throws(() => voided.void(), SaleAlreadyVoidedError);
+  assert.throws(() => draft.void(), SaleCannotBeModifiedError);
+  assert.equal(draft.status, 'DRAFT');
 });

@@ -50,21 +50,12 @@ erDiagram
     timestamptz updated_at
   }
 
-  sales_days {
-    uuid id PK
-    varchar seller_id
-    varchar date
-    varchar status
-    timestamptz opened_at
-    timestamptz closed_at
-    timestamptz created_at
-    timestamptz updated_at
-  }
-
   sales {
     uuid id PK
-    uuid sales_day_id FK
+    uuid seller_id FK
     uuid customer_id FK
+    date capture_date
+    date delivery_date
     varchar status
     varchar invoice_business_date
     varchar invoice_number
@@ -100,13 +91,12 @@ erDiagram
 
   brands ||--o{ products : "brand_id ON DELETE RESTRICT"
   products ||--o{ product_prices : "product_id ON DELETE CASCADE"
-  sales_days ||--o{ sales : "sales_day_id FK"
   customers ||--o{ sales : "customer_id FK"
   sales ||--|{ sale_items : "sale_id ON DELETE CASCADE"
   products ||--o{ sale_items : "product_id FK"
 ```
 
-`TypeOrmDataSource` registers `BrandEntity`, `ProductEntity`, `ProductPriceEntity`, `CustomerEntity`, `SalesDayEntity`, `SaleEntity`, `SaleItemEntity`, `InvoiceSequenceEntity`. `synchronize` is `false`.
+`TypeOrmDataSource` registers `BrandEntity`, `ProductEntity`, `ProductPriceEntity`, `CustomerEntity`, `SaleEntity`, `SaleItemEntity`, `InvoiceSequenceEntity`. `synchronize` is `false`. Migration `1760000000016` drops `sales_days`.
 
 ## Tables
 
@@ -160,30 +150,18 @@ Unique: `(product_id, channel)`.
 
 Unique index: `UQ_customers_document` on `(LOWER(document_type), document_number)`. The type comparison ignores case, matching `findByDocument`. The number is exact. Migration `1760000000007` replaces the previous non-unique index. Creating it fails if that pair is already repeated and does not delete rows.
 
-### `sales_days`
-
-| Column | Type | Constraints |
-|---|---|---|
-| `id` | uuid | PK |
-| `seller_id` | varchar(64) | NOT NULL |
-| `date` | varchar(10) | NOT NULL |
-| `status` | varchar(10) | NOT NULL, default `'OPEN'`, CHECK `IN ('OPEN', 'CLOSED')` |
-| `opened_at` | timestamptz | NOT NULL, default `now()` |
-| `closed_at` | timestamptz | nullable |
-| `created_at` / `updated_at` | timestamptz | default `now()` |
-
-Unique & Index: `IDX_sales_days_seller_date` on `(seller_id, date)`.
-
 ### `sales`
 
 | Column | Type | Constraints |
 |---|---|---|
 | `id` | uuid | PK |
-| `sales_day_id` | uuid | NOT NULL, FK to `sales_days(id)` |
+| `seller_id` | uuid | NOT NULL, FK to `users(id)` |
 | `customer_id` | uuid | NOT NULL, FK to `customers(id)` |
+| `capture_date` | date | NOT NULL. Business day the sale was taken (`America/Bogota`) |
+| `delivery_date` | date | NOT NULL. Today through Sunday of the current week when the sale is created or re-dated |
 | `status` | varchar(20) | NOT NULL, default `'DRAFT'`, CHECK `IN ('DRAFT', 'CONFIRMED', 'VOIDED')` |
 | `invoice_number` | varchar(50) | nullable |
-| `invoice_business_date` | varchar(10) | nullable. Business date `YYYY-MM-DD` copied from the open Sales Day at confirmation |
+| `invoice_business_date` | varchar(10) | nullable. Confirmation date `YYYY-MM-DD`, not the delivery date |
 | `total_amount` | numeric(12,2) | NOT NULL, default `0` |
 | `total_profit` | numeric(12,2) | NOT NULL, default `0` |
 | `total_quantity` | numeric(14,3) | NOT NULL, default `0` |
@@ -191,7 +169,7 @@ Unique & Index: `IDX_sales_days_seller_date` on `(seller_id, date)`.
 | `voided_at` | timestamptz | nullable |
 | `created_at` / `updated_at` | timestamptz | default `now()` |
 
-Indexes: `IDX_sales_sales_day_id`, `IDX_sales_customer_id`. Unique index `UQ_sales_invoice_business_date_number` on `(invoice_business_date, invoice_number)`. Several drafts may keep both columns null. The same digits can exist again on another business date. Migration `1760000000008` drops the previous global unique constraint on `invoice_number`.
+Indexes: `IDX_sales_seller_id`, `IDX_sales_customer_id`, `IDX_sales_delivery_date_status`. Unique index `UQ_sales_invoice_business_date_number` on `(invoice_business_date, invoice_number)`. Several drafts may keep both columns null. The visible invoice number restarts per delivery date (`001`, `002`, …). Migration `1760000000015` drops `sales_day_id` and adds `seller_id` and `capture_date`.
 
 ### `sale_items`
 
@@ -214,7 +192,7 @@ Indexes: `IDX_sale_items_sale_id`, `IDX_sale_items_product_id`. Migration `17600
 
 | Column | Type | Constraints |
 |---|---|---|
-| `id` | varchar(32) | PK. One row per business date (`YYYY-MM-DD`) |
+| `id` | varchar(32) | PK. One row per delivery date (`YYYY-MM-DD`) |
 | `current_value` | integer | NOT NULL, default `0` |
 | `prefix` | varchar(10) | NOT NULL, default `'INV-'`. Daily rows store `''` because the visible number has no letters |
 | `updated_at` | timestamptz | default `now()` |
@@ -245,8 +223,7 @@ Domain `Product` holds wholesale/retail cost and price as fields. Persistence sp
 | `retailCost`, `retailPrice` | row `channel = 'retail'` |
 
 Domain `Customer` maps 1:1 with columns in `customers`.
-Domain `SalesDay` maps 1:1 with columns in `sales_days`.
-Domain `Sale` aggregate root maps to `sales`, cascading and synchronizing items with `sale_items`.
+Domain `Sale` aggregate root maps to `sales`, cascading and synchronizing items with `sale_items`. There is no Sales Day aggregate.
 Domain `SaleItem` stores transaction-time snapshot of pricing and customized `itemName`.
 
 `TypeOrmProductRepository.save`:
@@ -265,22 +242,22 @@ Domain `SaleItem` stores transaction-time snapshot of pricing and customized `it
 
 ## Load Sheet
 
-The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from confirmed `sale_items` of a closed `sales_days` row and from Catalog `products` / `brands` display fields. Nothing is inserted or updated. See [flows](../flows/README.md).
+The Load Sheet is not a table. `GenerateLoadSheet` builds it in memory from confirmed `sale_items` whose sale `delivery_date` matches the requested date, plus Catalog `products` / `brands` display fields. Nothing is inserted or updated. See [flows](../flows/README.md).
 
 ## Invoice list
 
-`ListInvoices` is not a table. It reads `sales` rows that already have an `invoice_number` (`CONFIRMED` or `VOIDED`) for a Sales Day and returns a summary. It does not insert or update rows.
+`ListInvoices` is not a table. It reads `sales` rows that already have an `invoice_number` (`CONFIRMED` or `VOIDED`) for a delivery date and returns a summary. It does not insert or update rows.
 
 ## Invoice document
 
-`GenerateInvoice` is not a table. It builds a document in memory from a confirmed `sales` row, its `sale_items`, the related `customers` row, and the company profile loaded by `loadAppConfig` from `COMPANY_*`. It does not insert or update rows and does not allocate an invoice number.
+`GenerateInvoice` is not a table. It builds a document in memory from a confirmed or voided `sales` row, its `sale_items`, the related `customers` row, and the company profile loaded by `loadAppConfig` from `COMPANY_*`. A voided document sets `voided: true`. It does not insert or update rows and does not allocate an invoice number.
 
 ## Relationships and delete behavior
 
 - Product may have zero or one brand (`brand_id` nullable). Create product fails with `BrandNotFoundError` if a non-empty `brandId` does not exist.
 - Deleting a brand while products still reference it hits `ON DELETE RESTRICT`. `DeleteBrandUseCase` maps that failure to `BrandInUseError` (`BRAND_IN_USE`).
 - Deleting a product cascades to `product_prices`. Delete product does not call Alegra.
-- Sales require an existing customer and sales day (FK constraints).
+- Sales require an existing customer and an existing user as seller (FK constraints).
 - Deleting a sale cascades to its `sale_items`. Physical deletion of confirmed sales is forbidden at domain/application level (only logical `VOIDED` status is permitted).
 
 ## Source file not in the schema

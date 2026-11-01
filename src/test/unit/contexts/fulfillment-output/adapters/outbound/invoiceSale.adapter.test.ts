@@ -41,6 +41,7 @@ test('InvoiceSaleAdapter - projects the transaction-time item name and does not 
 
   assert.equal(saved, false);
   assert.equal(view?.invoiceNumber, 'INV-00001');
+  assert.equal(view?.deliveryDate, '2026-10-31');
   assert.equal(view?.lines[0].itemName, 'Custom label');
   assert.equal(view?.lines[0].unitValue, 1000);
   assert.equal(view?.lines[0].totalValue, 2000);

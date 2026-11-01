@@ -2,6 +2,7 @@ import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { TypeOrmSaleRepository } from '../../../contexts/sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
 import { TypeOrmInvoiceNumberAllocator } from '../../../contexts/sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
 import { BusinessCalendarAdapter } from '../acl/businessCalendar.adapter';
+import { ColombianBusinessDateProvider } from '../../../shared/application/services/colombianBusinessDate.provider';
 import { CustomerCheckerAdapter } from '../acl/customerChecker.adapter';
 import { CatalogProductSnapshotAdapter } from '../acl/catalogProductSnapshot.adapter';
 import { CreateSaleUseCase } from '../../../contexts/sales/application/use-cases/createSale/createSale.useCase';
@@ -29,8 +30,11 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
     .addArgument(dataSourceRef);
 
   container
+    .register('shared.application.date_provider', ColombianBusinessDateProvider);
+
+  container
     .register('sales.infrastructure.business_calendar_adapter', BusinessCalendarAdapter)
-    .addArgument(new Reference('sales_day.application.date_provider'));
+    .addArgument(new Reference('shared.application.date_provider'));
 
   container
     .register('sales.infrastructure.customer_checker_adapter', CustomerCheckerAdapter)
@@ -76,7 +80,10 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
   container
     .register('sales.application.set_sale_delivery_date_use_case', SetSaleDeliveryDateUseCase)
     .addArgument(saleRepoRef)
-    .addArgument(calendarRef);
+    .addArgument(saleRepoRef)
+    .addArgument(calendarRef)
+    .addArgument(invoiceAllocatorRef)
+    .addArgument(idsRef);
 
   container
     .register('sales.application.confirm_sale_use_case', ConfirmSaleUseCase)

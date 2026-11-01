@@ -5,21 +5,15 @@ import { EnvCompanyProfileAdapter } from '../../../contexts/fulfillment-output/a
 import { InvoiceCustomerAdapter } from '../acl/invoiceCustomer.adapter';
 import { InvoiceQueryAdapter } from '../acl/invoiceQuery.adapter';
 import { InvoiceSaleAdapter } from '../acl/invoiceSale.adapter';
-import { SalesDayClosureAdapter } from '../acl/salesDayClosure.adapter';
 import { GenerateInvoiceUseCase } from '../../../contexts/fulfillment-output/application/use-cases/generateInvoice/generateInvoice.useCase';
 import { GenerateLoadSheetUseCase } from '../../../contexts/fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
 import { ListInvoicesUseCase } from '../../../contexts/fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
 
 export function registerFulfillmentOutputDependencies(container: ContainerBuilder): void {
-  const salesDayRepoRef = new Reference('sales_day.domain.sales_day_repository');
   const saleRepoRef = new Reference('sales.domain.sale_repository');
   const productRepoRef = new Reference('catalog.domain.product_repository');
   const brandRepoRef = new Reference('catalog.domain.brand_repository');
   const customerRepoRef = new Reference('customers.domain.customer_repository');
-
-  container
-    .register('fulfillment.infrastructure.sales_day_closure_query', SalesDayClosureAdapter)
-    .addArgument(salesDayRepoRef);
 
   container
     .register('fulfillment.infrastructure.confirmed_sale_items_query', ConfirmedSaleItemsAdapter)

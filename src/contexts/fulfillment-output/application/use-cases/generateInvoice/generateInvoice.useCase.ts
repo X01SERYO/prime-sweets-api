@@ -24,7 +24,7 @@ export class GenerateInvoiceUseCase {
       return Result.fail(new SaleNotFoundForInvoiceError(dto.saleId));
     }
 
-    if (sale.status !== 'CONFIRMED') {
+    if (sale.status !== 'CONFIRMED' && sale.status !== 'VOIDED') {
       return Result.fail(new SaleNotInvoiceableError(sale.id, sale.status));
     }
 
@@ -51,6 +51,8 @@ export class GenerateInvoiceUseCase {
       customer,
       invoiceNumber: sale.invoiceNumber,
       saleDate: sale.confirmedAt,
+      deliveryDate: sale.deliveryDate,
+      voided: sale.status === 'VOIDED',
       lines: sale.lines
     });
 

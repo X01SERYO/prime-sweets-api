@@ -58,20 +58,8 @@ test('Dependency Injection Container - compiles and resolves all core services',
   const updateCustomerUseCase = container.get('customers.application.update_customer_use_case');
   assert.ok(updateCustomerUseCase);
 
-  // Sales Day Repository, Date Provider & Use Cases
-  const salesDayRepo = container.get('sales_day.domain.sales_day_repository');
-  assert.ok(salesDayRepo);
-  const dateProvider = container.get('sales_day.application.date_provider');
+  const dateProvider = container.get('shared.application.date_provider');
   assert.ok(dateProvider);
-
-  const openSalesDayUseCase = container.get('sales_day.application.open_current_sales_day_use_case');
-  assert.ok(openSalesDayUseCase);
-  const getCurrentSalesDayUseCase = container.get('sales_day.application.get_current_sales_day_use_case');
-  assert.ok(getCurrentSalesDayUseCase);
-  const closeSalesDayUseCase = container.get('sales_day.application.close_sales_day_use_case');
-  assert.ok(closeSalesDayUseCase);
-  const reopenSalesDayUseCase = container.get('sales_day.application.reopen_current_sales_day_use_case');
-  assert.ok(reopenSalesDayUseCase);
 
   // Sales Repositories, Adapters & Use Cases
   const saleRepo = container.get('sales.domain.sale_repository');

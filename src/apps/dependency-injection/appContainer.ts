@@ -19,11 +19,6 @@ import { ListInvoicesUseCase } from '../../contexts/fulfillment-output/applicati
 import { GetSessionUseCase } from '../../contexts/identity/application/use-cases/getSession/getSession.useCase';
 import { LoginUseCase } from '../../contexts/identity/application/use-cases/login/login.useCase';
 import { LogoutUseCase } from '../../contexts/identity/application/use-cases/logout/logout.useCase';
-import { CloseSalesDayUseCase } from '../../contexts/sales-day/application/use-cases/closeSalesDay/closeSalesDay.useCase';
-import { GetCurrentSalesDayUseCase } from '../../contexts/sales-day/application/use-cases/getCurrentSalesDay/getCurrentSalesDay.useCase';
-import { ListCurrentWeekSalesDaysUseCase } from '../../contexts/sales-day/application/use-cases/listCurrentWeekSalesDays/listCurrentWeekSalesDays.useCase';
-import { OpenCurrentSalesDayUseCase } from '../../contexts/sales-day/application/use-cases/openCurrentSalesDay/openCurrentSalesDay.useCase';
-import { ReopenCurrentSalesDayUseCase } from '../../contexts/sales-day/application/use-cases/reopenCurrentSalesDay/reopenCurrentSalesDay.useCase';
 import { AddSaleItemUseCase } from '../../contexts/sales/application/use-cases/addSaleItem/addSaleItem.useCase';
 import { ConfirmSaleUseCase } from '../../contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
 import { SetSaleDeliveryDateUseCase } from '../../contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
@@ -54,11 +49,6 @@ export interface AppContainer {
   get(id: 'customers.application.get_customer_use_case'): GetCustomerUseCase;
   get(id: 'customers.application.create_customer_use_case'): CreateCustomerUseCase;
   get(id: 'customers.application.update_customer_use_case'): UpdateCustomerUseCase;
-  get(id: 'sales_day.application.open_current_sales_day_use_case'): OpenCurrentSalesDayUseCase;
-  get(id: 'sales_day.application.get_current_sales_day_use_case'): GetCurrentSalesDayUseCase;
-  get(id: 'sales_day.application.list_current_week_sales_days_use_case'): ListCurrentWeekSalesDaysUseCase;
-  get(id: 'sales_day.application.close_sales_day_use_case'): CloseSalesDayUseCase;
-  get(id: 'sales_day.application.reopen_current_sales_day_use_case'): ReopenCurrentSalesDayUseCase;
   get(id: 'sales.application.create_sale_use_case'): CreateSaleUseCase;
   get(id: 'sales.application.list_sales_use_case'): ListSalesUseCase;
   get(id: 'sales.application.get_sale_use_case'): GetSaleUseCase;

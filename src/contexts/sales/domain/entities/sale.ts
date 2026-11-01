@@ -239,6 +239,9 @@ export class Sale {
 
   void(): Sale {
     this.assertNotVoided();
+    if (this.state.status !== 'CONFIRMED') {
+      throw new SaleCannotBeModifiedError('Only a confirmed sale can be voided');
+    }
     return this.with({ status: 'VOIDED', voidedAt: new Date() });
   }
 

@@ -16,6 +16,7 @@ export class InvoiceSaleAdapter implements InvoiceSaleQuery {
       customerId: primitives.customerId,
       status: primitives.status,
       invoiceNumber: primitives.invoiceNumber,
+      deliveryDate: primitives.deliveryDate,
       confirmedAt: primitives.confirmedAt,
       lines: primitives.items.map(item => ({
         productId: item.productId,

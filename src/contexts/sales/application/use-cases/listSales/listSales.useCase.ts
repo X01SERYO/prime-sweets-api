@@ -8,7 +8,6 @@ export class ListSalesUseCase {
 
   async run(dto?: ListSalesDto): Promise<Result<SalePrimitives[]>> {
     const sales = await this.saleRepository.list(dto);
-    const visible = dto?.deliveryDate && !dto.status ? sales.filter(sale => sale.status !== 'DRAFT') : sales;
-    return Result.ok(visible.map(sale => sale.toPrimitives()));
+    return Result.ok(sales.map(sale => sale.toPrimitives()));
   }
 }

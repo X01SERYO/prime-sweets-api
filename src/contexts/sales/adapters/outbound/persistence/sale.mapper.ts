@@ -30,8 +30,9 @@ export class SaleMapper {
 
     return Sale.create({
       id: entity.id,
-      salesDayId: entity.salesDayId,
+      sellerId: entity.sellerId,
       customerId: entity.customerId,
+      captureDate: String(entity.captureDate).slice(0, 10),
       deliveryDate: String(entity.deliveryDate).slice(0, 10),
       status: toSaleStatus(entity.status),
       invoiceNumber: entity.invoiceNumber,
@@ -48,8 +49,9 @@ export class SaleMapper {
 
     const entity = new SaleEntity();
     entity.id = primitives.id;
-    entity.salesDayId = primitives.salesDayId;
+    entity.sellerId = primitives.sellerId;
     entity.customerId = primitives.customerId;
+    entity.captureDate = primitives.captureDate;
     entity.deliveryDate = primitives.deliveryDate;
     entity.status = primitives.status;
     entity.invoiceNumber = primitives.invoiceNumber;

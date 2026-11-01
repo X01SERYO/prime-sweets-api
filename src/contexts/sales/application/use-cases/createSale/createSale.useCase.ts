@@ -3,13 +3,11 @@ import { Result } from '../../../../../shared/application/result/result';
 import { Sale, SalePrimitives } from '../../../domain/entities/sale';
 import { SaleItem } from '../../../domain/entities/saleItem';
 import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecker.port';
+import { BusinessCalendar } from '../../ports/outbound/businessCalendar.port';
 import { CustomerChecker } from '../../ports/outbound/customerChecker.port';
 import { ProductSnapshotProvider } from '../../ports/outbound/productSnapshotProvider.port';
 import { CreateSaleDto } from '../../dto/createSale.dto';
-import { DeliveryDateBeforeSaleError } from '../../../domain/errors/deliveryDateBeforeSale.error';
 import { DeliveryDateRequiredError } from '../../../domain/errors/deliveryDateRequired.error';
-import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
 import { CustomerNotFoundForSaleError } from '../../../domain/errors/customerNotFoundForSale.error';
 import { ProductNotFoundForSaleError } from '../../../domain/errors/productNotFoundForSale.error';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
@@ -17,30 +15,21 @@ import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 export class CreateSaleUseCase {
   constructor(
     private readonly saleRepository: SaleRepository,
-    private readonly salesDayStatusChecker: SalesDayStatusChecker,
     private readonly customerChecker: CustomerChecker,
     private readonly productSnapshotProvider: ProductSnapshotProvider,
+    private readonly calendar: BusinessCalendar,
     private readonly ids: IdGenerator
   ) {}
 
   async run(dto: CreateSaleDto): Promise<Result<SalePrimitives>> {
-    if (!dto.salesDayId || !dto.salesDayId.trim()) {
-      return Result.fail(new InvalidSaleError('Sales day id cannot be empty'));
+    if (!dto.sellerId || !dto.sellerId.trim()) {
+      return Result.fail(new InvalidSaleError('Seller id cannot be empty'));
     }
     if (!dto.customerId || !dto.customerId.trim()) {
       return Result.fail(new InvalidSaleError('Customer id cannot be empty'));
     }
-
-    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, dto.salesDayId.trim());
-    if (editable instanceof Error) {
-      return Result.fail(editable);
-    }
-    const deliveryDate = dto.deliveryDate?.trim() ?? '';
-    if (!deliveryDate) {
+    if (!dto.deliveryDate || !dto.deliveryDate.trim()) {
       return Result.fail(new DeliveryDateRequiredError());
-    }
-    if (deliveryDate < editable.date) {
-      return Result.fail(new DeliveryDateBeforeSaleError());
     }
 
     const customerExists = await this.customerChecker.customerExists(dto.customerId);
@@ -48,37 +37,39 @@ export class CreateSaleUseCase {
       return Result.fail(new CustomerNotFoundForSaleError(dto.customerId));
     }
 
-    let sale = Sale.create({
-      id: this.ids.next(),
-      salesDayId: dto.salesDayId.trim(),
-      customerId: dto.customerId.trim(),
-      deliveryDate
-    });
+    try {
+      let sale = Sale.start({
+        id: this.ids.next(),
+        sellerId: dto.sellerId,
+        customerId: dto.customerId,
+        deliveryDate: dto.deliveryDate,
+        today: this.calendar.today()
+      });
 
-    if (dto.items && dto.items.length > 0) {
-      for (const itemDto of dto.items) {
+      for (const itemDto of dto.items ?? []) {
         const snapshot = await this.productSnapshotProvider.getSnapshot(itemDto.productId);
         if (!snapshot) {
           return Result.fail(new ProductNotFoundForSaleError(itemDto.productId));
         }
 
-        const saleItem = SaleItem.create({
-          id: this.ids.next(),
-          productId: snapshot.id,
-          productCode: snapshot.code,
-          catalogName: snapshot.name,
-          itemName: itemDto.itemName?.trim() || snapshot.name,
-          quantity: itemDto.quantity,
-          wholesalePrice: snapshot.wholesalePrice,
-          wholesaleCost: snapshot.wholesaleCost
-        });
-
-        sale = sale.addItem(saleItem);
+        sale = sale.addItem(
+          SaleItem.create({
+            id: this.ids.next(),
+            productId: snapshot.id,
+            productCode: snapshot.code,
+            catalogName: snapshot.name,
+            itemName: itemDto.itemName?.trim() || snapshot.name,
+            quantity: itemDto.quantity,
+            wholesalePrice: snapshot.wholesalePrice,
+            wholesaleCost: snapshot.wholesaleCost
+          })
+        );
       }
+
+      await this.saleRepository.save(sale);
+      return Result.ok(sale.toPrimitives());
+    } catch (error) {
+      return Result.fail(error as Error);
     }
-
-    await this.saleRepository.save(sale);
-
-    return Result.ok(sale.toPrimitives());
   }
 }

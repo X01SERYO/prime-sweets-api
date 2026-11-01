@@ -10,8 +10,8 @@ export function createInvoicesRouter(container: AppContainer) {
 
   router.get('/', validateRequest(listInvoicesSchema), async (req: Request, res: Response) => {
     const useCase = container.get('fulfillment.application.list_invoices_use_case');
-    const salesDayId = req.query.salesDayId as string;
-    return httpResponse(res, await useCase.run({ salesDayId }));
+    const deliveryDate = req.query.deliveryDate as string;
+    return httpResponse(res, await useCase.run({ deliveryDate }));
   });
 
   router.get('/:saleId', validateRequest(generateInvoiceSchema), async (req: Request, res: Response) => {

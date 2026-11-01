@@ -4,14 +4,14 @@ import { InvoiceQuery, InvoiceSummary } from '../../../contexts/fulfillment-outp
 export class InvoiceQueryAdapter implements InvoiceQuery {
   constructor(private readonly saleRepository: SaleRepository) {}
 
-  async findBySalesDayId(salesDayId: string): Promise<InvoiceSummary[]> {
-    const sales = await this.saleRepository.list({ salesDayId });
+  async findByDeliveryDate(deliveryDate: string): Promise<InvoiceSummary[]> {
+    const sales = await this.saleRepository.list({ deliveryDate });
 
     return sales
       .filter(sale => (sale.isConfirmed() || sale.isVoided()) && Boolean(sale.invoiceNumber))
       .map(sale => ({
         saleId: sale.id,
-        salesDayId: sale.salesDayId,
+        deliveryDate: sale.deliveryDate,
         customerId: sale.customerId,
         invoiceNumber: sale.invoiceNumber as string,
         status: sale.isVoided() ? 'VOIDED' : 'CONFIRMED',

@@ -17,7 +17,8 @@ test('InvoiceSaleAdapter - projects the transaction-time item name and does not 
   });
   const sale = Sale.create({
     id: 's-1',
-    salesDayId: 'sd-1',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'c-1', deliveryDate: '2026-10-31',
     status: 'CONFIRMED',
     invoiceNumber: 'INV-00001',
@@ -30,9 +31,6 @@ test('InvoiceSaleAdapter - projects the transaction-time item name and does not 
     },
     async findById() {
       return sale;
-    },
-    async findBySalesDayId() {
-      return [];
     },
     async list() {
       return [];

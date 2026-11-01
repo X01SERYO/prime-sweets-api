@@ -19,7 +19,8 @@ function item(id: string, productId: string, itemName: string, quantity: number)
 function sale(id: string, status: 'DRAFT' | 'CONFIRMED' | 'VOIDED', items: SaleItem[]): Sale {
   return Sale.create({
     id,
-    salesDayId: 'sd-1',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'c-1', deliveryDate: '2026-10-31',
     status,
     invoiceNumber: status === 'DRAFT' ? null : `INV-${id}`,
@@ -37,9 +38,6 @@ test('ConfirmedSaleItemsAdapter - reads confirmed sales only and drops transacti
     async save() {},
     async findById() {
       return null;
-    },
-    async findBySalesDayId() {
-      return [];
     },
     async list(nextFilters) {
       filters = nextFilters;

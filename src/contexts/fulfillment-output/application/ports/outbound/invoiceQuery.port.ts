@@ -1,6 +1,6 @@
 export type InvoiceSummary = {
   saleId: string;
-  salesDayId: string;
+  deliveryDate: string;
   customerId: string;
   invoiceNumber: string;
   status: 'CONFIRMED' | 'VOIDED';
@@ -9,5 +9,5 @@ export type InvoiceSummary = {
 };
 
 export interface InvoiceQuery {
-  findBySalesDayId(salesDayId: string): Promise<InvoiceSummary[]>;
+  findByDeliveryDate(deliveryDate: string): Promise<InvoiceSummary[]>;
 }

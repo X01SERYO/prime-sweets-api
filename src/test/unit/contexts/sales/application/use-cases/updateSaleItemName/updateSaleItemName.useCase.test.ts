@@ -4,7 +4,6 @@ import { UpdateSaleItemNameUseCase } from '../../../../../../../contexts/sales/a
 import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 
 test('UpdateSaleItemNameUseCase - modifies transaction-time item name during draft', async () => {
   const item = SaleItem.create({
@@ -15,7 +14,7 @@ test('UpdateSaleItemNameUseCase - modifies transaction-time item name during dra
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
+  const sale = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
 
   let saved: Sale = sale;
   const repo: SaleRepository = {
@@ -25,21 +24,12 @@ test('UpdateSaleItemNameUseCase - modifies transaction-time item name during dra
     async findById() {
       return saved;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
     }
   };
 
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
-    }
-  };
-
-  const useCase = new UpdateSaleItemNameUseCase(repo, salesDayChecker);
+  const useCase = new UpdateSaleItemNameUseCase(repo);
   const result = await useCase.run({
     saleId: 's-1',
     itemId: 'it-1',

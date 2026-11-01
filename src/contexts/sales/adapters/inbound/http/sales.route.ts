@@ -21,7 +21,7 @@ export function createSalesRouter(container: AppContainer) {
 
   router.post('/', validateRequest(createSaleSchema), async (req: Request, res: Response) => {
     const useCase = container.get('sales.application.create_sale_use_case');
-    return httpResponse(res, await useCase.run(req.body), 201);
+    return httpResponse(res, await useCase.run({ ...req.body, sellerId: res.locals.session.user.id }), 201);
   });
 
   router.get('/', validateRequest(listSalesSchema), async (req: Request, res: Response) => {

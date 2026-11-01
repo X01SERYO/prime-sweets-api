@@ -6,6 +6,7 @@ import { InvalidSaleError } from '../../../../../../contexts/sales/domain/errors
 import { SaleMustContainItemsError } from '../../../../../../contexts/sales/domain/errors/saleMustContainItems.error';
 import { SaleCannotBeModifiedError } from '../../../../../../contexts/sales/domain/errors/saleCannotBeModified.error';
 import { SaleAlreadyVoidedError } from '../../../../../../contexts/sales/domain/errors/saleAlreadyVoided.error';
+import { DeliveryDateOutOfRangeError } from '../../../../../../contexts/sales/domain/errors/deliveryDateOutOfRange.error';
 
 function createSampleItem(productId = 'p-1', quantity = 2, price = 1000, cost = 700) {
   return SaleItem.create({
@@ -21,12 +22,14 @@ function createSampleItem(productId = 'p-1', quantity = 2, price = 1000, cost = 
 test('Sale aggregate - creates a draft sale with zero totals by default', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
   assert.equal(sale.id, 'sale-001');
-  assert.equal(sale.salesDayId, 'sd-100');
+  assert.equal(sale.sellerId, 'seller-1');
+  assert.equal(sale.captureDate, '2026-11-04');
   assert.equal(sale.customerId, 'cust-50');
   assert.equal(sale.status, 'DRAFT');
   assert.equal(sale.isDraft(), true);
@@ -41,7 +44,8 @@ test('Sale aggregate - creates a draft sale with zero totals by default', () => 
 test('Sale aggregate - adds items and aggregates quantities, total amount, and profit correctly', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
@@ -61,7 +65,8 @@ test('Sale aggregate - adds items and aggregates quantities, total amount, and p
 test('Sale aggregate - same product with different names stays as separate lines', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
@@ -96,7 +101,8 @@ test('Sale aggregate - same product with different names stays as separate lines
 test('Sale aggregate - same product and same name accumulates quantity', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
@@ -129,7 +135,8 @@ test('Sale aggregate - same product and same name accumulates quantity', () => {
 test('Sale aggregate - updates item quantity and custom item name in draft', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
@@ -145,7 +152,8 @@ test('Sale aggregate - updates item quantity and custom item name in draft', () 
 test('Sale aggregate - removes item from draft', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
@@ -160,7 +168,8 @@ test('Sale aggregate - removes item from draft', () => {
 test('Sale aggregate - confirms draft sale, allocating invoice number', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
@@ -177,7 +186,8 @@ test('Sale aggregate - confirms draft sale, allocating invoice number', () => {
 test('Sale aggregate - rejects confirmation if sale has no items', () => {
   const emptySale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   });
 
@@ -187,7 +197,8 @@ test('Sale aggregate - rejects confirmation if sale has no items', () => {
 test('Sale aggregate - rejects confirmation if invoice number is missing or empty', () => {
   const sale = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 
@@ -198,7 +209,8 @@ test('Sale aggregate - rejects confirmation if invoice number is missing or empt
 test('Sale aggregate - confirms only once', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
@@ -210,7 +222,8 @@ test('Sale aggregate - confirms only once', () => {
 test('Sale aggregate - editing items on confirmed sale keeps the same invoice number', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
@@ -231,7 +244,8 @@ test('Sale aggregate - editing items on confirmed sale keeps the same invoice nu
 test('Sale aggregate - rejects any modifications once voided', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
@@ -248,7 +262,8 @@ test('Sale aggregate - rejects any modifications once voided', () => {
 test('Sale aggregate - voids a confirmed sale logically without modifying items or invoiceNumber', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   })
     .addItem(createSampleItem('p-1', 2, 1000, 700))
@@ -265,10 +280,48 @@ test('Sale aggregate - voids a confirmed sale logically without modifying items 
   assert.throws(() => voided.void(), SaleAlreadyVoidedError);
 });
 
+test('Sale aggregate - start records the seller and the capture date, and rejects a delivery date outside today through Sunday', () => {
+  const started = Sale.start({
+    id: 'sale-002',
+    sellerId: 'seller-1',
+    customerId: 'cust-50',
+    deliveryDate: '2026-11-08',
+    today: '2026-11-04'
+  });
+
+  assert.equal(started.sellerId, 'seller-1');
+  assert.equal(started.captureDate, '2026-11-04');
+  assert.equal(started.deliveryDate, '2026-11-08');
+
+  assert.throws(
+    () =>
+      Sale.start({
+        id: 'sale-003',
+        sellerId: 'seller-1',
+        customerId: 'cust-50',
+        deliveryDate: '2026-11-03',
+        today: '2026-11-04'
+      }),
+    DeliveryDateOutOfRangeError
+  );
+  assert.throws(
+    () =>
+      Sale.start({
+        id: 'sale-004',
+        sellerId: 'seller-1',
+        customerId: 'cust-50',
+        deliveryDate: '2026-11-09',
+        today: '2026-11-04'
+      }),
+    DeliveryDateOutOfRangeError
+  );
+});
+
 test('Sale aggregate - voids a draft and keeps it without an invoice number', () => {
   const draft = Sale.create({
     id: 'sale-001',
-    salesDayId: 'sd-100',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: 'cust-50', deliveryDate: '2026-10-31'
   }).addItem(createSampleItem('p-1', 2, 1000, 700));
 

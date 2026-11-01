@@ -1,59 +1,50 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ListInvoicesUseCase } from '../../../../../../../contexts/fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
-import { SalesDayClosureQuery } from '../../../../../../../contexts/fulfillment-output/application/ports/outbound/salesDayClosureQuery.port';
 import { InvoiceQuery, InvoiceSummary } from '../../../../../../../contexts/fulfillment-output/application/ports/outbound/invoiceQuery.port';
-import { SalesDayNotFoundForInvoiceError } from '../../../../../../../contexts/fulfillment-output/domain/errors/salesDayNotFoundForInvoice.error';
 
-function setup(status: 'OPEN' | 'CLOSED' | null) {
-  let invoicesRequested = false;
-  const invoices: InvoiceSummary[] = [
-    {
-      saleId: 's-2',
-      salesDayId: 'sd-1',
-      customerId: 'c-2',
-      invoiceNumber: 'INV-00002',
-      status: 'VOIDED',
-      confirmedAt: '2026-10-13T15:00:00.000Z',
-      totalAmount: 2000
-    },
-    {
-      saleId: 's-1',
-      salesDayId: 'sd-1',
-      customerId: 'c-1',
-      invoiceNumber: 'INV-00001',
-      status: 'CONFIRMED',
-      confirmedAt: '2026-10-13T14:00:00.000Z',
-      totalAmount: 1000
-    }
-  ];
-
-  const salesDayClosureQuery: SalesDayClosureQuery = {
-    async findById(salesDayId) {
-      if (!status) return null;
-      return { id: salesDayId, status };
-    }
-  };
+function setup(invoices: InvoiceSummary[]) {
+  let requestedDate: string | null = null;
 
   const invoiceQuery: InvoiceQuery = {
-    async findBySalesDayId() {
-      invoicesRequested = true;
+    async findByDeliveryDate(deliveryDate) {
+      requestedDate = deliveryDate;
       return invoices;
     }
   };
 
   return {
-    useCase: new ListInvoicesUseCase(salesDayClosureQuery, invoiceQuery),
-    wasInvoicesRequested: () => invoicesRequested
+    useCase: new ListInvoicesUseCase(invoiceQuery),
+    requestedDate: () => requestedDate
   };
 }
 
-test('ListInvoicesUseCase - returns allocated invoices newest first for an open Sales Day', async () => {
-  const { useCase } = setup('OPEN');
+test('ListInvoicesUseCase - returns allocated invoices for a delivery date newest first', async () => {
+  const { useCase, requestedDate } = setup([
+    {
+      saleId: 's-1',
+      deliveryDate: '2026-11-05',
+      customerId: 'c-1',
+      invoiceNumber: 'INV-00001',
+      status: 'CONFIRMED',
+      confirmedAt: '2026-11-04T14:00:00.000Z',
+      totalAmount: 1000
+    },
+    {
+      saleId: 's-2',
+      deliveryDate: '2026-11-05',
+      customerId: 'c-2',
+      invoiceNumber: 'INV-00002',
+      status: 'VOIDED',
+      confirmedAt: '2026-11-04T15:00:00.000Z',
+      totalAmount: 2000
+    }
+  ]);
 
-  const result = await useCase.run({ salesDayId: 'sd-1' });
+  const result = await useCase.run({ deliveryDate: '2026-11-05' });
 
   assert.equal(result.isSuccess, true);
+  assert.equal(requestedDate(), '2026-11-05');
   assert.deepEqual(
     result.value?.map(invoice => invoice.invoiceNumber),
     ['INV-00002', 'INV-00001']
@@ -61,61 +52,41 @@ test('ListInvoicesUseCase - returns allocated invoices newest first for an open 
   assert.equal(result.value?.[0].status, 'VOIDED');
 });
 
-test('ListInvoicesUseCase - returns allocated invoices when the Sales Day is closed', async () => {
-  const { useCase } = setup('CLOSED');
+test('ListInvoicesUseCase - returns an empty list when the delivery date has no invoices', async () => {
+  const { useCase } = setup([]);
 
-  const result = await useCase.run({ salesDayId: 'sd-1' });
+  const result = await useCase.run({ deliveryDate: '2026-11-06' });
 
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.length, 2);
+  assert.deepEqual(result.value, []);
 });
 
 test('ListInvoicesUseCase - orders numeric invoice numbers so 1000 comes before 999', async () => {
-  const salesDayClosureQuery: SalesDayClosureQuery = {
-    async findById(salesDayId) {
-      return { id: salesDayId, status: 'OPEN' };
+  const { useCase } = setup([
+    {
+      saleId: 's-999',
+      deliveryDate: '2026-11-05',
+      customerId: 'c-1',
+      invoiceNumber: '999',
+      status: 'CONFIRMED',
+      confirmedAt: '2026-11-04T14:00:00.000Z',
+      totalAmount: 1000
+    },
+    {
+      saleId: 's-1000',
+      deliveryDate: '2026-11-05',
+      customerId: 'c-2',
+      invoiceNumber: '1000',
+      status: 'CONFIRMED',
+      confirmedAt: '2026-11-04T15:00:00.000Z',
+      totalAmount: 2000
     }
-  };
-  const invoiceQuery: InvoiceQuery = {
-    async findBySalesDayId() {
-      return [
-        {
-          saleId: 's-1000',
-          salesDayId: 'sd-1',
-          customerId: 'c-2',
-          invoiceNumber: '1000',
-          status: 'CONFIRMED',
-          confirmedAt: '2026-10-13T15:00:00.000Z',
-          totalAmount: 2000
-        },
-        {
-          saleId: 's-999',
-          salesDayId: 'sd-1',
-          customerId: 'c-1',
-          invoiceNumber: '999',
-          status: 'CONFIRMED',
-          confirmedAt: '2026-10-13T14:00:00.000Z',
-          totalAmount: 1000
-        }
-      ];
-    }
-  };
-  const useCase = new ListInvoicesUseCase(salesDayClosureQuery, invoiceQuery);
+  ]);
 
-  const result = await useCase.run({ salesDayId: 'sd-1' });
+  const result = await useCase.run({ deliveryDate: '2026-11-05' });
 
   assert.deepEqual(
     result.value?.map(invoice => invoice.invoiceNumber),
     ['1000', '999']
   );
-});
-
-test('ListInvoicesUseCase - fails when the Sales Day does not exist', async () => {
-  const { useCase, wasInvoicesRequested } = setup(null);
-
-  const result = await useCase.run({ salesDayId: 'missing' });
-
-  assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SalesDayNotFoundForInvoiceError);
-  assert.equal(wasInvoicesRequested(), false);
 });

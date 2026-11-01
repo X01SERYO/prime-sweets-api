@@ -3,19 +3,16 @@ import { Result } from '../../../../../shared/application/result/result';
 import { SalePrimitives } from '../../../domain/entities/sale';
 import { SaleItem } from '../../../domain/entities/saleItem';
 import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecker.port';
 import { ProductSnapshotProvider } from '../../ports/outbound/productSnapshotProvider.port';
 import { AddSaleItemDto } from '../../dto/addSaleItem.dto';
 import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
 import { DeliveryDateRequiredError } from '../../../domain/errors/deliveryDateRequired.error';
-import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
 import { ProductNotFoundForSaleError } from '../../../domain/errors/productNotFoundForSale.error';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 
 export class AddSaleItemUseCase {
   constructor(
     private readonly saleRepository: SaleRepository,
-    private readonly salesDayStatusChecker: SalesDayStatusChecker,
     private readonly productSnapshotProvider: ProductSnapshotProvider,
     private readonly ids: IdGenerator
   ) {}
@@ -33,10 +30,6 @@ export class AddSaleItemUseCase {
       return Result.fail(new SaleNotFoundError(dto.saleId));
     }
 
-    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, sale.salesDayId);
-    if (editable instanceof Error) {
-      return Result.fail(editable);
-    }
     if (!sale.deliveryDate) {
       return Result.fail(new DeliveryDateRequiredError());
     }

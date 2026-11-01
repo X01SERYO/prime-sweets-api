@@ -38,22 +38,8 @@ export class TypeOrmSaleRepository implements SaleRepository {
     return SaleMapper.toDomain(entity);
   }
 
-  async findBySalesDayId(salesDayId: string): Promise<Sale[]> {
-    const entities = await this.repository.find({
-      where: { salesDayId },
-      relations: ['items'],
-      order: { createdAt: 'DESC', items: { createdAt: 'DESC' } }
-    });
-
-    return entities.map(SaleMapper.toDomain);
-  }
-
   async list(filters?: ListSalesFilters): Promise<Sale[]> {
     const query = this.repository.createQueryBuilder('sale').leftJoinAndSelect('sale.items', 'item');
-
-    if (filters?.salesDayId) {
-      query.andWhere('sale.sales_day_id = :salesDayId', { salesDayId: filters.salesDayId });
-    }
 
     if (filters?.deliveryDate) {
       query.andWhere('sale.delivery_date = :deliveryDate', { deliveryDate: filters.deliveryDate });

@@ -4,12 +4,10 @@ import { VoidSaleUseCase } from '../../../../../../../contexts/sales/application
 import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 import { SaleAlreadyVoidedError } from '../../../../../../../contexts/sales/domain/errors/saleAlreadyVoided.error';
-import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
 
-test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async () => {
-  const item = SaleItem.create({
+function item(): SaleItem {
+  return SaleItem.create({
     id: 'it-1',
     productId: 'p-1',
     itemName: 'Item 1',
@@ -17,33 +15,31 @@ test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async (
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
-    .addItem(item)
-    .confirm('INV-0001', '2026-10-20');
+}
 
-  let saved: Sale = confirmed;
-  const repo: SaleRepository = {
+function draft(): Sale {
+  return Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-11-05' });
+}
+
+function repoWith(sale: Sale): SaleRepository {
+  let saved: Sale = sale;
+  return {
     async save(s) {
       saved = s;
     },
     async findById() {
       return saved;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
     }
   };
+}
 
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
-    }
-  };
+test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async () => {
+  const confirmed = draft().addItem(item()).confirm('INV-0001', '2026-11-04');
 
-  const useCase = new VoidSaleUseCase(repo, salesDayChecker);
+  const useCase = new VoidSaleUseCase(repoWith(confirmed));
   const result = await useCase.run({ saleId: 's-1' });
 
   assert.equal(result.isSuccess, true);
@@ -52,81 +48,22 @@ test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async (
   assert.ok(result.value?.voidedAt);
 });
 
+test('VoidSaleUseCase - voids a draft sale without an invoice number', async () => {
+  const useCase = new VoidSaleUseCase(repoWith(draft().addItem(item())));
+  const result = await useCase.run({ saleId: 's-1' });
+
+  assert.equal(result.isSuccess, true);
+  assert.equal(result.value?.status, 'VOIDED');
+  assert.equal(result.value?.invoiceNumber, null);
+  assert.ok(result.value?.voidedAt);
+});
+
 test('VoidSaleUseCase - fails if already voided', async () => {
-  const item = SaleItem.create({
-    id: 'it-1',
-    productId: 'p-1',
-    itemName: 'Item 1',
-    quantity: 2,
-    wholesalePrice: 1000,
-    wholesaleCost: 600
-  });
-  const voided = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
-    .addItem(item)
-    .confirm('INV-0001', '2026-10-20')
-    .void();
+  const voided = draft().addItem(item()).confirm('INV-0001', '2026-11-04').void();
 
-  const repo: SaleRepository = {
-    async save() {},
-    async findById() {
-      return voided;
-    },
-    async findBySalesDayId() {
-      return [];
-    },
-    async list() {
-      return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
-    }
-  };
-
-  const useCase = new VoidSaleUseCase(repo, salesDayChecker);
+  const useCase = new VoidSaleUseCase(repoWith(voided));
   const result = await useCase.run({ saleId: 's-1' });
 
   assert.equal(result.isSuccess, false);
   assert.ok(result.error instanceof SaleAlreadyVoidedError);
-});
-
-test('VoidSaleUseCase - fails if sales day is closed', async () => {
-  const item = SaleItem.create({
-    id: 'it-1',
-    productId: 'p-1',
-    itemName: 'Item 1',
-    quantity: 2,
-    wholesalePrice: 1000,
-    wholesaleCost: 600
-  });
-  const confirmed = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
-    .addItem(item)
-    .confirm('INV-0001', '2026-10-20');
-
-  const repo: SaleRepository = {
-    async save() {},
-    async findById() {
-      return confirmed;
-    },
-    async findBySalesDayId() {
-      return [];
-    },
-    async list() {
-      return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'outside' };
-    }
-  };
-
-  const useCase = new VoidSaleUseCase(repo, salesDayChecker);
-  const result = await useCase.run({ saleId: 's-1' });
-
-  assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SaleOutsideEditWindowError);
 });

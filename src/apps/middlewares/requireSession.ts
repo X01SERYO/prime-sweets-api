@@ -11,6 +11,7 @@ export function requireSession(container: AppContainer) {
       httpResponse(res, result);
       return;
     }
+    res.locals.session = result.value;
     next();
   };
 }

@@ -6,14 +6,11 @@ import { SaleRepository } from '../../../../../../../contexts/sales/application/
 import { SaleNotFoundError } from '../../../../../../../contexts/sales/domain/errors/saleNotFound.error';
 
 test('GetSaleUseCase - returns sale primitives when found', async () => {
-  const sale = Sale.create({ id: 'sale-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
+  const sale = Sale.create({ id: 'sale-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' });
   const repo: SaleRepository = {
     async save() {},
     async findById(id) {
       return id === 'sale-1' ? sale : null;
-    },
-    async findBySalesDayId() {
-      return [];
     },
     async list() {
       return [];
@@ -32,9 +29,6 @@ test('GetSaleUseCase - fails with SaleNotFoundError when not found', async () =>
     async save() {},
     async findById() {
       return null;
-    },
-    async findBySalesDayId() {
-      return [];
     },
     async list() {
       return [];

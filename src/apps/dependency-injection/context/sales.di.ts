@@ -1,7 +1,7 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { TypeOrmSaleRepository } from '../../../contexts/sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
 import { TypeOrmInvoiceNumberAllocator } from '../../../contexts/sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
-import { SalesDayStatusAdapter } from '../acl/salesDayStatus.adapter';
+import { BusinessCalendarAdapter } from '../acl/businessCalendar.adapter';
 import { CustomerCheckerAdapter } from '../acl/customerChecker.adapter';
 import { CatalogProductSnapshotAdapter } from '../acl/catalogProductSnapshot.adapter';
 import { CreateSaleUseCase } from '../../../contexts/sales/application/use-cases/createSale/createSale.useCase';
@@ -17,7 +17,6 @@ import { ListSalesUseCase } from '../../../contexts/sales/application/use-cases/
 
 export function registerSalesDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');
-  const salesDayRepoRef = new Reference('sales_day.domain.sales_day_repository');
   const customerRepoRef = new Reference('customers.domain.customer_repository');
   const productRepoRef = new Reference('catalog.domain.product_repository');
 
@@ -30,8 +29,7 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
     .addArgument(dataSourceRef);
 
   container
-    .register('sales.infrastructure.sales_day_status_adapter', SalesDayStatusAdapter)
-    .addArgument(salesDayRepoRef)
+    .register('sales.infrastructure.business_calendar_adapter', BusinessCalendarAdapter)
     .addArgument(new Reference('sales_day.application.date_provider'));
 
   container
@@ -44,7 +42,7 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
 
   const saleRepoRef = new Reference('sales.domain.sale_repository');
   const invoiceAllocatorRef = new Reference('sales.domain.invoice_number_allocator');
-  const salesDayCheckerRef = new Reference('sales.infrastructure.sales_day_status_adapter');
+  const calendarRef = new Reference('sales.infrastructure.business_calendar_adapter');
   const customerCheckerRef = new Reference('sales.infrastructure.customer_checker_adapter');
   const productSnapshotRef = new Reference('sales.infrastructure.catalog_product_snapshot_adapter');
   const idsRef = new Reference('shared.application.id_generator');
@@ -52,48 +50,43 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
   container
     .register('sales.application.create_sale_use_case', CreateSaleUseCase)
     .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef)
     .addArgument(customerCheckerRef)
     .addArgument(productSnapshotRef)
+    .addArgument(calendarRef)
     .addArgument(idsRef);
 
   container
     .register('sales.application.add_sale_item_use_case', AddSaleItemUseCase)
     .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef)
     .addArgument(productSnapshotRef)
     .addArgument(idsRef);
 
   container
     .register('sales.application.update_sale_item_quantity_use_case', UpdateSaleItemQuantityUseCase)
-    .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef);
+    .addArgument(saleRepoRef);
 
   container
     .register('sales.application.update_sale_item_name_use_case', UpdateSaleItemNameUseCase)
-    .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef);
+    .addArgument(saleRepoRef);
 
   container
     .register('sales.application.remove_sale_item_use_case', RemoveSaleItemUseCase)
-    .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef);
+    .addArgument(saleRepoRef);
 
   container
     .register('sales.application.set_sale_delivery_date_use_case', SetSaleDeliveryDateUseCase)
     .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef);
+    .addArgument(calendarRef);
 
   container
     .register('sales.application.confirm_sale_use_case', ConfirmSaleUseCase)
     .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef)
+    .addArgument(calendarRef)
     .addArgument(invoiceAllocatorRef);
 
   container
     .register('sales.application.void_sale_use_case', VoidSaleUseCase)
-    .addArgument(saleRepoRef)
-    .addArgument(salesDayCheckerRef);
+    .addArgument(saleRepoRef);
 
   container
     .register('sales.application.get_sale_use_case', GetSaleUseCase)

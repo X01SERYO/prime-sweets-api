@@ -5,8 +5,7 @@ import { formatDailyInvoiceNumber } from '../../../../../../../contexts/sales/do
 import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
-import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
+import { BusinessCalendar } from '../../../../../../../contexts/sales/application/ports/outbound/businessCalendar.port';
 import { InvoiceNumberAllocator } from '../../../../../../../contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
 import { SaleCannotBeModifiedError } from '../../../../../../../contexts/sales/domain/errors/saleCannotBeModified.error';
 import { SaleMustContainItemsError } from '../../../../../../../contexts/sales/domain/errors/saleMustContainItems.error';
@@ -42,28 +41,22 @@ function repositoryWith(initial: Sale): SaleRepository {
     async findById(id) {
       return saved.id === id ? saved : null;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
     }
   };
 }
 
-test('ConfirmSaleUseCase - assigns 001 then 002 on the same business date and restarts the next date', async () => {
-  const first = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item('it-1'));
-  const second = Sale.create({ id: 's-2', salesDayId: 'sd-2', customerId: 'c-2', deliveryDate: '2026-10-31' }).addItem(item('it-2'));
-  const third = Sale.create({ id: 's-3', salesDayId: 'sd-3', customerId: 'c-3', deliveryDate: '2026-10-31' }).addItem(item('it-3'));
+const calendar: BusinessCalendar = { today: () => '2026-11-04' };
+
+test('ConfirmSaleUseCase - assigns 001, 002 and 003 on the confirmation date', async () => {
+  const first = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-11-05' }).addItem(item('it-1'));
+  const second = Sale.create({ id: 's-2', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-2', deliveryDate: '2026-11-05' }).addItem(item('it-2'));
+  const third = Sale.create({ id: 's-3', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-3', deliveryDate: '2026-11-05' }).addItem(item('it-3'));
   const sales = new Map<string, Sale>([
     [first.id, first],
     [second.id, second],
     [third.id, third]
-  ]);
-  const dates = new Map([
-    ['sd-1', '2026-10-20'],
-    ['sd-2', '2026-10-20'],
-    ['sd-3', '2026-10-21']
   ]);
   const repo: SaleRepository = {
     async save(sale) {
@@ -72,42 +65,28 @@ test('ConfirmSaleUseCase - assigns 001 then 002 on the same business date and re
     async findById(id) {
       return sales.get(id) ?? null;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
     }
   };
-  const datesQuery: SalesDayStatusChecker = {
-    async findForEdit(salesDayId) {
-      const date = dates.get(salesDayId);
-      return date ? { kind: 'editable', date } : { kind: 'missing' };
-    }
-  };
-  const useCase = new ConfirmSaleUseCase(repo, datesQuery, dailyAllocator());
+  const useCase = new ConfirmSaleUseCase(repo, calendar, dailyAllocator());
 
   const firstResult = await useCase.run({ saleId: 's-1' });
   const secondResult = await useCase.run({ saleId: 's-2' });
   const thirdResult = await useCase.run({ saleId: 's-3' });
 
   assert.equal(firstResult.value?.invoiceNumber, '001');
-  assert.equal(firstResult.value?.invoiceBusinessDate, '2026-10-20');
+  assert.equal(firstResult.value?.invoiceBusinessDate, '2026-11-04');
   assert.equal(secondResult.value?.invoiceNumber, '002');
-  assert.equal(secondResult.value?.invoiceBusinessDate, '2026-10-20');
-  assert.equal(thirdResult.value?.invoiceNumber, '001');
-  assert.equal(thirdResult.value?.invoiceBusinessDate, '2026-10-21');
+  assert.equal(secondResult.value?.invoiceBusinessDate, '2026-11-04');
+  assert.equal(thirdResult.value?.invoiceNumber, '003');
+  assert.equal(thirdResult.value?.invoiceBusinessDate, '2026-11-04');
 });
 
 test('ConfirmSaleUseCase - fails if already confirmed', async () => {
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item());
+  const sale = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item());
   const repo = repositoryWith(sale);
-  const datesQuery: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-20' };
-    }
-  };
-  const useCase = new ConfirmSaleUseCase(repo, datesQuery, dailyAllocator());
+  const useCase = new ConfirmSaleUseCase(repo, calendar, dailyAllocator());
 
   await useCase.run({ saleId: 's-1' });
   const retry = await useCase.run({ saleId: 's-1' });
@@ -116,31 +95,10 @@ test('ConfirmSaleUseCase - fails if already confirmed', async () => {
   assert.ok(retry.error instanceof SaleCannotBeModifiedError);
 });
 
-test('ConfirmSaleUseCase - fails if the sales day is outside the current week', async () => {
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item());
-  const repo = repositoryWith(sale);
-  const datesQuery: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'outside' };
-    }
-  };
-  const useCase = new ConfirmSaleUseCase(repo, datesQuery, dailyAllocator());
-
-  const result = await useCase.run({ saleId: 's-1' });
-
-  assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SaleOutsideEditWindowError);
-});
-
 test('ConfirmSaleUseCase - fails if sale has no items', async () => {
-  const emptySale = Sale.create({ id: 's-empty', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
+  const emptySale = Sale.create({ id: 's-empty', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' });
   const repo = repositoryWith(emptySale);
-  const datesQuery: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-20' };
-    }
-  };
-  const useCase = new ConfirmSaleUseCase(repo, datesQuery, dailyAllocator());
+  const useCase = new ConfirmSaleUseCase(repo, calendar, dailyAllocator());
   const result = await useCase.run({ saleId: 's-empty' });
 
   assert.equal(result.isSuccess, false);

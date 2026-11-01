@@ -4,7 +4,6 @@ import { RemoveSaleItemUseCase } from '../../../../../../../contexts/sales/appli
 import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 
 test('RemoveSaleItemUseCase - removes item from sale', async () => {
   const item1 = SaleItem.create({
@@ -23,7 +22,7 @@ test('RemoveSaleItemUseCase - removes item from sale', async () => {
     wholesalePrice: 500,
     wholesaleCost: 300
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' })
+  const sale = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' })
     .addItem(item1)
     .addItem(item2);
 
@@ -35,21 +34,12 @@ test('RemoveSaleItemUseCase - removes item from sale', async () => {
     async findById() {
       return saved;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
     }
   };
 
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
-    }
-  };
-
-  const useCase = new RemoveSaleItemUseCase(repo, salesDayChecker);
+  const useCase = new RemoveSaleItemUseCase(repo);
   const result = await useCase.run({ saleId: 's-1', itemId: 'it-1' });
 
   assert.equal(result.isSuccess, true);

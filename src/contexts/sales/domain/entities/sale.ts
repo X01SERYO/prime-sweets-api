@@ -3,8 +3,7 @@ import { InvalidSaleError } from '../errors/invalidSale.error';
 import { SaleMustContainItemsError } from '../errors/saleMustContainItems.error';
 import { SaleCannotBeModifiedError } from '../errors/saleCannotBeModified.error';
 import { SaleAlreadyVoidedError } from '../errors/saleAlreadyVoided.error';
-import { DeliveryDateBeforeSaleError } from '../errors/deliveryDateBeforeSale.error';
-import { DeliveryDateRequiredError } from '../errors/deliveryDateRequired.error';
+import { assertDeliveryDateAllowed, normalizeBusinessDate } from '../services/deliveryDateRange';
 
 function newestFirst(items: SaleItem[]): SaleItem[] {
   return [...items].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
@@ -14,8 +13,9 @@ export type SaleStatus = 'DRAFT' | 'CONFIRMED' | 'VOIDED';
 
 export type SalePrimitives = {
   id: string;
-  salesDayId: string;
+  sellerId: string;
   customerId: string;
+  captureDate: string;
   deliveryDate: string;
   status: SaleStatus;
   invoiceNumber: string | null;
@@ -29,79 +29,102 @@ export type SalePrimitives = {
   voidedAt: string | null;
 };
 
+type SaleState = {
+  deliveryDate: string;
+  status: SaleStatus;
+  invoiceNumber: string | null;
+  invoiceBusinessDate: string | null;
+  items: SaleItem[];
+  confirmedAt: Date | null;
+  voidedAt: Date | null;
+};
+
 export class Sale {
   private constructor(
     readonly id: string,
-    readonly salesDayId: string,
+    readonly sellerId: string,
     readonly customerId: string,
-    private _deliveryDate: string,
-    private _status: SaleStatus,
-    private _invoiceNumber: string | null,
-    private _invoiceBusinessDate: string | null,
-    private _items: SaleItem[],
+    readonly captureDate: string,
     readonly createdAt: Date,
-    private _confirmedAt: Date | null,
-    private _voidedAt: Date | null
+    private readonly state: SaleState
   ) {}
 
   get deliveryDate(): string {
-    return this._deliveryDate;
+    return this.state.deliveryDate;
   }
 
   get status(): SaleStatus {
-    return this._status;
+    return this.state.status;
   }
 
   get invoiceNumber(): string | null {
-    return this._invoiceNumber;
+    return this.state.invoiceNumber;
   }
 
   get invoiceBusinessDate(): string | null {
-    return this._invoiceBusinessDate;
+    return this.state.invoiceBusinessDate;
   }
 
   get items(): SaleItem[] {
-    return newestFirst(this._items);
+    return newestFirst(this.state.items);
   }
 
   get confirmedAt(): Date | null {
-    return this._confirmedAt;
+    return this.state.confirmedAt;
   }
 
   get voidedAt(): Date | null {
-    return this._voidedAt;
+    return this.state.voidedAt;
   }
 
   get totalAmount(): number {
-    const sum = this._items.reduce((acc, item) => acc + item.totalPrice, 0);
+    const sum = this.state.items.reduce((acc, item) => acc + item.totalPrice, 0);
     return Math.round(sum * 100) / 100;
   }
 
   get totalProfit(): number {
-    const sum = this._items.reduce((acc, item) => acc + item.profit, 0);
+    const sum = this.state.items.reduce((acc, item) => acc + item.profit, 0);
     return Math.round(sum * 100) / 100;
   }
 
   get totalQuantity(): number {
-    return this._items.reduce((acc, item) => acc + item.quantity, 0);
+    return this.state.items.reduce((acc, item) => acc + item.quantity, 0);
   }
 
   isDraft(): boolean {
-    return this._status === 'DRAFT';
+    return this.state.status === 'DRAFT';
   }
 
   isConfirmed(): boolean {
-    return this._status === 'CONFIRMED';
+    return this.state.status === 'CONFIRMED';
   }
 
   isVoided(): boolean {
-    return this._status === 'VOIDED';
+    return this.state.status === 'VOIDED';
+  }
+
+  static start(params: {
+    id: string;
+    sellerId: string;
+    customerId: string;
+    deliveryDate: string;
+    today: string;
+  }): Sale {
+    const today = normalizeBusinessDate(params.today);
+    return Sale.create({
+      id: params.id,
+      sellerId: params.sellerId,
+      customerId: params.customerId,
+      captureDate: today,
+      deliveryDate: assertDeliveryDateAllowed(params.deliveryDate, today)
+    });
   }
 
   static create(params: {
     id: string;
-    salesDayId: string;
+    sellerId: string;
     customerId: string;
+    captureDate: string;
     deliveryDate: string;
     status?: SaleStatus;
     invoiceNumber?: string | null;
@@ -111,184 +134,87 @@ export class Sale {
     confirmedAt?: Date | null;
     voidedAt?: Date | null;
   }): Sale {
-    const trimmedId = params.id?.trim();
-    if (!trimmedId) {
+    const id = params.id?.trim();
+    if (!id) {
       throw new InvalidSaleError('Sale id cannot be empty');
     }
 
-    const trimmedSalesDayId = params.salesDayId?.trim();
-    if (!trimmedSalesDayId) {
-      throw new InvalidSaleError('Sales day id cannot be empty');
+    const sellerId = params.sellerId?.trim();
+    if (!sellerId) {
+      throw new InvalidSaleError('Seller id cannot be empty');
     }
 
-    const trimmedCustomerId = params.customerId?.trim();
-    if (!trimmedCustomerId) {
+    const customerId = params.customerId?.trim();
+    if (!customerId) {
       throw new InvalidSaleError('Customer id cannot be empty');
     }
 
-    const deliveryDate = normalizeDeliveryDate(params.deliveryDate);
-    const status = params.status ?? 'DRAFT';
-    const invoiceNumber = params.invoiceNumber ? params.invoiceNumber.trim() : null;
-    const invoiceBusinessDate = params.invoiceBusinessDate ? params.invoiceBusinessDate.trim() : null;
-    const items = params.items ? newestFirst(params.items) : [];
-    const createdAt = params.createdAt ?? new Date();
-    const confirmedAt = params.confirmedAt ?? null;
-    const voidedAt = params.voidedAt ?? null;
-
-    return new Sale(
-      trimmedId,
-      trimmedSalesDayId,
-      trimmedCustomerId,
-      deliveryDate,
-      status,
-      invoiceNumber,
-      invoiceBusinessDate,
-      items,
-      createdAt,
-      confirmedAt,
-      voidedAt
-    );
+    return new Sale(id, sellerId, customerId, normalizeBusinessDate(params.captureDate), params.createdAt ?? new Date(), {
+      deliveryDate: normalizeBusinessDate(params.deliveryDate),
+      status: params.status ?? 'DRAFT',
+      invoiceNumber: params.invoiceNumber ? params.invoiceNumber.trim() : null,
+      invoiceBusinessDate: params.invoiceBusinessDate ? params.invoiceBusinessDate.trim() : null,
+      items: params.items ? newestFirst(params.items) : [],
+      confirmedAt: params.confirmedAt ?? null,
+      voidedAt: params.voidedAt ?? null
+    });
   }
 
   addItem(newItem: SaleItem): Sale {
     this.assertNotVoided();
 
     const sameName = newItem.itemName.trim().toLocaleLowerCase();
-    const existingIndex = this._items.findIndex(
+    const existingIndex = this.state.items.findIndex(
       (item) => item.productId === newItem.productId && item.itemName.trim().toLocaleLowerCase() === sameName
     );
-    const updatedItems = [...this._items];
+    const items = [...this.state.items];
 
     if (existingIndex >= 0) {
-      const existing = this._items[existingIndex];
-      updatedItems[existingIndex] = existing.updateQuantity(existing.quantity + newItem.quantity);
+      const existing = items[existingIndex];
+      items[existingIndex] = existing.updateQuantity(existing.quantity + newItem.quantity);
     } else {
-      updatedItems.push(newItem);
+      items.push(newItem);
     }
 
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      this._deliveryDate,
-      this._status,
-      this._invoiceNumber,
-      this._invoiceBusinessDate,
-      updatedItems,
-      this.createdAt,
-      this._confirmedAt,
-      this._voidedAt
-    );
+    return this.with({ items });
   }
 
   updateItemQuantity(itemId: string, quantity: number): Sale {
     this.assertNotVoided();
-
-    const existingIndex = this._items.findIndex((item) => item.id === itemId);
-    if (existingIndex < 0) {
-      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
-    }
-
-    const updatedItem = this._items[existingIndex].updateQuantity(quantity);
-    const updatedItems = [...this._items];
-    updatedItems[existingIndex] = updatedItem;
-
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      this._deliveryDate,
-      this._status,
-      this._invoiceNumber,
-      this._invoiceBusinessDate,
-      updatedItems,
-      this.createdAt,
-      this._confirmedAt,
-      this._voidedAt
-    );
+    const index = this.indexOfItem(itemId);
+    const items = [...this.state.items];
+    items[index] = items[index].updateQuantity(quantity);
+    return this.with({ items });
   }
 
   updateItemName(itemId: string, itemName: string): Sale {
     this.ensureIsDraft();
-
-    const existingIndex = this._items.findIndex((item) => item.id === itemId);
-    if (existingIndex < 0) {
-      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
-    }
-
-    const updatedItem = this._items[existingIndex].updateItemName(itemName);
-    const updatedItems = [...this._items];
-    updatedItems[existingIndex] = updatedItem;
-
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      this._deliveryDate,
-      this._status,
-      this._invoiceNumber,
-      this._invoiceBusinessDate,
-      updatedItems,
-      this.createdAt,
-      this._confirmedAt,
-      this._voidedAt
-    );
+    const index = this.indexOfItem(itemId);
+    const items = [...this.state.items];
+    items[index] = items[index].updateItemName(itemName);
+    return this.with({ items });
   }
 
   removeItem(itemId: string): Sale {
     this.assertNotVoided();
+    this.indexOfItem(itemId);
 
-    const existingIndex = this._items.findIndex((item) => item.id === itemId);
-    if (existingIndex < 0) {
-      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
-    }
-
-    if (this.isConfirmed() && this._items.length === 1) {
+    if (this.isConfirmed() && this.state.items.length === 1) {
       throw new SaleMustContainItemsError('A confirmed sale must contain at least one item');
     }
 
-    const updatedItems = this._items.filter((item) => item.id !== itemId);
-
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      this._deliveryDate,
-      this._status,
-      this._invoiceNumber,
-      this._invoiceBusinessDate,
-      updatedItems,
-      this.createdAt,
-      this._confirmedAt,
-      this._voidedAt
-    );
+    return this.with({ items: this.state.items.filter((item) => item.id !== itemId) });
   }
 
-  setDeliveryDate(deliveryDate: string, salesDayDate: string): Sale {
+  setDeliveryDate(deliveryDate: string, today: string): Sale {
     this.assertNotVoided();
-    const next = normalizeDeliveryDate(deliveryDate);
-    if (next < salesDayDate) {
-      throw new DeliveryDateBeforeSaleError();
-    }
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      next,
-      this._status,
-      this._invoiceNumber,
-      this._invoiceBusinessDate,
-      this._items,
-      this.createdAt,
-      this._confirmedAt,
-      this._voidedAt
-    );
+    return this.with({ deliveryDate: assertDeliveryDateAllowed(deliveryDate, normalizeBusinessDate(today)) });
   }
 
   confirm(invoiceNumber: string, businessDate: string): Sale {
     this.ensureIsDraft();
 
-    if (this._items.length === 0) {
+    if (this.state.items.length === 0) {
       throw new SaleMustContainItemsError();
     }
 
@@ -302,80 +228,65 @@ export class Sale {
       throw new InvalidSaleError('Invoice business date cannot be empty upon confirmation');
     }
 
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      this._deliveryDate,
-      'CONFIRMED',
-      trimmedInvoice,
-      trimmedDate,
-      this._items,
-      this.createdAt,
-      new Date(),
-      null
-    );
+    return this.with({
+      status: 'CONFIRMED',
+      invoiceNumber: trimmedInvoice,
+      invoiceBusinessDate: trimmedDate,
+      confirmedAt: new Date(),
+      voidedAt: null
+    });
   }
 
   void(): Sale {
-    if (this._status === 'VOIDED') {
-      throw new SaleAlreadyVoidedError(this.id);
-    }
-
-    return new Sale(
-      this.id,
-      this.salesDayId,
-      this.customerId,
-      this._deliveryDate,
-      'VOIDED',
-      this._invoiceNumber,
-      this._invoiceBusinessDate,
-      this._items,
-      this.createdAt,
-      this._confirmedAt,
-      new Date()
-    );
+    this.assertNotVoided();
+    return this.with({ status: 'VOIDED', voidedAt: new Date() });
   }
 
   toPrimitives(): SalePrimitives {
     return {
       id: this.id,
-      salesDayId: this.salesDayId,
+      sellerId: this.sellerId,
       customerId: this.customerId,
-      deliveryDate: this._deliveryDate,
-      status: this._status,
-      invoiceNumber: this._invoiceNumber,
-      invoiceBusinessDate: this._invoiceBusinessDate,
+      captureDate: this.captureDate,
+      deliveryDate: this.state.deliveryDate,
+      status: this.state.status,
+      invoiceNumber: this.state.invoiceNumber,
+      invoiceBusinessDate: this.state.invoiceBusinessDate,
       items: this.items.map((item) => item.toPrimitives()),
       totalAmount: this.totalAmount,
       totalProfit: this.totalProfit,
       totalQuantity: this.totalQuantity,
       createdAt: this.createdAt.toISOString(),
-      confirmedAt: this._confirmedAt ? this._confirmedAt.toISOString() : null,
-      voidedAt: this._voidedAt ? this._voidedAt.toISOString() : null
+      confirmedAt: this.state.confirmedAt ? this.state.confirmedAt.toISOString() : null,
+      voidedAt: this.state.voidedAt ? this.state.voidedAt.toISOString() : null
     };
   }
 
+  private with(changes: Partial<SaleState>): Sale {
+    return new Sale(this.id, this.sellerId, this.customerId, this.captureDate, this.createdAt, {
+      ...this.state,
+      ...changes
+    });
+  }
+
+  private indexOfItem(itemId: string): number {
+    const index = this.state.items.findIndex((item) => item.id === itemId);
+    if (index < 0) {
+      throw new InvalidSaleError(`Sale item "${itemId}" is not in this sale`);
+    }
+    return index;
+  }
+
   private ensureIsDraft(): void {
-    if (this._status === 'CONFIRMED') {
+    if (this.state.status === 'CONFIRMED') {
       throw new SaleCannotBeModifiedError('Confirmed sale item name cannot be modified');
     }
-    if (this._status === 'VOIDED') {
-      throw new SaleAlreadyVoidedError(this.id);
-    }
+    this.assertNotVoided();
   }
 
   private assertNotVoided(): void {
-    if (this._status === 'VOIDED') {
+    if (this.state.status === 'VOIDED') {
       throw new SaleAlreadyVoidedError(this.id);
     }
   }
-}
-
-function normalizeDeliveryDate(value: string): string {
-  const trimmed = value?.trim() ?? '';
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-    throw new DeliveryDateRequiredError();
-  }
-  return trimmed;
 }

@@ -4,13 +4,12 @@ import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
 import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
 import { SetSaleDeliveryDateDto } from '../../dto/setSaleDeliveryDate.dto';
 import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../ports/outbound/salesDayStatusChecker.port';
-import { requireEditableSalesDay } from '../../services/requireEditableSalesDay';
+import { BusinessCalendar } from '../../ports/outbound/businessCalendar.port';
 
 export class SetSaleDeliveryDateUseCase {
   constructor(
     private readonly saleRepository: SaleRepository,
-    private readonly salesDayStatusChecker: SalesDayStatusChecker
+    private readonly calendar: BusinessCalendar
   ) {}
 
   async run(dto: SetSaleDeliveryDateDto): Promise<Result<SalePrimitives>> {
@@ -23,13 +22,8 @@ export class SetSaleDeliveryDateUseCase {
       return Result.fail(new SaleNotFoundError(dto.saleId));
     }
 
-    const editable = await requireEditableSalesDay(this.salesDayStatusChecker, sale.salesDayId);
-    if (editable instanceof Error) {
-      return Result.fail(editable);
-    }
-
     try {
-      const updated = sale.setDeliveryDate(dto.deliveryDate, editable.date);
+      const updated = sale.setDeliveryDate(dto.deliveryDate, this.calendar.today());
       await this.saleRepository.save(updated);
       return Result.ok(updated.toPrimitives());
     } catch (error) {

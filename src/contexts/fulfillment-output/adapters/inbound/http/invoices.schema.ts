@@ -3,7 +3,7 @@ import { RequestValidationSchema } from '../../../../../apps/middlewares/validat
 
 export const listInvoicesSchema: RequestValidationSchema = {
   query: z.object({
-    salesDayId: z.string().trim().min(1, 'salesDayId is required')
+    deliveryDate: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, 'deliveryDate must be YYYY-MM-DD')
   })
 };
 

@@ -22,7 +22,8 @@ function sale(params: {
 
   return Sale.create({
     id: params.id,
-    salesDayId: 'sd-1',
+    sellerId: 'seller-1',
+    captureDate: '2026-11-04',
     customerId: params.customerId,
     deliveryDate: '2026-10-31',
     status: params.status,
@@ -42,9 +43,6 @@ test('InvoiceQueryAdapter - returns confirmed and voided invoices and omits draf
     async findById() {
       return null;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list(nextFilters) {
       filters = nextFilters;
       return [
@@ -55,9 +53,10 @@ test('InvoiceQueryAdapter - returns confirmed and voided invoices and omits draf
     }
   };
 
-  const invoices = await new InvoiceQueryAdapter(repository).findBySalesDayId('sd-1');
+  const invoices = await new InvoiceQueryAdapter(repository).findByDeliveryDate('2026-10-31');
 
-  assert.deepEqual(filters, { salesDayId: 'sd-1' });
+  assert.deepEqual(filters, { deliveryDate: '2026-10-31' });
+  assert.equal(invoices[0].deliveryDate, '2026-10-31');
   assert.equal(saved, false);
   assert.deepEqual(
     invoices.map(invoice => invoice.saleId),

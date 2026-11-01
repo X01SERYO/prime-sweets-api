@@ -1,121 +1,160 @@
-# SPEC-002 — Current week, delivery date, and catalog backlog
+# SPEC-002 — Delivery days replace Sales Days, and catalog backlog
 
-**Status:** Proposed
+**Status:** Proposed (revised 2026-11-01)
 **Language:** English
 **Architecture:** Same modular monolith as [ADR-001](../adrs/ADR-001.md) and [ADR-002](../adrs/ADR-002.md)
 **Document role:** Implementation guide for [PDR-002](../pdrs/PDR-002.md). Not a description of the current codebase.
-**Current implementation:** Version 1 sales, the rolling 7-day list, and Load Sheet by `salesDayId` stay until this spec is built. Do not copy this file into `architecture/`, `data-model/`, or `flows/` until the code lands.
 
-Business formulas, invoice numbering, and customer identity remain [SPEC.md](./SPEC.md). Where this file disagrees with SPEC.md on editability or the Load Sheet input, this file wins.
+Business formulas and customer identity remain [SPEC.md](./SPEC.md). Where this file disagrees with SPEC.md on Sales Days, editability, invoice numbering or listing, or the Load Sheet input, this file wins.
 
-## 1. Week window
+## 0. Impact on what is already built
 
-The business timezone already used by Sales Day defines "today".
+| Area | Built | Change |
+|---|---|---|
+| `sales.delivery_date` + index | Yes | Keep. |
+| Delivery date required before the first line | Yes | Keep. Range check becomes today–Sunday from the business date. |
+| `PATCH /sales/:id/delivery-date` | Yes (updates in place) | Keep the path. Draft: in place. Confirmed: void + new confirmed sale (§ 1). |
+| `GET /load-sheets?deliveryDate=` | Yes | Keep unchanged. |
+| `GET /sales?deliveryDate=` | Yes (confirmed + voided) | Include drafts. |
+| Void of a draft | Yes | Keep. |
+| Week + `OPEN` guard on every sale command | Yes | Remove. |
+| `sales-day` context, `/sales-days/*` routes | Version 1 + draft | Delete. |
+| `GET /invoices?salesDayId=` | Version 1 | Replace with `deliveryDate`. |
+| Invoice sequence keyed by confirmation date | Version 1 | Key by delivery date. |
+| Invoice "Fecha de vencimiento" | Version 1 | Becomes "Fecha de entrega" with the delivery date. |
+| Seller via Sales Day | Version 1 | `sales.seller_id`. |
+
+## 1. Sale
 
 ```text
-weekStart = Monday of today's business date
-weekEnd   = that Sunday
+Sale
+  id, customerId, sellerId, captureDate, deliveryDate,
+  status DRAFT | CONFIRMED | VOIDED,
+  invoiceNumber?, invoiceBusinessDate?, items[], createdAt, confirmedAt?, voidedAt?
 ```
 
-`ListCurrentWeekSalesDays` returns the seller's Sales Days with `date` from `weekStart` through `min(today, weekEnd)`, newest first. Future days of the week are absent until that date is current. Days before Monday are absent.
+- `sellerId` comes from the session, never from the body.
+- `captureDate` is today's business date at creation. Informational.
+- There is no edit window. Status rules alone decide what is allowed.
 
-`recentSalesDayStart` and the rolling limit of 7 are removed from the application path. The HTTP route that listed the last 7 days calls the week query.
+### Allowed delivery dates
 
-A Sales Day is inside the edit window when `weekStart <= salesDay.date <= today`. The day must also be `OPEN`. A closed day rejects sale commands with `SALES_DAY_NOT_OPEN` until it is reopened.
+`today <= deliveryDate <= sundayOf(today)` in the business timezone. Same rule on create and on change. Otherwise `DELIVERY_DATE_OUT_OF_RANGE` (400).
 
-## 2. Sale changes
+### Commands
 
-### Delivery date
+- `CreateSale` — `customerId`, `deliveryDate`.
+- `AddSaleItem`, `UpdateSaleItemQuantity`, `RemoveSaleItem` — `DRAFT` or `CONFIRMED`.
+- `UpdateSaleItemName` — `DRAFT` only.
+- `ConfirmSale` — `DRAFT` only; allocates the number for `deliveryDate`.
+- `VoidSale` — `DRAFT` or `CONFIRMED`.
+- `SetSaleDeliveryDate` — see below.
 
-`Sale` stores `deliveryDate` (`YYYY-MM-DD`).
+### Changing the delivery date
 
-`CreateSale` requires `customerId`, `salesDayId`, and `deliveryDate`. The use case rejects a missing date, a date before the Sales Day date, and a Sales Day outside the edit window.
+`SetSaleDeliveryDate { saleId, deliveryDate }`, range rule above. Same date is a no-op.
 
-The seller sets the date before the first item. `AddSaleItem` on a sale that has no `deliveryDate` fails. Existing rows backfilled by a migration use the Sales Day date so current sales keep a value.
+| Status | Effect | Response |
+|---|---|---|
+| `DRAFT` | `deliveryDate` is updated. | The same sale. |
+| `CONFIRMED` | In one transaction: (1) void the original; it keeps its number on the original date. (2) Create a new `Sale` with a new id, same `customerId`, `sellerId`, `captureDate`, and item snapshots (name, code, unit price, unit cost, quantity), and the new `deliveryDate`. (3) Confirm it, allocating the next number for the new date. | The new sale. |
+| `VOIDED` | Rejected with `SALE_ALREADY_VOIDED`. | — |
 
-### Commands inside the window
+The voided sale and the new sale are not linked. Nothing in the database relates them; the change is transparent to the seller.
 
-These commands succeed for a sale whose Sales Day is `OPEN` and inside the edit window:
+Removing the last item of a `CONFIRMED` sale is rejected with `SALE_MUST_CONTAIN_ITEMS`. Line corrections keep `invoiceNumber`; totals are recalculated from the stored snapshot.
 
-- `AddSaleItem`
-- `UpdateSaleItemQuantity`
-- `RemoveSaleItem`
-- `UpdateSaleItemName` — still only when status is `DRAFT`
-- `ConfirmSale` — still only from `DRAFT`, and it still allocates the capture-date invoice number
-- `VoidSale` — from `DRAFT` or `CONFIRMED`
-- `SetSaleDeliveryDate` — date must be on or after the Sales Day date
+## 2. Invoice number
 
-The same commands fail for a Sales Day before `weekStart`. Error code: `SALE_OUTSIDE_EDIT_WINDOW` (400).
+`InvoiceNumberAllocator.allocateNext(deliveryDate)`. The `invoice_sequences` row id is the delivery date. Formatting stays `001`… then plain digits from `1000`.
 
-Removing the last item of a `CONFIRMED` sale is rejected with `SALE_MUST_CONTAIN_ITEMS`. The seller voids the sale instead. Void keeps the invoice number and excludes the sale from the Load Sheet and from printing.
+`invoiceBusinessDate` stays the confirmation business date.
 
-A confirmed sale that is edited keeps `invoiceNumber`. Totals and profit are recalculated from the stored unit price and cost. Catalog price changes do not rewrite the snapshot.
+## 3. Invoice document
 
-### Persistence
+`InvoiceDocument` adds `deliveryDate`. The thermal template prints:
 
-Add `delivery_date` (`date`, not null) on `sales`. Index `(delivery_date, status)` for the Load Sheet query. Invoice allocation stays on the capture date.
+- invoice date: confirmation date (unchanged);
+- **Fecha de entrega**: `deliveryDate`, in the slot that printed "Fecha de vencimiento".
 
-## 3. Load Sheet
+## 4. Queries by delivery date
 
-`GET /load-sheets?deliveryDate=YYYY-MM-DD` replaces `GET /load-sheets/:salesDayId` as the application entry.
+| Method | Path | Returns |
+|---|---|---|
+| `GET` | `/sales?deliveryDate=YYYY-MM-DD` | Drafts, confirmed, and voided sales of that date, with customer name, status, invoice number, total. |
+| `GET` | `/load-sheets?deliveryDate=YYYY-MM-DD` | Unchanged. Confirmed only. |
+| `GET` | `/invoices?deliveryDate=YYYY-MM-DD` | Confirmed and voided sales of that date, by invoice number. |
+| `GET` | `/invoices/:saleId` | Adds `deliveryDate`. |
 
-1. Reject a missing or invalid date (400).
-2. Read items from sales with that `deliveryDate` and status `CONFIRMED`.
-3. Group by `productId` with the same sums, catalog name, brand, and mixed-price rule as the Load Sheet flow.
-4. Do not read Sales Day status. Do not group by `itemName`.
+Any past or current date can be queried. An invalid date returns `INVALID_DELIVERY_DATE` (400). No sales returns an empty list.
 
-An unknown product still fails the sheet. A date with no confirmed sales returns `lines: []`.
-
-## 4. HTTP
+## 5. HTTP changes
 
 | Method | Path | Change |
 |---|---|---|
-| `GET` | `/sales-days/current-week` | Replaces the rolling 7-day list. |
-| `POST` | `/sales` | Body adds required `deliveryDate`. |
-| `PATCH` | `/sales/:id/delivery-date` | Body `{ deliveryDate }`. |
-| `GET` | `/load-sheets?deliveryDate=` | Replaces `/load-sheets/:salesDayId`. |
-| `GET` | `/sales?deliveryDate=` | Confirmed and voided sales with that delivery date. Drafts of the current week stay on the Sales Day list. |
+| `POST` | `/sales` | Body `{ customerId, deliveryDate }`. `salesDayId` rejected by the schema. |
+| `GET`/`POST` | `/sales-days/*` | Removed. |
+| `GET` | `/invoices?salesDayId=` | Removed. |
 
-Sale item, confirm, and void routes keep their paths. Their use cases apply the week guard.
-
-Stable codes to add:
+Stable codes:
 
 | Code | When |
 |---|---|
-| `SALE_OUTSIDE_EDIT_WINDOW` | Sale command for a day before the current week |
-| `DELIVERY_DATE_REQUIRED` | Create or add-item without a delivery date |
-| `DELIVERY_DATE_BEFORE_SALE` | Delivery date is before the Sales Day date |
+| `DELIVERY_DATE_REQUIRED` | Create without a delivery date |
+| `DELIVERY_DATE_OUT_OF_RANGE` | Date before today or after this week's Sunday |
+| `INVALID_DELIVERY_DATE` | Query date is not `YYYY-MM-DD` |
 
-## 5. Catalog backlog
+Retired: `SALES_DAY_NOT_OPEN`, `SALE_OUTSIDE_EDIT_WINDOW`, `DELIVERY_DATE_BEFORE_SALE`, and every Sales Day error.
+
+## 6. Persistence
+
+### Data cleanup (direct command, run once, not a migration)
+
+Run before the schema migration, in one transaction:
+
+```sql
+BEGIN;
+DELETE FROM sale_items;
+DELETE FROM sales;
+DELETE FROM invoice_sequences;
+DELETE FROM sales_days;
+COMMIT;
+```
+
+Customers, catalog tables, users, and company profile are not touched.
+
+### Schema migration
+
+1. Drop `sales.sales_day_id` and its FK; drop table `sales_days`.
+2. Add `sales.seller_id` (`uuid`, not null, FK users) and `sales.capture_date` (`date`, not null).
+3. Keep `delivery_date` and index `(delivery_date, status)`.
+
+The migration assumes `sales` is empty. Update the seed so it creates no sales or Sales Days.
+
+## 7. Catalog backlog
 
 Implement in `catalog` and `alegra`. Do not import those adapters from `sales`.
 
-### Excel migration
+- **Excel migration.** One-shot script over the product workbook (columns in SPEC.md § 18). Invalid rows and duplicate Alegra ids or codes go to a report. No silent skips, no invented prices. Valid rows create missing brands and upsert products and prices. The catalog already loaded is final; the script must be idempotent on it.
+- **Alegra inbound.** Pull items and prices through the existing port and upsert. Products Alegra omits are left in place.
+- **Create and delete.** `CreateProduct` and `DeleteProduct` call Alegra after the local commit. A failure is logged and does not roll back.
 
-A one-shot script reads the current product workbook. Columns are the set in SPEC.md § 18. Each invalid row and each duplicate Alegra id or product code is written to a report. The script does not skip them silently and does not invent prices. A valid row creates the brand when missing and upserts the product and its wholesale and retail prices.
+## 8. Tests
 
-### Alegra inbound
+- Create needs no Sales Day and stores `sellerId`, `captureDate`, `deliveryDate`.
+- Delivery date before today or after Sunday is rejected; on Sunday only Sunday is accepted.
+- A sale delivered last week can still be edited and voided.
+- Two sales confirmed for the same delivery date get `001` and `002`; a sale for the next day gets `001`.
+- Wednesday's Load Sheet and invoices include a Monday capture delivered Wednesday and exclude another date.
+- The invoice document carries `deliveryDate`.
+- Re-dating a draft updates it in place.
+- Re-dating a confirmed sale voids it on the old date (number kept) and returns a new confirmed sale on the new date with the same lines and the next number of that date. A failure in any step leaves nothing changed.
+- Excel report lists invalid and duplicate keys. Create and delete call Alegra after the local save.
 
-A use case pulls items and prices from Alegra through the existing outbound port and upserts the local catalog. A row Alegra no longer returns is left in place. This feature does not delete local products because an inbound payload omitted them.
+## 9. Definition of done
 
-### Create and delete
-
-`CreateProduct` and `DeleteProduct` call the Alegra port after the local write commits. An Alegra failure is logged and does not roll back the local write, matching the current update behavior. Retry stays out of this spec.
-
-## 6. Tests
-
-- Week bounds: a Monday does not include the previous Sunday. A Sunday includes that Monday.
-- Edit a confirmed sale on an earlier day of this week. Reject the same edit for last week.
-- Create without `deliveryDate` fails. Create with a date before the Sales Day fails.
-- Load Sheet for Wednesday includes a Monday sale delivered Wednesday and excludes a void and a different delivery date.
-- Two item names for one `productId` remain one Load Sheet row.
-- Void keeps the invoice number. A later `GenerateInvoice` rejects the void.
-- Excel report contains the invalid and duplicate keys. Create and delete invoke the Alegra port after the local save.
-
-## 7. Definition of done
-
-- Domain and use cases enforce the week window and the delivery date. Controllers do not.
-- `delivery_date` is not null after migration.
-- The Load Sheet query is by delivery date.
-- Architecture, data-model, and flows describe the code that landed, not this spec in advance.
-- Excel import, inbound pull, and create/delete sync are covered by the tests in section 6, or explicitly still open in `technical-debt.md`.
+- No `sales-day` code remains.
+- Domain and use cases enforce the date range and status rules. Controllers do not.
+- Load Sheet, invoices, and sales lists are keyed by delivery date.
+- Architecture, data-model, and flows describe the code that landed.
+- Catalog items are covered by § 8 or listed in `technical-debt.md`.

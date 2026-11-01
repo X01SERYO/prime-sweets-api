@@ -5,7 +5,7 @@ export type CreateSaleItemDto = {
 };
 
 export type CreateSaleDto = {
-  salesDayId: string;
+  sellerId: string;
   customerId: string;
   deliveryDate: string;
   items?: CreateSaleItemDto[];

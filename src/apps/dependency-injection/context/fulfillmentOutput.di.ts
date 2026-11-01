@@ -39,7 +39,6 @@ export function registerFulfillmentOutputDependencies(container: ContainerBuilde
 
   container
     .register('fulfillment.application.list_invoices_use_case', ListInvoicesUseCase)
-    .addArgument(new Reference('fulfillment.infrastructure.sales_day_closure_query'))
     .addArgument(new Reference('fulfillment.infrastructure.invoice_query'));
 
   container.register('fulfillment.infrastructure.invoice_sale_query', InvoiceSaleAdapter).addArgument(saleRepoRef);

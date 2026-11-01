@@ -10,7 +10,6 @@ const quantitySchema = z
 
 export const createSaleSchema: RequestValidationSchema = {
   body: z.object({
-    salesDayId: z.string().trim().min(1, 'salesDayId is required'),
     customerId: z.string().trim().min(1, 'customerId is required'),
     deliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'deliveryDate must be YYYY-MM-DD'),
     items: z
@@ -33,7 +32,6 @@ export const getSaleSchema: RequestValidationSchema = {
 
 export const listSalesSchema: RequestValidationSchema = {
   query: z.object({
-    salesDayId: z.string().trim().optional(),
     customerId: z.string().trim().optional(),
     deliveryDate: z
       .string()

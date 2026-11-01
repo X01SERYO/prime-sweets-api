@@ -3,16 +3,14 @@ import assert from 'node:assert/strict';
 import { AddSaleItemUseCase } from '../../../../../../../contexts/sales/application/use-cases/addSaleItem/addSaleItem.useCase';
 import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
 import { ProductSnapshotProvider } from '../../../../../../../contexts/sales/application/ports/outbound/productSnapshotProvider.port';
 import { SaleNotFoundError } from '../../../../../../../contexts/sales/domain/errors/saleNotFound.error';
-import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
 import { ProductNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/productNotFoundForSale.error';
 
 const ids = { next: () => `id-${Math.random()}` };
 
 test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
+  const sale = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' });
   let saved: Sale = sale;
 
   const repo: SaleRepository = {
@@ -22,17 +20,8 @@ test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
     async findById() {
       return saved;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 
@@ -45,7 +34,7 @@ test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
+  const useCase = new AddSaleItemUseCase(repo, productProvider, ids);
 
   const result = await useCase.run({
     saleId: 's-1',
@@ -66,17 +55,8 @@ test('AddSaleItemUseCase - fails if sale not found', async () => {
     async findById() {
       return null;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 
@@ -86,65 +66,22 @@ test('AddSaleItemUseCase - fails if sale not found', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
+  const useCase = new AddSaleItemUseCase(repo, productProvider, ids);
   const result = await useCase.run({ saleId: 'unknown', productId: 'p-1', quantity: 1 });
 
   assert.equal(result.isSuccess, false);
   assert.ok(result.error instanceof SaleNotFoundError);
 });
 
-test('AddSaleItemUseCase - fails if sales day is closed', async () => {
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
-  const repo: SaleRepository = {
-    async save() {},
-    async findById() {
-      return sale;
-    },
-    async findBySalesDayId() {
-      return [];
-    },
-    async list() {
-      return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'outside' };
-    }
-  };
-
-  const productProvider: ProductSnapshotProvider = {
-    async getSnapshot() {
-      return { id: 'p-1', code: 'COL001', name: 'Item', wholesalePrice: 100, wholesaleCost: 50 };
-    }
-  };
-
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
-  const result = await useCase.run({ saleId: 's-1', productId: 'p-1', quantity: 1 });
-
-  assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SaleOutsideEditWindowError);
-});
-
 test('AddSaleItemUseCase - fails if product not found in catalog', async () => {
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' });
+  const sale = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' });
   const repo: SaleRepository = {
     async save() {},
     async findById() {
       return sale;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
     }
   };
 
@@ -154,7 +91,7 @@ test('AddSaleItemUseCase - fails if product not found in catalog', async () => {
     }
   };
 
-  const useCase = new AddSaleItemUseCase(repo, salesDayChecker, productProvider, ids);
+  const useCase = new AddSaleItemUseCase(repo, productProvider, ids);
   const result = await useCase.run({ saleId: 's-1', productId: 'non-existent', quantity: 1 });
 
   assert.equal(result.isSuccess, false);

@@ -1,3 +1,3 @@
 export interface ListInvoicesDto {
-  salesDayId: string;
+  deliveryDate: string;
 }

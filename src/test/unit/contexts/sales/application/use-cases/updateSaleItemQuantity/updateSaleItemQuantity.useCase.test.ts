@@ -4,8 +4,6 @@ import { UpdateSaleItemQuantityUseCase } from '../../../../../../../contexts/sal
 import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { SalesDayStatusChecker } from '../../../../../../../contexts/sales/application/ports/outbound/salesDayStatusChecker.port';
-import { SaleOutsideEditWindowError } from '../../../../../../../contexts/sales/domain/errors/saleOutsideEditWindow.error';
 
 test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
   const item = SaleItem.create({
@@ -16,7 +14,7 @@ test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
     wholesalePrice: 1000,
     wholesaleCost: 600
   });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
+  const sale = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
 
   let saved: Sale = sale;
   const repo: SaleRepository = {
@@ -26,61 +24,15 @@ test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
     async findById() {
       return saved;
     },
-    async findBySalesDayId() {
-      return [];
-    },
     async list() {
       return [];
     }
   };
 
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'editable', date: '2026-10-31' };
-    }
-  };
-
-  const useCase = new UpdateSaleItemQuantityUseCase(repo, salesDayChecker);
+  const useCase = new UpdateSaleItemQuantityUseCase(repo);
   const result = await useCase.run({ saleId: 's-1', itemId: 'it-1', quantity: 7 });
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.items[0].quantity, 7);
   assert.equal(result.value?.totalAmount, 7000);
-});
-
-test('UpdateSaleItemQuantityUseCase - fails if sales day is closed', async () => {
-  const item = SaleItem.create({
-    id: 'it-1',
-    productId: 'p-1',
-    itemName: 'Item 1',
-    quantity: 2,
-    wholesalePrice: 1000,
-    wholesaleCost: 600
-  });
-  const sale = Sale.create({ id: 's-1', salesDayId: 'sd-1', customerId: 'c-1', deliveryDate: '2026-10-31' }).addItem(item);
-
-  const repo: SaleRepository = {
-    async save() {},
-    async findById() {
-      return sale;
-    },
-    async findBySalesDayId() {
-      return [];
-    },
-    async list() {
-      return [];
-    }
-  };
-
-  const salesDayChecker: SalesDayStatusChecker = {
-    async findForEdit() {
-      return { kind: 'outside' };
-    }
-  };
-
-  const useCase = new UpdateSaleItemQuantityUseCase(repo, salesDayChecker);
-  const result = await useCase.run({ saleId: 's-1', itemId: 'it-1', quantity: 7 });
-
-  assert.equal(result.isSuccess, false);
-  assert.ok(result.error instanceof SaleOutsideEditWindowError);
 });

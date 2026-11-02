@@ -56,7 +56,7 @@ export class TypeOrmProductRepository implements ProductRepository {
       .orWhere('brand.name ILIKE :pattern', { pattern })
       .orWhere('brand.code ILIKE :pattern', { pattern })
       .orWhere('product.code ILIKE :pattern', { pattern })
-      .orderBy('product.name', 'ASC')
+      .orderBy('product.code', 'ASC')
       .getMany();
 
     return entities.map((entity) => this.toDomain(entity));

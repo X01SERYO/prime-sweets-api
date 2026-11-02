@@ -1,7 +1,9 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { getAppConfig } from '../../../shared/infrastructure/config/appConfig';
 import { AlegraHttpClient } from '../../../contexts/alegra/adapters/outbound/http/alegraHttpClient';
+import { CreateProductItemUseCase } from '../../../contexts/alegra/application/createProductItem/createProductItem.useCase';
 import { SyncProductItemUseCase } from '../../../contexts/alegra/application/syncProductItem/syncProductItem.useCase';
+import { InProcessProductAlegraCreateService } from '../acl/inProcessProductAlegraCreate.service';
 import { InProcessProductAlegraSyncService } from '../acl/inProcessProductAlegraSync.service';
 
 export function registerAlegraDependencies(container: ContainerBuilder): void {
@@ -25,4 +27,14 @@ export function registerAlegraDependencies(container: ContainerBuilder): void {
   container
     .register('alegra.infrastructure.product_alegra_sync_service', InProcessProductAlegraSyncService)
     .addArgument(syncUseCaseRef);
+
+  container
+    .register('alegra.application.create_product_item_use_case', CreateProductItemUseCase)
+    .addArgument(httpClientRef)
+    .addArgument(config.alegra.wholesalePriceListId)
+    .addArgument(config.alegra.retailPriceListId);
+
+  container
+    .register('alegra.infrastructure.product_alegra_create_service', InProcessProductAlegraCreateService)
+    .addArgument(new Reference('alegra.application.create_product_item_use_case'));
 }

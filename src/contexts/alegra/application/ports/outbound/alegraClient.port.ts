@@ -8,6 +8,12 @@ export interface AlegraItemUpdate {
   prices?: AlegraPriceListItem[];
 }
 
+export interface AlegraItemCreate {
+  name: string;
+  prices: AlegraPriceListItem[];
+}
+
 export interface AlegraClient {
   updateItem(id: string, update: AlegraItemUpdate): Promise<unknown>;
+  createItem(input: AlegraItemCreate): Promise<string>;
 }

@@ -4,6 +4,7 @@ import { ProductRepository } from '../../ports/outbound/product.repository';
 import { ProductAlegraSyncService } from '../../ports/outbound/productAlegraSync.service';
 import { ProductNotFoundError } from '../../../domain/errors/productNotFound.error';
 import { InvalidProductError } from '../../../domain/errors/invalidProduct.error';
+import { ProductAlegraSyncError } from '../../../domain/errors/productAlegraSync.error';
 import { UpdateProductDto } from '../../dto/updateProduct.dto';
 
 function presentMoney(value: unknown, field: string): Result<number | undefined> {
@@ -79,26 +80,28 @@ export class UpdateProductUseCase {
       pack: pack.value
     });
 
-    try {
-      await this.productRepository.save(updated);
-    } catch (error) {
-      return Result.fail(error instanceof Error ? error : new Error('Failed to persist product'));
-    }
-
     const notifyName = dto.name !== undefined;
-    const notifyWholesale = dto.wholesalePrice !== undefined;
-    const notifyRetail = dto.retailPrice !== undefined;
-    if (notifyName || notifyWholesale || notifyRetail) {
+    const notifyPrices = dto.wholesalePrice !== undefined || dto.retailPrice !== undefined;
+    if (notifyName || notifyPrices) {
       try {
         await this.productAlegraSyncService.sync({
           alegraId: updated.alegraId,
           ...(notifyName ? { name: updated.name } : {}),
-          ...(notifyWholesale ? { wholesalePrice: updated.wholesalePrice ?? 0 } : {}),
-          ...(notifyRetail ? { retailPrice: updated.retailPrice ?? 0 } : {})
+          ...(notifyPrices
+            ? { wholesalePrice: updated.wholesalePrice ?? 0, retailPrice: updated.retailPrice ?? 0 }
+            : {})
         });
       } catch (error) {
-        console.error('Alegra product sync failed after the local product was saved', error);
+        console.error('Alegra product sync failed. The local product was not saved.', error);
+        const reason = error instanceof Error ? error.message : 'Alegra update failed';
+        return Result.fail(new ProductAlegraSyncError(reason));
       }
+    }
+
+    try {
+      await this.productRepository.save(updated);
+    } catch (error) {
+      return Result.fail(error instanceof Error ? error : new Error('Failed to persist product'));
     }
 
     return Result.ok(updated.toPrimitives());

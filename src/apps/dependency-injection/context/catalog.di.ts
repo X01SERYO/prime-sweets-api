@@ -28,6 +28,7 @@ export function registerCatalogDependencies(container: ContainerBuilder): void {
   const productRepoRef = new Reference('catalog.domain.product_repository');
   const idsRef = new Reference('shared.application.id_generator');
   const alegraSyncRef = new Reference('alegra.infrastructure.product_alegra_sync_service');
+  const alegraCreateRef = new Reference('alegra.infrastructure.product_alegra_create_service');
 
   container
     .register('catalog.application.create_brand_use_case', CreateBrandUseCase)
@@ -54,7 +55,8 @@ export function registerCatalogDependencies(container: ContainerBuilder): void {
     .register('catalog.application.create_product_use_case', CreateProductUseCase)
     .addArgument(productRepoRef)
     .addArgument(brandRepoRef)
-    .addArgument(idsRef);
+    .addArgument(idsRef)
+    .addArgument(alegraCreateRef);
 
   container
     .register('catalog.application.list_products_use_case', ListProductsUseCase)

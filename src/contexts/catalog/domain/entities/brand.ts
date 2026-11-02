@@ -14,8 +14,8 @@ export class Brand {
   ) {}
 
   static create(id: string, name: string, code: string): Brand {
-    const trimmedName = name?.trim();
-    const trimmedCode = code?.trim();
+    const trimmedName = name?.trim().toLocaleUpperCase('es-CO');
+    const trimmedCode = code?.trim().toLocaleUpperCase('es-CO');
 
     if (!trimmedName) {
       throw new InvalidBrandError('Brand name is required');

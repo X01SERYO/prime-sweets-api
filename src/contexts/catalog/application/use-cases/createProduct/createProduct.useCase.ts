@@ -5,7 +5,9 @@ import { ProductRepository } from '../../ports/outbound/product.repository';
 import { BrandRepository } from '../../ports/outbound/brand.repository';
 import { ProductAlreadyExistsError } from '../../../domain/errors/productAlreadyExists.error';
 import { InvalidProductError } from '../../../domain/errors/invalidProduct.error';
+import { ProductAlegraSyncError } from '../../../domain/errors/productAlegraSync.error';
 import { BrandNotFoundError } from '../../../domain/errors/brandNotFound.error';
+import { ProductAlegraCreateService } from '../../ports/outbound/productAlegraCreate.service';
 import { CreateProductDto } from '../../dto/createProduct.dto';
 
 function optionalNumber(value: unknown, field: string): Result<number | null | undefined> {
@@ -28,19 +30,16 @@ export class CreateProductUseCase {
   constructor(
     private readonly productRepository: ProductRepository,
     private readonly brandRepository: BrandRepository,
-    private readonly ids: IdGenerator
+    private readonly ids: IdGenerator,
+    private readonly productAlegraCreateService: ProductAlegraCreateService
   ) {}
 
   async run(dto: CreateProductDto): Promise<Result<ProductPrimitives>> {
-    const alegraId = dto.alegraId?.toString().trim();
-    if (!alegraId) {
-      return Result.fail(new InvalidProductError('alegraId is required'));
+    const name = dto.name?.toString().trim();
+    if (!name) {
+      return Result.fail(new InvalidProductError('name is required'));
     }
-
-    const existing = await this.productRepository.findByAlegraId(alegraId);
-    if (existing) {
-      return Result.fail(new ProductAlreadyExistsError(alegraId));
-    }
+    const storedName = name.toLocaleUpperCase('es-CO');
 
     let brandId: string | null = null;
     let brandCode = 'GEN';
@@ -65,13 +64,37 @@ export class CreateProductUseCase {
     if (!retailCost.isSuccess) return Result.fail(retailCost.error!);
     const suggestedPrice = optionalNumber(dto.suggestedPrice, 'suggestedPrice');
     if (!suggestedPrice.isSuccess) return Result.fail(suggestedPrice.error!);
+    if (wholesalePrice.value === undefined || wholesalePrice.value === null) {
+      return Result.fail(new InvalidProductError('wholesalePrice is required'));
+    }
+    if (retailPrice.value === undefined || retailPrice.value === null) {
+      return Result.fail(new InvalidProductError('retailPrice is required'));
+    }
+
+    let alegraId: string;
+    try {
+      alegraId = await this.productAlegraCreateService.create({
+        name: storedName,
+        wholesalePrice: wholesalePrice.value,
+        retailPrice: retailPrice.value
+      });
+    } catch (error) {
+      console.error('Alegra product create failed. The local product was not saved.', error);
+      const reason = error instanceof Error ? error.message : 'Alegra create failed';
+      return Result.fail(new ProductAlegraSyncError(reason));
+    }
+
+    const existing = await this.productRepository.findByAlegraId(alegraId);
+    if (existing) {
+      return Result.fail(new ProductAlreadyExistsError(alegraId));
+    }
 
     const product = Product.create({
       id: this.ids.next(),
       alegraId,
       code,
       brandId: dto.brandId ?? null,
-      name: dto.name ?? null,
+      name: storedName,
       suggestedPrice: suggestedPrice.value ?? null,
       units: dto.units ?? 0,
       pack: dto.pack ?? 0,

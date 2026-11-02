@@ -14,8 +14,7 @@ const optionalNonNegativeNumber = z
 
 export const createProductSchema = {
   body: z.object({
-    alegraId: z.string().trim().min(1, 'alegraId is required'),
-    name: z.string().trim().nullable().optional(),
+    name: z.string().trim().min(1, 'name is required'),
     brandId: z.string().trim().nullable().optional(),
     suggestedPrice: optionalNonNegativeNumber,
     units: z.number().int().nonnegative().optional(),

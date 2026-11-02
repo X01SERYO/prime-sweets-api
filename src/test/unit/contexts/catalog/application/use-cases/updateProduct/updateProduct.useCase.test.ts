@@ -38,7 +38,7 @@ function repository(): ProductRepository {
   };
 }
 
-test('UpdateProductUseCase stores a zero sale price and notifies only that price', async () => {
+test('UpdateProductUseCase stores a zero sale price and sends both price lists', async () => {
   const calls: Array<Record<string, unknown>> = [];
   const sync: ProductAlegraSyncService = {
     async sync(input) {
@@ -52,7 +52,7 @@ test('UpdateProductUseCase stores a zero sale price and notifies only that price
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.retailPrice, 0);
   assert.equal(result.value?.wholesalePrice, 1000);
-  assert.deepEqual(calls, [{ alegraId: 'ALG-1', retailPrice: 0 }]);
+  assert.deepEqual(calls, [{ alegraId: 'ALG-1', wholesalePrice: 1000, retailPrice: 0 }]);
 });
 
 test('UpdateProductUseCase stores cost and units without calling Alegra', async () => {
@@ -83,16 +83,26 @@ test('UpdateProductUseCase rejects a negative price and an empty name', async ()
   assert.equal(empty.isSuccess, false);
 });
 
-test('UpdateProductUseCase keeps the local product when Alegra sync fails', async () => {
+test('UpdateProductUseCase does not save when Alegra sync fails', async () => {
+  let saved = false;
   const sync: ProductAlegraSyncService = {
     async sync() {
       throw new Error('Alegra unavailable');
     }
   };
-  const useCase = new UpdateProductUseCase(repository(), sync);
+  const useCase = new UpdateProductUseCase(
+    {
+      ...repository(),
+      async save() {
+        saved = true;
+      }
+    },
+    sync
+  );
 
   const result = await useCase.run({ id: stored.id, name: 'Gomita fresa' });
 
-  assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.name, 'GOMITA FRESA');
+  assert.equal(result.isSuccess, false);
+  assert.equal((result.error as { code?: string } | undefined)?.code, 'ALEGRA_SYNC_FAILED');
+  assert.equal(saved, false);
 });

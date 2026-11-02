@@ -1,5 +1,4 @@
 export interface CreateProductDto {
-  alegraId: string;
   name?: string | null;
   brandId?: string | null;
   suggestedPrice?: number | null;

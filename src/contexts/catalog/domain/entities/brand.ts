@@ -23,6 +23,9 @@ export class Brand {
     if (!trimmedCode) {
       throw new InvalidBrandError('Brand code is required');
     }
+    if ([...trimmedCode].length > 3) {
+      throw new InvalidBrandError('Brand code must be at most 3 characters');
+    }
 
     return new Brand(id, trimmedName, trimmedCode);
   }

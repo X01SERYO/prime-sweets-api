@@ -67,7 +67,7 @@ test('SearchProductsUseCase - delegates to repository.search when query is provi
   assert.equal(repository.searchCalledWith, 'Fresa');
   assert.equal(repository.findAllCalled, false);
   assert.equal(result.value!.length, 1);
-  assert.equal(result.value![0].name, 'Chupetín Sabor Fresa');
+  assert.equal(result.value![0].name, 'CHUPETÍN SABOR FRESA');
   assert.equal(result.value![0].wholesalePrice, 1500);
 });
 

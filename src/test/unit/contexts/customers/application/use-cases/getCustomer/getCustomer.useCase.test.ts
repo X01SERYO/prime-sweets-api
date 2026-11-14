@@ -46,7 +46,7 @@ test('GetCustomerUseCase - returns customer primitives when found', async () => 
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value!.id, 'cust-123');
-  assert.equal(result.value!.name, 'Supermercado Central');
+  assert.equal(result.value!.name, 'SUPERMERCADO CENTRAL');
   assert.equal(result.value!.documentType, 'NIT');
 });
 

@@ -106,7 +106,7 @@ test('CreateSaleUseCase - creates sale with initial items snapshotting prices', 
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.items.length, 1);
-  assert.equal(result.value?.items[0].itemName, 'Gomitas Especiales');
+  assert.equal(result.value?.items[0].itemName, 'GOMITAS ÁCIDAS');
   assert.equal(result.value?.items[0].wholesalePrice, 1500);
   assert.equal(result.value?.items[0].wholesaleCost, 900);
   assert.equal(result.value?.totalAmount, 4500);

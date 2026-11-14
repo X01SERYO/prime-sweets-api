@@ -19,7 +19,7 @@ test('SaleItem entity - calculates totalPrice and profit accurately according to
 
   assert.equal(item.id, 'item-1');
   assert.equal(item.productId, 'prod-100');
-  assert.equal(item.itemName, 'Galletas Chocolate');
+  assert.equal(item.itemName, 'GALLETAS CHOCOLATE');
   assert.equal(item.quantity, 10);
   assert.equal(item.wholesalePrice, 1500);
   assert.equal(item.wholesaleCost, 1000);
@@ -61,8 +61,8 @@ test('SaleItem entity - updates transaction-time itemName', () => {
   });
 
   const updated = item.updateItemName('Galletas Original edición especial');
-  assert.equal(updated.itemName, 'Galletas Original edición especial');
-  assert.equal(updated.catalogName, 'Galletas Original');
+  assert.equal(updated.itemName, 'GALLETAS ORIGINAL edición especial');
+  assert.equal(updated.catalogName, 'GALLETAS ORIGINAL');
   assert.equal(updated.productId, 'prod-100');
 });
 

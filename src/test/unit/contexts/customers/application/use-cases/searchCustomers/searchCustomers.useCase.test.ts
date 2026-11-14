@@ -57,7 +57,7 @@ test('SearchCustomersUseCase - delegates to search when query is provided', asyn
   assert.equal(repository.searchCalledWith, 'Pepe');
   assert.equal(repository.findAllCalled, false);
   assert.equal(result.value!.length, 1);
-  assert.equal(result.value![0].name, 'Dulcería Don Pepe');
+  assert.equal(result.value![0].name, 'DULCERÍA DON PEPE');
 });
 
 test('SearchCustomersUseCase - delegates to findAll when query is omitted or empty', async () => {

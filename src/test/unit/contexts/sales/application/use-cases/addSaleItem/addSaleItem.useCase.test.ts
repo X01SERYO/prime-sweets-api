@@ -44,7 +44,7 @@ test('AddSaleItemUseCase - adds item to draft sale successfully', async () => {
 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value?.items.length, 1);
-  assert.equal(result.value?.items[0].itemName, 'Chocolatina Jet');
+  assert.equal(result.value?.items[0].itemName, 'CHOCOLATINA JET');
   assert.equal(result.value?.totalAmount, 4000);
   assert.equal(result.value?.totalProfit, 1500);
 });

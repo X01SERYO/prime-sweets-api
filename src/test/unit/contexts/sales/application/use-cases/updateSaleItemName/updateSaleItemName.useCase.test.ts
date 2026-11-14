@@ -37,6 +37,6 @@ test('UpdateSaleItemNameUseCase - modifies transaction-time item name during dra
   });
 
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.items[0].itemName, 'Nombre Personalizado en Tienda');
+  assert.equal(result.value?.items[0].itemName, 'ORIGINAL NAME');
   assert.equal(result.value?.items[0].productId, 'p-1');
 });

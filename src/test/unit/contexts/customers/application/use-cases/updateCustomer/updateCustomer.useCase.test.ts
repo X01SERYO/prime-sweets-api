@@ -60,12 +60,12 @@ test('UpdateCustomerUseCase - successfully updates customer fields', async () =>
   });
 
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value!.name, 'Tienda Renovada');
+  assert.equal(result.value!.name, 'TIENDA RENOVADA');
   assert.equal(result.value!.phone, '3201112233');
   assert.equal(result.value!.address, 'Avenida Siempre Viva 742');
 
   const inRepo = await repository.findById('cust-1');
-  assert.equal(inRepo?.name, 'Tienda Renovada');
+  assert.equal(inRepo?.name, 'TIENDA RENOVADA');
 });
 
 test('UpdateCustomerUseCase - fails if customer does not exist', async () => {

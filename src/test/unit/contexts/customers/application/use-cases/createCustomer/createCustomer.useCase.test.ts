@@ -60,7 +60,7 @@ test('CreateCustomerUseCase - successfully creates a new customer', async () => 
   assert.equal(result.isSuccess, true);
   assert.equal(result.value!.documentType, 'CC');
   assert.equal(result.value!.documentNumber, '10203040');
-  assert.equal(result.value!.name, 'Tienda La Esperanza');
+  assert.equal(result.value!.name, 'TIENDA LA ESPERANZA');
   assert.equal(result.value!.phone, '3001234567');
   assert.equal(result.value!.email, 'esperanza@gmail.com');
   assert.equal(result.value!.address, 'Calle 5 # 10-20');
@@ -68,7 +68,7 @@ test('CreateCustomerUseCase - successfully creates a new customer', async () => 
 
   const inRepo = await repository.findById(result.value!.id);
   assert.ok(inRepo);
-  assert.equal(inRepo.name, 'Tienda La Esperanza');
+  assert.equal(inRepo.name, 'TIENDA LA ESPERANZA');
 });
 
 test('CreateCustomerUseCase - rejects duplicate customer by document', async () => {

@@ -54,11 +54,9 @@ test('ConfirmedSaleItemsAdapter - reads confirmed sales only and drops transacti
   assert.deepEqual(filters, { deliveryDate: '2026-10-31', status: 'CONFIRMED' });
   assert.equal(contributions.length, 2);
   assert.equal(contributions.some((contribution) => 'itemName' in contribution), false);
-  assert.deepEqual(
-    contributions.map((contribution) => contribution.productId),
-    ['p-1', 'p-2']
-  );
-  assert.equal(contributions[0].quantity, 10);
-  assert.equal(contributions[0].totalPrice, 10000);
-  assert.equal(contributions[0].profit, 4000);
+  const byProduct = new Map(contributions.map((contribution) => [contribution.productId, contribution]));
+  assert.deepEqual([...byProduct.keys()].sort(), ['p-1', 'p-2']);
+  assert.equal(byProduct.get('p-1')?.quantity, 10);
+  assert.equal(byProduct.get('p-1')?.totalPrice, 10000);
+  assert.equal(byProduct.get('p-1')?.profit, 4000);
 });

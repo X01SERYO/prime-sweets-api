@@ -5,6 +5,7 @@ import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
 import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
 import { SaleAlreadyVoidedError } from '../../../../../../../contexts/sales/domain/errors/saleAlreadyVoided.error';
+import { SaleCannotBeModifiedError } from '../../../../../../../contexts/sales/domain/errors/saleCannotBeModified.error';
 
 function item(): SaleItem {
   return SaleItem.create({
@@ -48,14 +49,12 @@ test('VoidSaleUseCase - voids confirmed sale preserving invoice number', async (
   assert.ok(result.value?.voidedAt);
 });
 
-test('VoidSaleUseCase - voids a draft sale without an invoice number', async () => {
+test('VoidSaleUseCase - rejects voiding a draft sale', async () => {
   const useCase = new VoidSaleUseCase(repoWith(draft().addItem(item())));
   const result = await useCase.run({ saleId: 's-1' });
 
-  assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.status, 'VOIDED');
-  assert.equal(result.value?.invoiceNumber, null);
-  assert.ok(result.value?.voidedAt);
+  assert.equal(result.isSuccess, false);
+  assert.ok(result.error instanceof SaleCannotBeModifiedError);
 });
 
 test('VoidSaleUseCase - fails if already voided', async () => {

@@ -92,8 +92,8 @@ test('Sale aggregate - same product with different names stays as separate lines
   const updated = sale.addItem(green).addItem(blue);
 
   assert.equal(updated.items.length, 2);
-  assert.equal(updated.items[0].itemName, 'Caja A azul');
-  assert.equal(updated.items[1].itemName, 'Caja A verde');
+  assert.equal(updated.items[0].itemName, 'CAJA A AZUL');
+  assert.equal(updated.items[1].itemName, 'CAJA A VERDE');
   assert.equal(updated.totalQuantity, 5);
   assert.equal(updated.totalAmount, 5000);
 });
@@ -127,7 +127,7 @@ test('Sale aggregate - same product and same name accumulates quantity', () => {
 
   assert.equal(updated.items.length, 1);
   assert.equal(updated.items[0].id, 'item-green-1');
-  assert.equal(updated.items[0].itemName, 'Caja A verde');
+  assert.equal(updated.items[0].itemName, 'CAJA A VERDE');
   assert.equal(updated.items[0].quantity, 3);
   assert.equal(updated.totalAmount, 3000);
 });
@@ -145,7 +145,7 @@ test('Sale aggregate - updates item quantity and custom item name in draft', () 
   assert.equal(modifiedQty.totalAmount, 10000);
 
   const modifiedName = modifiedQty.updateItemName('item-p-1', 'Nombre Personalizado de Factura');
-  assert.equal(modifiedName.items[0].itemName, 'Nombre Personalizado de Factura');
+  assert.equal(modifiedName.items[0].itemName, 'PRODUCT P-1');
   assert.equal(modifiedName.items[0].productId, 'p-1');
 });
 

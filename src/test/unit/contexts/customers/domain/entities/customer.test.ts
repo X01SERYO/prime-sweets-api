@@ -14,7 +14,7 @@ test('Customer entity - creates valid customer instance with required fields', (
   assert.equal(customer.id, 'cust-123');
   assert.equal(customer.documentType, 'CC');
   assert.equal(customer.documentNumber, '123456789');
-  assert.equal(customer.name, 'Tienda La Esquina');
+  assert.equal(customer.name, 'TIENDA LA ESQUINA');
   assert.equal(customer.phone, null);
   assert.equal(customer.email, null);
   assert.equal(customer.address, null);
@@ -24,7 +24,7 @@ test('Customer entity - creates valid customer instance with required fields', (
     id: 'cust-123',
     documentType: 'CC',
     documentNumber: '123456789',
-    name: 'Tienda La Esquina',
+    name: 'TIENDA LA ESQUINA',
     phone: null,
     email: null,
     address: null
@@ -80,7 +80,7 @@ test('Customer entity - updates fields correctly and validates invariants', () =
     address: 'Carrera 15 # 45'
   });
 
-  assert.equal(updated.name, 'Tienda La Esquina Nueva');
+  assert.equal(updated.name, 'TIENDA LA ESQUINA NUEVA');
   assert.equal(updated.phone, '3109876543');
   assert.equal(updated.address, 'Carrera 15 # 45');
   assert.equal(updated.documentType, 'CC');

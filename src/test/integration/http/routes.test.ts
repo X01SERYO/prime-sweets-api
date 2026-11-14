@@ -12,6 +12,7 @@ import { createCustomersRouter } from '@/contexts/customers/adapters/inbound/htt
 import { createSalesRouter } from '@/contexts/sales/adapters/inbound/http/sales.route';
 import { createLoadSheetsRouter } from '@/contexts/fulfillment-output/adapters/inbound/http/loadSheet.route';
 import { createInvoicesRouter } from '@/contexts/fulfillment-output/adapters/inbound/http/invoices.route';
+import { createRetailDaysRouter } from '@/contexts/retail-sales/adapters/inbound/http/retailDays.route';
 
 function container(): AppContainer {
   return {
@@ -34,6 +35,7 @@ async function start() {
   app.use('/sales', createSalesRouter(c));
   app.use('/load-sheets', createLoadSheetsRouter(c));
   app.use('/invoices', createInvoicesRouter(c));
+  app.use('/retail-days', createRetailDaysRouter(c));
   const server = http.createServer(app);
   await new Promise<void>((resolve) => server.listen(0, resolve));
   return { server, port: (server.address() as AddressInfo).port };
@@ -110,7 +112,11 @@ test('HTTP routers accept a valid call on every route and reject an empty body',
       ['POST', '/sales/s1/void'],
       ['GET', '/load-sheets?deliveryDate=2026-11-14'],
       ['GET', '/invoices?deliveryDate=2026-11-14'],
-      ['GET', '/invoices/s1']
+      ['GET', '/invoices/s1'],
+      ['GET', '/retail-days/today'],
+      ['POST', '/retail-days/today/items', { productId: 'p1', quantity: 2 }],
+      ['PATCH', '/retail-days/today/items/p1', { quantity: 3 }],
+      ['DELETE', '/retail-days/today/items/p1']
     ];
 
     for (const [method, path, body] of ok) {

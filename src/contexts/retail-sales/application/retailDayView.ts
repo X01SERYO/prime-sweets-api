@@ -13,7 +13,7 @@ export type RetailDayItemView = {
 };
 
 export type RetailDayView = {
-  id: string;
+  id: string | null;
   businessDate: string;
   editable: boolean;
   status: RetailDayStatus;

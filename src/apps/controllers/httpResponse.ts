@@ -30,6 +30,14 @@ export function httpResponse<T>(res: Response, result: Result<T>, successStatus 
     });
   }
 
+  if (error instanceof DomainError && (error.code === 'RETAIL_DAY_CLOSED' || error.code === 'RETAIL_DAY_ALREADY_REVIEWED')) {
+    return res.status(409).json({
+      success: false,
+      error: error.message,
+      code: error.code,
+    });
+  }
+
   if (error instanceof DomainError) {
     return res.status(400).json({
       success: false,

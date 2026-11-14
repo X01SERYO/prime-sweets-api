@@ -5,6 +5,7 @@ import { Result } from '@/shared/application/result/result';
 import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.error';
 import { InvalidCredentialsError } from '@/contexts/identity/domain/errors/invalidCredentials.error';
 import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
+import { RetailDayClosedError } from '@/contexts/retail-sales/domain/errors/retailDayClosed.error';
 
 function response() {
   const state: { status?: number; body?: unknown } = {};
@@ -39,6 +40,11 @@ test('httpResponse maps success, not found, unauthorized, domain, and unknown er
   const invalid = response();
   httpResponse(invalid.res as never, Result.fail(new InvalidSaleError('bad')));
   assert.equal(invalid.state.status, 400);
+
+  const closed = response();
+  httpResponse(closed.res as never, Result.fail(new RetailDayClosedError('2026-11-14')));
+  assert.equal(closed.state.status, 409);
+  assert.equal((closed.state.body as { code: string }).code, 'RETAIL_DAY_CLOSED');
 
   const unknown = response();
   httpResponse(unknown.res as never, Result.fail(new Error('boom')));

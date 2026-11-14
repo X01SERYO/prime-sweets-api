@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { LoadSheet } from '@fulfillment-output/domain/entities/loadSheet';
-import { ProductNotFoundForLoadSheetError } from '@fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
-import { LoadSheetProductNameMissingError } from '@fulfillment-output/domain/errors/loadSheetProductNameMissing.error';
+import { LoadSheet } from '@/contexts/fulfillment-output/domain/entities/loadSheet';
+import { ProductNotFoundForLoadSheetError } from '@/contexts/fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
+import { LoadSheetProductNameMissingError } from '@/contexts/fulfillment-output/domain/errors/loadSheetProductNameMissing.error';
 
 test('LoadSheet - aggregates different item contributions of the same product into one row', () => {
   const loadSheet = LoadSheet.compose({

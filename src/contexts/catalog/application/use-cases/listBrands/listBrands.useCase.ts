@@ -1,6 +1,6 @@
-import { Result } from '@shared/application/result/result';
-import { Brand, BrandPrimitives } from '@catalog/domain/entities/brand';
-import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
+import { Result } from '@/shared/application/result/result';
+import { Brand, BrandPrimitives } from '@/contexts/catalog/domain/entities/brand';
+import { BrandRepository } from '@/contexts/catalog/application/ports/outbound/brand.repository';
 
 export class ListBrandsUseCase {
   constructor(private readonly brandRepository: BrandRepository) {}

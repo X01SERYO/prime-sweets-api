@@ -1,8 +1,8 @@
 import { Response } from 'express';
-import { Result } from '@shared/application/result/result';
-import { DomainError } from '@shared/domain/errors/domainError';
-import { NotFoundError } from '@shared/domain/errors/notFound.error';
-import { UnauthorizedError } from '@shared/domain/errors/unauthorized.error';
+import { Result } from '@/shared/application/result/result';
+import { DomainError } from '@/shared/domain/errors/domainError';
+import { NotFoundError } from '@/shared/domain/errors/notFound.error';
+import { UnauthorizedError } from '@/shared/domain/errors/unauthorized.error';
 
 export function httpResponse<T>(res: Response, result: Result<T>, successStatus = 200): Response {
   if (result.isSuccess) {

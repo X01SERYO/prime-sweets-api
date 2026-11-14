@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SetSaleDeliveryDateUseCase } from '@sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { SaleBatch } from '@sales/application/ports/outbound/saleBatch.port';
-import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
-import { InvoiceNumberAllocator } from '@sales/application/ports/outbound/invoiceNumberAllocator.port';
-import { SaleAlreadyVoidedError } from '@sales/domain/errors/saleAlreadyVoided.error';
-import { DeliveryDateOutOfRangeError } from '@sales/domain/errors/deliveryDateOutOfRange.error';
+import { SetSaleDeliveryDateUseCase } from '@/contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { SaleBatch } from '@/contexts/sales/application/ports/outbound/saleBatch.port';
+import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
+import { SaleAlreadyVoidedError } from '@/contexts/sales/domain/errors/saleAlreadyVoided.error';
+import { DeliveryDateOutOfRangeError } from '@/contexts/sales/domain/errors/deliveryDateOutOfRange.error';
 
 const calendar: BusinessCalendar = { today: () => '2026-11-04' };
 const allocator: InvoiceNumberAllocator = { allocateNext: async () => '004' };

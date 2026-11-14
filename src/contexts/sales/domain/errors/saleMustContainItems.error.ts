@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/errors/domainError';
+import { DomainError } from '@/shared/domain/errors/domainError';
 
 export class SaleMustContainItemsError extends DomainError {
   readonly code = 'SALE_MUST_CONTAIN_ITEMS';

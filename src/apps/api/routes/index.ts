@@ -1,13 +1,13 @@
 import { Application } from 'express';
-import { AppContainer } from '@apps/dependency-injection/appContainer';
-import { createBrandsRouter } from '@catalog/adapters/inbound/http/brands.route';
-import { createProductsRouter } from '@catalog/adapters/inbound/http/products.route';
-import { createCustomersRouter } from '@customers/adapters/inbound/http/customers.route';
-import { createSalesRouter } from '@sales/adapters/inbound/http/sales.route';
-import { createLoadSheetsRouter } from '@fulfillment-output/adapters/inbound/http/loadSheet.route';
-import { createInvoicesRouter } from '@fulfillment-output/adapters/inbound/http/invoices.route';
-import { createAuthRouter } from '@identity/adapters/inbound/http/auth.route';
-import { requireSession } from '@apps/middlewares/requireSession';
+import { AppContainer } from '@/apps/dependency-injection/appContainer';
+import { createBrandsRouter } from '@/contexts/catalog/adapters/inbound/http/brands.route';
+import { createProductsRouter } from '@/contexts/catalog/adapters/inbound/http/products.route';
+import { createCustomersRouter } from '@/contexts/customers/adapters/inbound/http/customers.route';
+import { createSalesRouter } from '@/contexts/sales/adapters/inbound/http/sales.route';
+import { createLoadSheetsRouter } from '@/contexts/fulfillment-output/adapters/inbound/http/loadSheet.route';
+import { createInvoicesRouter } from '@/contexts/fulfillment-output/adapters/inbound/http/invoices.route';
+import { createAuthRouter } from '@/contexts/identity/adapters/inbound/http/auth.route';
+import { requireSession } from '@/apps/middlewares/requireSession';
 
 export function registerRoutes(app: Application, container: AppContainer) {
   const session = requireSession(container);

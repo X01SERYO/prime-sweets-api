@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isUniqueCustomerDocumentViolation } from '@customers/adapters/outbound/persistence/repositories/customerDocumentConflict';
+import { isUniqueCustomerDocumentViolation } from '@/contexts/customers/adapters/outbound/persistence/repositories/customerDocumentConflict';
 
 test('isUniqueCustomerDocumentViolation - matches the customer document unique index', () => {
   assert.equal(

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatDailyInvoiceNumber } from '@sales/domain/services/dailyInvoiceNumber';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
+import { formatDailyInvoiceNumber } from '@/contexts/sales/domain/services/dailyInvoiceNumber';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
 
 test('formatDailyInvoiceNumber - pads the first numbers of the day to three digits', () => {
   assert.equal(formatDailyInvoiceNumber(1), '001');

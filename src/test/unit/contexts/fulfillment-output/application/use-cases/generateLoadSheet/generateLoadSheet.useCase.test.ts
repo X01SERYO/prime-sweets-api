@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GenerateLoadSheetUseCase } from '@fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
-import { ConfirmedSaleItemsQuery } from '@fulfillment-output/application/ports/outbound/confirmedSaleItemsQuery.port';
-import { CatalogProductDisplayQuery } from '@fulfillment-output/application/ports/outbound/catalogProductDisplayQuery.port';
-import { ConfirmedSaleItemContribution, CatalogProductDisplay } from '@fulfillment-output/domain/entities/loadSheet';
-import { InvalidLoadSheetDeliveryDateError } from '@fulfillment-output/domain/errors/invalidLoadSheetDeliveryDate.error';
-import { ProductNotFoundForLoadSheetError } from '@fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
+import { GenerateLoadSheetUseCase } from '@/contexts/fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
+import { ConfirmedSaleItemsQuery } from '@/contexts/fulfillment-output/application/ports/outbound/confirmedSaleItemsQuery.port';
+import { CatalogProductDisplayQuery } from '@/contexts/fulfillment-output/application/ports/outbound/catalogProductDisplayQuery.port';
+import { ConfirmedSaleItemContribution, CatalogProductDisplay } from '@/contexts/fulfillment-output/domain/entities/loadSheet';
+import { InvalidLoadSheetDeliveryDateError } from '@/contexts/fulfillment-output/domain/errors/invalidLoadSheetDeliveryDate.error';
+import { ProductNotFoundForLoadSheetError } from '@/contexts/fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
 
 function setup() {
   let itemsRequested = false;

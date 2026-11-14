@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { AlegraHttpClient } from '@alegra/adapters/outbound/http/alegraHttpClient';
-import { AlegraRequestError } from '@alegra/domain/errors/alegraRequest.error';
+import { AlegraHttpClient } from '@/contexts/alegra/adapters/outbound/http/alegraHttpClient';
+import { AlegraRequestError } from '@/contexts/alegra/domain/errors/alegraRequest.error';
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status });

@@ -1,5 +1,5 @@
-import { LoadSheetProductNameMissingError } from '@fulfillment-output/domain/errors/loadSheetProductNameMissing.error';
-import { ProductNotFoundForLoadSheetError } from '@fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
+import { LoadSheetProductNameMissingError } from '@/contexts/fulfillment-output/domain/errors/loadSheetProductNameMissing.error';
+import { ProductNotFoundForLoadSheetError } from '@/contexts/fulfillment-output/domain/errors/productNotFoundForLoadSheet.error';
 
 export type LoadSheetPriceGroupPrimitives = {
   wholesaleCost: number;

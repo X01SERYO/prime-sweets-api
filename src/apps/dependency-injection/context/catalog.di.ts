@@ -1,17 +1,17 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { TypeOrmBrandRepository } from '@catalog/adapters/outbound/persistence/repositories/typeOrmBrand.repository';
-import { TypeOrmProductRepository } from '@catalog/adapters/outbound/persistence/repositories/typeOrmProduct.repository';
-import { CreateBrandUseCase } from '@catalog/application/use-cases/createBrand/createBrand.useCase';
-import { ListBrandsUseCase } from '@catalog/application/use-cases/listBrands/listBrands.useCase';
-import { GetBrandUseCase } from '@catalog/application/use-cases/getBrand/getBrand.useCase';
-import { UpdateBrandUseCase } from '@catalog/application/use-cases/updateBrand/updateBrand.useCase';
-import { DeleteBrandUseCase } from '@catalog/application/use-cases/deleteBrand/deleteBrand.useCase';
-import { CreateProductUseCase } from '@catalog/application/use-cases/createProduct/createProduct.useCase';
-import { ListProductsUseCase } from '@catalog/application/use-cases/listProducts/listProducts.useCase';
-import { SearchProductsUseCase } from '@catalog/application/use-cases/searchProducts/searchProducts.useCase';
-import { GetProductUseCase } from '@catalog/application/use-cases/getProduct/getProduct.useCase';
-import { UpdateProductUseCase } from '@catalog/application/use-cases/updateProduct/updateProduct.useCase';
-import { DeleteProductUseCase } from '@catalog/application/use-cases/deleteProduct/deleteProduct.useCase';
+import { TypeOrmBrandRepository } from '@/contexts/catalog/adapters/outbound/persistence/repositories/typeOrmBrand.repository';
+import { TypeOrmProductRepository } from '@/contexts/catalog/adapters/outbound/persistence/repositories/typeOrmProduct.repository';
+import { CreateBrandUseCase } from '@/contexts/catalog/application/use-cases/createBrand/createBrand.useCase';
+import { ListBrandsUseCase } from '@/contexts/catalog/application/use-cases/listBrands/listBrands.useCase';
+import { GetBrandUseCase } from '@/contexts/catalog/application/use-cases/getBrand/getBrand.useCase';
+import { UpdateBrandUseCase } from '@/contexts/catalog/application/use-cases/updateBrand/updateBrand.useCase';
+import { DeleteBrandUseCase } from '@/contexts/catalog/application/use-cases/deleteBrand/deleteBrand.useCase';
+import { CreateProductUseCase } from '@/contexts/catalog/application/use-cases/createProduct/createProduct.useCase';
+import { ListProductsUseCase } from '@/contexts/catalog/application/use-cases/listProducts/listProducts.useCase';
+import { SearchProductsUseCase } from '@/contexts/catalog/application/use-cases/searchProducts/searchProducts.useCase';
+import { GetProductUseCase } from '@/contexts/catalog/application/use-cases/getProduct/getProduct.useCase';
+import { UpdateProductUseCase } from '@/contexts/catalog/application/use-cases/updateProduct/updateProduct.useCase';
+import { DeleteProductUseCase } from '@/contexts/catalog/application/use-cases/deleteProduct/deleteProduct.useCase';
 
 export function registerCatalogDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');

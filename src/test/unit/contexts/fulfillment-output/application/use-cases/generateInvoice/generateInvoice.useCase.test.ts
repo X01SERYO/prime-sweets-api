@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GenerateInvoiceUseCase } from '@fulfillment-output/application/use-cases/generateInvoice/generateInvoice.useCase';
-import { InvoiceSaleQuery, InvoiceSaleView } from '@fulfillment-output/application/ports/outbound/invoiceSaleQuery.port';
-import { InvoiceCustomerQuery } from '@fulfillment-output/application/ports/outbound/invoiceCustomerQuery.port';
-import { CompanyProfileQuery } from '@fulfillment-output/application/ports/outbound/companyProfileQuery.port';
-import { InvoiceCompanyProfile } from '@fulfillment-output/domain/entities/invoiceDocument';
-import { SaleNotFoundForInvoiceError } from '@fulfillment-output/domain/errors/saleNotFoundForInvoice.error';
-import { SaleNotInvoiceableError } from '@fulfillment-output/domain/errors/saleNotInvoiceable.error';
-import { CustomerNotFoundForInvoiceError } from '@fulfillment-output/domain/errors/customerNotFoundForInvoice.error';
-import { CompanyProfileNotConfiguredError } from '@fulfillment-output/domain/errors/companyProfileNotConfigured.error';
+import { GenerateInvoiceUseCase } from '@/contexts/fulfillment-output/application/use-cases/generateInvoice/generateInvoice.useCase';
+import { InvoiceSaleQuery, InvoiceSaleView } from '@/contexts/fulfillment-output/application/ports/outbound/invoiceSaleQuery.port';
+import { InvoiceCustomerQuery } from '@/contexts/fulfillment-output/application/ports/outbound/invoiceCustomerQuery.port';
+import { CompanyProfileQuery } from '@/contexts/fulfillment-output/application/ports/outbound/companyProfileQuery.port';
+import { InvoiceCompanyProfile } from '@/contexts/fulfillment-output/domain/entities/invoiceDocument';
+import { SaleNotFoundForInvoiceError } from '@/contexts/fulfillment-output/domain/errors/saleNotFoundForInvoice.error';
+import { SaleNotInvoiceableError } from '@/contexts/fulfillment-output/domain/errors/saleNotInvoiceable.error';
+import { CustomerNotFoundForInvoiceError } from '@/contexts/fulfillment-output/domain/errors/customerNotFoundForInvoice.error';
+import { CompanyProfileNotConfiguredError } from '@/contexts/fulfillment-output/domain/errors/companyProfileNotConfigured.error';
 
 const company: InvoiceCompanyProfile = {
   name: 'Configured Company',

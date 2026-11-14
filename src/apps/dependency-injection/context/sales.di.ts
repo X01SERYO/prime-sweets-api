@@ -1,20 +1,20 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { TypeOrmSaleRepository } from '@sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
-import { TypeOrmInvoiceNumberAllocator } from '@sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
-import { BusinessCalendarAdapter } from '@apps/dependency-injection/acl/businessCalendar.adapter';
-import { ColombianBusinessDateProvider } from '@shared/application/services/colombianBusinessDate.provider';
-import { CustomerCheckerAdapter } from '@apps/dependency-injection/acl/customerChecker.adapter';
-import { CatalogProductSnapshotAdapter } from '@apps/dependency-injection/acl/catalogProductSnapshot.adapter';
-import { CreateSaleUseCase } from '@sales/application/use-cases/createSale/createSale.useCase';
-import { AddSaleItemUseCase } from '@sales/application/use-cases/addSaleItem/addSaleItem.useCase';
-import { UpdateSaleItemQuantityUseCase } from '@sales/application/use-cases/updateSaleItemQuantity/updateSaleItemQuantity.useCase';
-import { UpdateSaleItemNameUseCase } from '@sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
-import { RemoveSaleItemUseCase } from '@sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
-import { ConfirmSaleUseCase } from '@sales/application/use-cases/confirmSale/confirmSale.useCase';
-import { SetSaleDeliveryDateUseCase } from '@sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
-import { VoidSaleUseCase } from '@sales/application/use-cases/voidSale/voidSale.useCase';
-import { GetSaleUseCase } from '@sales/application/use-cases/getSale/getSale.useCase';
-import { ListSalesUseCase } from '@sales/application/use-cases/listSales/listSales.useCase';
+import { TypeOrmSaleRepository } from '@/contexts/sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
+import { TypeOrmInvoiceNumberAllocator } from '@/contexts/sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
+import { BusinessCalendarAdapter } from '@/apps/dependency-injection/acl/businessCalendar.adapter';
+import { ColombianBusinessDateProvider } from '@/shared/application/services/colombianBusinessDate.provider';
+import { CustomerCheckerAdapter } from '@/apps/dependency-injection/acl/customerChecker.adapter';
+import { CatalogProductSnapshotAdapter } from '@/apps/dependency-injection/acl/catalogProductSnapshot.adapter';
+import { CreateSaleUseCase } from '@/contexts/sales/application/use-cases/createSale/createSale.useCase';
+import { AddSaleItemUseCase } from '@/contexts/sales/application/use-cases/addSaleItem/addSaleItem.useCase';
+import { UpdateSaleItemQuantityUseCase } from '@/contexts/sales/application/use-cases/updateSaleItemQuantity/updateSaleItemQuantity.useCase';
+import { UpdateSaleItemNameUseCase } from '@/contexts/sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
+import { RemoveSaleItemUseCase } from '@/contexts/sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
+import { ConfirmSaleUseCase } from '@/contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
+import { SetSaleDeliveryDateUseCase } from '@/contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
+import { VoidSaleUseCase } from '@/contexts/sales/application/use-cases/voidSale/voidSale.useCase';
+import { GetSaleUseCase } from '@/contexts/sales/application/use-cases/getSale/getSale.useCase';
+import { ListSalesUseCase } from '@/contexts/sales/application/use-cases/listSales/listSales.useCase';
 
 export function registerSalesDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');

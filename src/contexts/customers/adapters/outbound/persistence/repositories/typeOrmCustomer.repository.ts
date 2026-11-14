@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
-import { Customer } from '@customers/domain/entities/customer';
-import { CustomerAlreadyExistsError } from '@customers/domain/errors/customerAlreadyExists.error';
-import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
-import { CustomerEntity } from '@customers/adapters/outbound/persistence/customer.entity';
+import { Customer } from '@/contexts/customers/domain/entities/customer';
+import { CustomerAlreadyExistsError } from '@/contexts/customers/domain/errors/customerAlreadyExists.error';
+import { CustomerRepository } from '@/contexts/customers/application/ports/outbound/customer.repository';
+import { CustomerEntity } from '@/contexts/customers/adapters/outbound/persistence/customer.entity';
 import { isUniqueCustomerDocumentViolation } from './customerDocumentConflict';
 
 export class TypeOrmCustomerRepository implements CustomerRepository {

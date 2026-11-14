@@ -1,4 +1,4 @@
-import { Brand } from '@catalog/domain/entities/brand';
+import { Brand } from '@/contexts/catalog/domain/entities/brand';
 
 export interface BrandRepository {
   save(brand: Brand): Promise<void>;

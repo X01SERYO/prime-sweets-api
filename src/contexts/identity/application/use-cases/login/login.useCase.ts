@@ -1,9 +1,9 @@
-import { Result } from '@shared/application/result/result';
-import { InvalidCredentialsError } from '@identity/domain/errors/invalidCredentials.error';
-import { LoginDto } from '@identity/application/dto/login.dto';
-import { CredentialStore } from '@identity/application/ports/outbound/credentialStore.port';
-import { PasswordMatcher } from '@identity/application/ports/outbound/passwordMatcher.port';
-import { IssuedSession, SessionStore } from '@identity/application/ports/outbound/sessionStore.port';
+import { Result } from '@/shared/application/result/result';
+import { InvalidCredentialsError } from '@/contexts/identity/domain/errors/invalidCredentials.error';
+import { LoginDto } from '@/contexts/identity/application/dto/login.dto';
+import { CredentialStore } from '@/contexts/identity/application/ports/outbound/credentialStore.port';
+import { PasswordMatcher } from '@/contexts/identity/application/ports/outbound/passwordMatcher.port';
+import { IssuedSession, SessionStore } from '@/contexts/identity/application/ports/outbound/sessionStore.port';
 
 export class LoginUseCase {
   constructor(

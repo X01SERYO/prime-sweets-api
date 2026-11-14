@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmSaleRepository } from '@sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleMapper } from '@sales/adapters/outbound/persistence/sale.mapper';
+import { TypeOrmSaleRepository } from '@/contexts/sales/adapters/outbound/persistence/repositories/typeOrmSale.repository';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleMapper } from '@/contexts/sales/adapters/outbound/persistence/sale.mapper';
 
 function sale(): Sale {
   return Sale.create({

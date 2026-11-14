@@ -1,4 +1,4 @@
-import { AlegraClient } from '@alegra/application/ports/outbound/alegraClient.port';
+import { AlegraClient } from '@/contexts/alegra/application/ports/outbound/alegraClient.port';
 
 export class CreateProductItemUseCase {
   constructor(

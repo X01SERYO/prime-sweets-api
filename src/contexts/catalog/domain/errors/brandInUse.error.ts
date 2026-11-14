@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/errors/domainError';
+import { DomainError } from '@/shared/domain/errors/domainError';
 
 export class BrandInUseError extends DomainError {
   readonly code = 'BRAND_IN_USE';

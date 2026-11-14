@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmInvoiceNumberAllocator } from '@sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
+import { TypeOrmInvoiceNumberAllocator } from '@/contexts/sales/adapters/outbound/persistence/repositories/typeOrmInvoiceNumberAllocator';
 
 test('TypeOrmInvoiceNumberAllocator formats the value returned by the sequence', async () => {
   const dataSource = {

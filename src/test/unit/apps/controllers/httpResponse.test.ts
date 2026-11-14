@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { httpResponse } from '@apps/controllers/httpResponse';
-import { Result } from '@shared/application/result/result';
-import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
-import { InvalidCredentialsError } from '@identity/domain/errors/invalidCredentials.error';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
+import { httpResponse } from '@/apps/controllers/httpResponse';
+import { Result } from '@/shared/application/result/result';
+import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.error';
+import { InvalidCredentialsError } from '@/contexts/identity/domain/errors/invalidCredentials.error';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
 
 function response() {
   const state: { status?: number; body?: unknown } = {};

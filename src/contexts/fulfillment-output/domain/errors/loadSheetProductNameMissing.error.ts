@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/errors/domainError';
+import { DomainError } from '@/shared/domain/errors/domainError';
 
 export class LoadSheetProductNameMissingError extends DomainError {
   readonly code = 'LOAD_SHEET_PRODUCT_NAME_MISSING';

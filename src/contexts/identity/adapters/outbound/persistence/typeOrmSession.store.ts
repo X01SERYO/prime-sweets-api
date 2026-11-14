@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { DataSource, LessThanOrEqual } from 'typeorm';
-import { IssuedSession, SessionStore } from '@identity/application/ports/outbound/sessionStore.port';
-import { MAX_OPEN_SESSIONS } from '@identity/domain/sessionLimit';
+import { IssuedSession, SessionStore } from '@/contexts/identity/application/ports/outbound/sessionStore.port';
+import { MAX_OPEN_SESSIONS } from '@/contexts/identity/domain/sessionLimit';
 import { SessionEntity } from './session.entity';
 
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;

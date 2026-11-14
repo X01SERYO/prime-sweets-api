@@ -1,9 +1,9 @@
-import { Result } from '@shared/application/result/result';
-import { LoadSheet, LoadSheetPrimitives } from '@fulfillment-output/domain/entities/loadSheet';
-import { InvalidLoadSheetDeliveryDateError } from '@fulfillment-output/domain/errors/invalidLoadSheetDeliveryDate.error';
-import { GenerateLoadSheetDto } from '@fulfillment-output/application/dto/generateLoadSheet.dto';
-import { CatalogProductDisplayQuery } from '@fulfillment-output/application/ports/outbound/catalogProductDisplayQuery.port';
-import { ConfirmedSaleItemsQuery } from '@fulfillment-output/application/ports/outbound/confirmedSaleItemsQuery.port';
+import { Result } from '@/shared/application/result/result';
+import { LoadSheet, LoadSheetPrimitives } from '@/contexts/fulfillment-output/domain/entities/loadSheet';
+import { InvalidLoadSheetDeliveryDateError } from '@/contexts/fulfillment-output/domain/errors/invalidLoadSheetDeliveryDate.error';
+import { GenerateLoadSheetDto } from '@/contexts/fulfillment-output/application/dto/generateLoadSheet.dto';
+import { CatalogProductDisplayQuery } from '@/contexts/fulfillment-output/application/ports/outbound/catalogProductDisplayQuery.port';
+import { ConfirmedSaleItemsQuery } from '@/contexts/fulfillment-output/application/ports/outbound/confirmedSaleItemsQuery.port';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 

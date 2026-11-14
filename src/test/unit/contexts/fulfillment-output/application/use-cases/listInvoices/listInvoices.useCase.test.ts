@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ListInvoicesUseCase } from '@fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
-import { InvoiceQuery, InvoiceSummary } from '@fulfillment-output/application/ports/outbound/invoiceQuery.port';
+import { ListInvoicesUseCase } from '@/contexts/fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
+import { InvoiceQuery, InvoiceSummary } from '@/contexts/fulfillment-output/application/ports/outbound/invoiceQuery.port';
 
 function setup(invoices: InvoiceSummary[]) {
   let requestedDate: string | null = null;

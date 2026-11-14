@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmCredentialStore } from '@identity/adapters/outbound/persistence/typeOrmCredential.store';
+import { TypeOrmCredentialStore } from '@/contexts/identity/adapters/outbound/persistence/typeOrmCredential.store';
 
 test('TypeOrmCredentialStore returns the user or null', async () => {
   const row = { id: 'u1', email: 'a@b.co', displayName: 'Ada', passwordHash: 'hash' };

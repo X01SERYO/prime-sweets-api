@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
-import { InvalidQuantityError } from '@sales/domain/errors/invalidQuantity.error';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
+import { InvalidQuantityError } from '@/contexts/sales/domain/errors/invalidQuantity.error';
 
 test('SaleItem entity - calculates totalPrice and profit accurately according to business formulas', () => {
   // quantity: 10, wholesalePrice: 1500, wholesaleCost: 1000

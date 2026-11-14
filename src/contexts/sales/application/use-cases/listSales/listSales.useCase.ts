@@ -1,7 +1,7 @@
-import { Result } from '@shared/application/result/result';
-import { SalePrimitives } from '@sales/domain/entities/sale';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { ListSalesDto } from '@sales/application/dto/listSales.dto';
+import { Result } from '@/shared/application/result/result';
+import { SalePrimitives } from '@/contexts/sales/domain/entities/sale';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { ListSalesDto } from '@/contexts/sales/application/dto/listSales.dto';
 
 export class ListSalesUseCase {
   constructor(private readonly saleRepository: SaleRepository) {}

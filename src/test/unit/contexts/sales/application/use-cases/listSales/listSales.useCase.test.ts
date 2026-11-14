@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ListSalesUseCase } from '@sales/application/use-cases/listSales/listSales.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { ListSalesUseCase } from '@/contexts/sales/application/use-cases/listSales/listSales.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
 
 test('ListSalesUseCase - returns list of sales primitives', async () => {
   const sale1 = Sale.create({ id: 's-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' });

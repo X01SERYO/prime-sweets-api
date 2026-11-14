@@ -1,6 +1,6 @@
-import { Sale, SaleStatus } from '@sales/domain/entities/sale';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
-import { SaleItem } from '@sales/domain/entities/saleItem';
+import { Sale, SaleStatus } from '@/contexts/sales/domain/entities/sale';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 import { SaleEntity } from './sale.entity';
 import { SaleItemEntity } from './saleItem.entity';
 

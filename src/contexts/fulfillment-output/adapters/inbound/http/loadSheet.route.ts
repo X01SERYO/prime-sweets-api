@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { AppContainer } from '@apps/dependency-injection/appContainer';
-import { httpResponse } from '@apps/controllers/httpResponse';
-import { validateRequest } from '@apps/middlewares/validateRequest';
+import { AppContainer } from '@/apps/dependency-injection/appContainer';
+import { httpResponse } from '@/apps/controllers/httpResponse';
+import { validateRequest } from '@/apps/middlewares/validateRequest';
 import { generateLoadSheetSchema } from './loadSheet.schema';
 
 export function createLoadSheetsRouter(container: AppContainer) {

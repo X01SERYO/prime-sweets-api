@@ -1,4 +1,4 @@
-import { Customer } from '@customers/domain/entities/customer';
+import { Customer } from '@/contexts/customers/domain/entities/customer';
 
 export interface CustomerRepository {
   findById(id: string): Promise<Customer | null>;

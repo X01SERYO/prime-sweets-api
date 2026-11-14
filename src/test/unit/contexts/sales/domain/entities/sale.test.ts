@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
-import { SaleMustContainItemsError } from '@sales/domain/errors/saleMustContainItems.error';
-import { SaleCannotBeModifiedError } from '@sales/domain/errors/saleCannotBeModified.error';
-import { SaleAlreadyVoidedError } from '@sales/domain/errors/saleAlreadyVoided.error';
-import { DeliveryDateOutOfRangeError } from '@sales/domain/errors/deliveryDateOutOfRange.error';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
+import { SaleMustContainItemsError } from '@/contexts/sales/domain/errors/saleMustContainItems.error';
+import { SaleCannotBeModifiedError } from '@/contexts/sales/domain/errors/saleCannotBeModified.error';
+import { SaleAlreadyVoidedError } from '@/contexts/sales/domain/errors/saleAlreadyVoided.error';
+import { DeliveryDateOutOfRangeError } from '@/contexts/sales/domain/errors/deliveryDateOutOfRange.error';
 
 function createSampleItem(productId = 'p-1', quantity = 2, price = 1000, cost = 700) {
   return SaleItem.create({

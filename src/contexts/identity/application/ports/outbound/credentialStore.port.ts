@@ -1,4 +1,4 @@
-import { User } from '@identity/domain/entities/user';
+import { User } from '@/contexts/identity/domain/entities/user';
 
 export interface CredentialStore {
   findByEmail(email: string): Promise<User | null>;

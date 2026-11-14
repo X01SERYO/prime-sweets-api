@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CreateBrandUseCase } from '@catalog/application/use-cases/createBrand/createBrand.useCase';
-import { UpdateBrandUseCase } from '@catalog/application/use-cases/updateBrand/updateBrand.useCase';
-import { Brand } from '@catalog/domain/entities/brand';
-import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
-import { BrandAlreadyExistsError } from '@catalog/domain/errors/brandAlreadyExists.error';
-import { BrandNotFoundError } from '@catalog/domain/errors/brandNotFound.error';
+import { CreateBrandUseCase } from '@/contexts/catalog/application/use-cases/createBrand/createBrand.useCase';
+import { UpdateBrandUseCase } from '@/contexts/catalog/application/use-cases/updateBrand/updateBrand.useCase';
+import { Brand } from '@/contexts/catalog/domain/entities/brand';
+import { BrandRepository } from '@/contexts/catalog/application/ports/outbound/brand.repository';
+import { BrandAlreadyExistsError } from '@/contexts/catalog/domain/errors/brandAlreadyExists.error';
+import { BrandNotFoundError } from '@/contexts/catalog/domain/errors/brandNotFound.error';
 
 function brands(found: Brand | null): BrandRepository {
   return {

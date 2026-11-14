@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmSessionStore } from '@identity/adapters/outbound/persistence/typeOrmSession.store';
+import { TypeOrmSessionStore } from '@/contexts/identity/adapters/outbound/persistence/typeOrmSession.store';
 
 const user = { id: 'u1', email: 'a@b.co', displayName: 'Ada' };
 

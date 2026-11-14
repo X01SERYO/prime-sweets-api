@@ -1,15 +1,15 @@
-import { IdGenerator } from '@shared/application/ports/idGenerator';
-import { Result } from '@shared/application/result/result';
-import { Sale, SalePrimitives } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
-import { assertDeliveryDateAllowed, normalizeBusinessDate } from '@sales/domain/services/deliveryDateRange';
-import { SetSaleDeliveryDateDto } from '@sales/application/dto/setSaleDeliveryDate.dto';
-import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
-import { InvoiceNumberAllocator } from '@sales/application/ports/outbound/invoiceNumberAllocator.port';
-import { SaleBatch } from '@sales/application/ports/outbound/saleBatch.port';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { IdGenerator } from '@/shared/application/ports/idGenerator';
+import { Result } from '@/shared/application/result/result';
+import { Sale, SalePrimitives } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.error';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
+import { assertDeliveryDateAllowed, normalizeBusinessDate } from '@/contexts/sales/domain/services/deliveryDateRange';
+import { SetSaleDeliveryDateDto } from '@/contexts/sales/application/dto/setSaleDeliveryDate.dto';
+import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
+import { SaleBatch } from '@/contexts/sales/application/ports/outbound/saleBatch.port';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
 
 export class SetSaleDeliveryDateUseCase {
   constructor(

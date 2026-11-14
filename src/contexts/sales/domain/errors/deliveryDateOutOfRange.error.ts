@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/errors/domainError';
+import { DomainError } from '@/shared/domain/errors/domainError';
 
 export class DeliveryDateOutOfRangeError extends DomainError {
   readonly code = 'DELIVERY_DATE_OUT_OF_RANGE';

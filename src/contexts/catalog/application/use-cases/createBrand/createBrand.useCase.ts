@@ -1,10 +1,10 @@
-import { IdGenerator } from '@shared/application/ports/idGenerator';
-import { Result } from '@shared/application/result/result';
-import { Brand, BrandPrimitives } from '@catalog/domain/entities/brand';
-import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
-import { BrandAlreadyExistsError } from '@catalog/domain/errors/brandAlreadyExists.error';
-import { InvalidBrandError } from '@catalog/domain/errors/invalidBrand.error';
-import { CreateBrandDto } from '@catalog/application/dto/createBrand.dto';
+import { IdGenerator } from '@/shared/application/ports/idGenerator';
+import { Result } from '@/shared/application/result/result';
+import { Brand, BrandPrimitives } from '@/contexts/catalog/domain/entities/brand';
+import { BrandRepository } from '@/contexts/catalog/application/ports/outbound/brand.repository';
+import { BrandAlreadyExistsError } from '@/contexts/catalog/domain/errors/brandAlreadyExists.error';
+import { InvalidBrandError } from '@/contexts/catalog/domain/errors/invalidBrand.error';
+import { CreateBrandDto } from '@/contexts/catalog/application/dto/createBrand.dto';
 
 export class CreateBrandUseCase {
   constructor(

@@ -1,7 +1,7 @@
-import { Result } from '@shared/application/result/result';
-import { BrandPrimitives } from '@catalog/domain/entities/brand';
-import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
-import { BrandNotFoundError } from '@catalog/domain/errors/brandNotFound.error';
+import { Result } from '@/shared/application/result/result';
+import { BrandPrimitives } from '@/contexts/catalog/domain/entities/brand';
+import { BrandRepository } from '@/contexts/catalog/application/ports/outbound/brand.repository';
+import { BrandNotFoundError } from '@/contexts/catalog/domain/errors/brandNotFound.error';
 
 export class GetBrandUseCase {
   constructor(private readonly brandRepository: BrandRepository) {}

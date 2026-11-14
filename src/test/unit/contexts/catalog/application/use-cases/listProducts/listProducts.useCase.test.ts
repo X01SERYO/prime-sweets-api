@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ListProductsUseCase } from '@catalog/application/use-cases/listProducts/listProducts.useCase';
-import { Product } from '@catalog/domain/entities/product';
-import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { ListProductsUseCase } from '@/contexts/catalog/application/use-cases/listProducts/listProducts.useCase';
+import { Product } from '@/contexts/catalog/domain/entities/product';
+import { ProductRepository } from '@/contexts/catalog/application/ports/outbound/product.repository';
 
 const product = Product.create({ id: 'p1', alegraId: 'a1', name: 'Soda', wholesalePrice: 1, retailPrice: 2 });
 

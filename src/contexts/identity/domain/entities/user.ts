@@ -1,4 +1,4 @@
-import { InvalidUserError } from '@identity/domain/errors/invalidUser.error';
+import { InvalidUserError } from '@/contexts/identity/domain/errors/invalidUser.error';
 
 export type UserPrimitives = {
   id: string;

@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CreateSaleUseCase } from '@sales/application/use-cases/createSale/createSale.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
-import { CustomerChecker } from '@sales/application/ports/outbound/customerChecker.port';
-import { ProductSnapshot, ProductSnapshotProvider } from '@sales/application/ports/outbound/productSnapshotProvider.port';
-import { DeliveryDateOutOfRangeError } from '@sales/domain/errors/deliveryDateOutOfRange.error';
-import { CustomerNotFoundForSaleError } from '@sales/domain/errors/customerNotFoundForSale.error';
-import { ProductNotFoundForSaleError } from '@sales/domain/errors/productNotFoundForSale.error';
+import { CreateSaleUseCase } from '@/contexts/sales/application/use-cases/createSale/createSale.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { CustomerChecker } from '@/contexts/sales/application/ports/outbound/customerChecker.port';
+import { ProductSnapshot, ProductSnapshotProvider } from '@/contexts/sales/application/ports/outbound/productSnapshotProvider.port';
+import { DeliveryDateOutOfRangeError } from '@/contexts/sales/domain/errors/deliveryDateOutOfRange.error';
+import { CustomerNotFoundForSaleError } from '@/contexts/sales/domain/errors/customerNotFoundForSale.error';
+import { ProductNotFoundForSaleError } from '@/contexts/sales/domain/errors/productNotFoundForSale.error';
 
 const ids = { next: () => `id-${Math.random()}` };
 

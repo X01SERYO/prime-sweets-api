@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { GetSaleUseCase } from '@sales/application/use-cases/getSale/getSale.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
+import { GetSaleUseCase } from '@/contexts/sales/application/use-cases/getSale/getSale.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.error';
 
 test('GetSaleUseCase - returns sale primitives when found', async () => {
   const sale = Sale.create({ id: 'sale-1', sellerId: 'seller-1', captureDate: '2026-11-04', customerId: 'c-1', deliveryDate: '2026-10-31' });

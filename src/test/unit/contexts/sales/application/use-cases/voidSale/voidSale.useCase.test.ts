@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { VoidSaleUseCase } from '@sales/application/use-cases/voidSale/voidSale.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { SaleAlreadyVoidedError } from '@sales/domain/errors/saleAlreadyVoided.error';
-import { SaleCannotBeModifiedError } from '@sales/domain/errors/saleCannotBeModified.error';
+import { VoidSaleUseCase } from '@/contexts/sales/application/use-cases/voidSale/voidSale.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { SaleAlreadyVoidedError } from '@/contexts/sales/domain/errors/saleAlreadyVoided.error';
+import { SaleCannotBeModifiedError } from '@/contexts/sales/domain/errors/saleCannotBeModified.error';
 
 function item(): SaleItem {
   return SaleItem.create({

@@ -1,4 +1,4 @@
-import { InvoiceLineSource } from '@fulfillment-output/domain/entities/invoiceDocument';
+import { InvoiceLineSource } from '@/contexts/fulfillment-output/domain/entities/invoiceDocument';
 
 export type InvoiceSaleView = {
   id: string;

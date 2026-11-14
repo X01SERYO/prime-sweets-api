@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RemoveSaleItemUseCase } from '@sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { RemoveSaleItemUseCase } from '@/contexts/sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
 
 test('RemoveSaleItemUseCase - removes item from sale', async () => {
   const item1 = SaleItem.create({

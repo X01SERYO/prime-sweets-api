@@ -1,10 +1,10 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { getAppConfig } from '@shared/infrastructure/config/appConfig';
-import { AlegraHttpClient } from '@alegra/adapters/outbound/http/alegraHttpClient';
-import { CreateProductItemUseCase } from '@alegra/application/createProductItem/createProductItem.useCase';
-import { SyncProductItemUseCase } from '@alegra/application/syncProductItem/syncProductItem.useCase';
-import { InProcessProductAlegraCreateService } from '@apps/dependency-injection/acl/inProcessProductAlegraCreate.service';
-import { InProcessProductAlegraSyncService } from '@apps/dependency-injection/acl/inProcessProductAlegraSync.service';
+import { getAppConfig } from '@/shared/infrastructure/config/appConfig';
+import { AlegraHttpClient } from '@/contexts/alegra/adapters/outbound/http/alegraHttpClient';
+import { CreateProductItemUseCase } from '@/contexts/alegra/application/createProductItem/createProductItem.useCase';
+import { SyncProductItemUseCase } from '@/contexts/alegra/application/syncProductItem/syncProductItem.useCase';
+import { InProcessProductAlegraCreateService } from '@/apps/dependency-injection/acl/inProcessProductAlegraCreate.service';
+import { InProcessProductAlegraSyncService } from '@/apps/dependency-injection/acl/inProcessProductAlegraSync.service';
 
 export function registerAlegraDependencies(container: ContainerBuilder): void {
   const config = getAppConfig();

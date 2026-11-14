@@ -1,7 +1,7 @@
-import { Result } from '@shared/application/result/result';
-import { CustomerPrimitives } from '@customers/domain/entities/customer';
-import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
-import { SearchCustomersDto } from '@customers/application/dto/searchCustomers.dto';
+import { Result } from '@/shared/application/result/result';
+import { CustomerPrimitives } from '@/contexts/customers/domain/entities/customer';
+import { CustomerRepository } from '@/contexts/customers/application/ports/outbound/customer.repository';
+import { SearchCustomersDto } from '@/contexts/customers/application/dto/searchCustomers.dto';
 
 export class SearchCustomersUseCase {
   constructor(private readonly customerRepository: CustomerRepository) {}

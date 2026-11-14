@@ -1,6 +1,6 @@
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
-import { InvalidQuantityError } from '@sales/domain/errors/invalidQuantity.error';
-import { saleItemNames } from '@sales/domain/services/saleItemName';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
+import { InvalidQuantityError } from '@/contexts/sales/domain/errors/invalidQuantity.error';
+import { saleItemNames } from '@/contexts/sales/domain/services/saleItemName';
 
 export function isSellableQuantity(quantity: number): boolean {
   if (!Number.isFinite(quantity) || quantity <= 0) {

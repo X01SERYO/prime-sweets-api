@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { AddressInfo } from 'node:net';
-import { createApp } from '@apps/api/app';
-import { AppContainer } from '@apps/dependency-injection/appContainer';
-import { Result } from '@shared/application/result/result';
+import { createApp } from '@/apps/api/app';
+import { AppContainer } from '@/apps/dependency-injection/appContainer';
+import { Result } from '@/shared/application/result/result';
 
 test('createApp answers CORS preflight and registers the routers', async () => {
   const container = {

@@ -1,4 +1,4 @@
-import { NotFoundError } from '@shared/domain/errors/notFound.error';
+import { NotFoundError } from '@/shared/domain/errors/notFound.error';
 
 export class CustomerNotFoundForInvoiceError extends NotFoundError {
   readonly code = 'CUSTOMER_NOT_FOUND';

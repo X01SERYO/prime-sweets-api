@@ -1,10 +1,10 @@
-import { IdGenerator } from '@shared/application/ports/idGenerator';
-import { Result } from '@shared/application/result/result';
-import { Customer, CustomerPrimitives } from '@customers/domain/entities/customer';
-import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
-import { CustomerAlreadyExistsError } from '@customers/domain/errors/customerAlreadyExists.error';
-import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
-import { CreateCustomerDto } from '@customers/application/dto/createCustomer.dto';
+import { IdGenerator } from '@/shared/application/ports/idGenerator';
+import { Result } from '@/shared/application/result/result';
+import { Customer, CustomerPrimitives } from '@/contexts/customers/domain/entities/customer';
+import { CustomerRepository } from '@/contexts/customers/application/ports/outbound/customer.repository';
+import { CustomerAlreadyExistsError } from '@/contexts/customers/domain/errors/customerAlreadyExists.error';
+import { InvalidCustomerError } from '@/contexts/customers/domain/errors/invalidCustomer.error';
+import { CreateCustomerDto } from '@/contexts/customers/application/dto/createCustomer.dto';
 
 export class CreateCustomerUseCase {
   constructor(

@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { InvoiceSaleAdapter } from '@apps/dependency-injection/acl/invoiceSale.adapter';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
+import { InvoiceSaleAdapter } from '@/apps/dependency-injection/acl/invoiceSale.adapter';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 
 test('InvoiceSaleAdapter - projects the transaction-time item name and does not save the sale', async () => {
   let saved = false;

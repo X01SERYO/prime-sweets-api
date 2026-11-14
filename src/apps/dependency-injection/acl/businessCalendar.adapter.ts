@@ -1,4 +1,4 @@
-import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
 
 type BusinessDateProvider = { getCurrentDate(): string };
 

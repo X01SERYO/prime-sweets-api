@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { UpdateSaleItemNameUseCase } from '@sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { UpdateSaleItemNameUseCase } from '@/contexts/sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
 
 test('UpdateSaleItemNameUseCase - modifies transaction-time item name during draft', async () => {
   const item = SaleItem.create({

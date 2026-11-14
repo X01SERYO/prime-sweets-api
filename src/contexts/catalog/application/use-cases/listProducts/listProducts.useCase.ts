@@ -1,6 +1,6 @@
-import { Result } from '@shared/application/result/result';
-import { Product, ProductPrimitives } from '@catalog/domain/entities/product';
-import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { Result } from '@/shared/application/result/result';
+import { Product, ProductPrimitives } from '@/contexts/catalog/domain/entities/product';
+import { ProductRepository } from '@/contexts/catalog/application/ports/outbound/product.repository';
 
 export class ListProductsUseCase {
   constructor(private readonly productRepository: ProductRepository) {}

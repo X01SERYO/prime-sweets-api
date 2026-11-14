@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmCustomerRepository } from '@customers/adapters/outbound/persistence/repositories/typeOrmCustomer.repository';
-import { Customer } from '@customers/domain/entities/customer';
-import { CustomerAlreadyExistsError } from '@customers/domain/errors/customerAlreadyExists.error';
+import { TypeOrmCustomerRepository } from '@/contexts/customers/adapters/outbound/persistence/repositories/typeOrmCustomer.repository';
+import { Customer } from '@/contexts/customers/domain/entities/customer';
+import { CustomerAlreadyExistsError } from '@/contexts/customers/domain/errors/customerAlreadyExists.error';
 
 const row = {
   id: 'c1',

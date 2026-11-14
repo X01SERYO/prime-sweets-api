@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { bearerToken } from '@apps/http/bearerToken';
-import { httpResponse } from '@apps/controllers/httpResponse';
-import { AppContainer } from '@apps/dependency-injection/appContainer';
+import { bearerToken } from '@/apps/http/bearerToken';
+import { httpResponse } from '@/apps/controllers/httpResponse';
+import { AppContainer } from '@/apps/dependency-injection/appContainer';
 
 export function requireSession(container: AppContainer) {
   return async (req: Request, res: Response, next: NextFunction) => {

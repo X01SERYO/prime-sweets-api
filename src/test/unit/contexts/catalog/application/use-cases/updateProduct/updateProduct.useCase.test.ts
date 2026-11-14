@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Product } from '@catalog/domain/entities/product';
-import { UpdateProductUseCase } from '@catalog/application/use-cases/updateProduct/updateProduct.useCase';
-import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
-import { ProductAlegraSyncService } from '@catalog/application/ports/outbound/productAlegraSync.service';
+import { Product } from '@/contexts/catalog/domain/entities/product';
+import { UpdateProductUseCase } from '@/contexts/catalog/application/use-cases/updateProduct/updateProduct.useCase';
+import { ProductRepository } from '@/contexts/catalog/application/ports/outbound/product.repository';
+import { ProductAlegraSyncService } from '@/contexts/catalog/application/ports/outbound/productAlegraSync.service';
 
 const stored = Product.create({
   id: 'product-1',

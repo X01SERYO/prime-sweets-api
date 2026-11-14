@@ -1,16 +1,16 @@
-import { IdGenerator } from '@shared/application/ports/idGenerator';
-import { Result } from '@shared/application/result/result';
-import { Sale, SalePrimitives } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
-import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
-import { CustomerChecker } from '@sales/application/ports/outbound/customerChecker.port';
-import { ProductSnapshotProvider } from '@sales/application/ports/outbound/productSnapshotProvider.port';
-import { CreateSaleDto } from '@sales/application/dto/createSale.dto';
-import { DeliveryDateRequiredError } from '@sales/domain/errors/deliveryDateRequired.error';
-import { CustomerNotFoundForSaleError } from '@sales/domain/errors/customerNotFoundForSale.error';
-import { ProductNotFoundForSaleError } from '@sales/domain/errors/productNotFoundForSale.error';
-import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
+import { IdGenerator } from '@/shared/application/ports/idGenerator';
+import { Result } from '@/shared/application/result/result';
+import { Sale, SalePrimitives } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
+import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { CustomerChecker } from '@/contexts/sales/application/ports/outbound/customerChecker.port';
+import { ProductSnapshotProvider } from '@/contexts/sales/application/ports/outbound/productSnapshotProvider.port';
+import { CreateSaleDto } from '@/contexts/sales/application/dto/createSale.dto';
+import { DeliveryDateRequiredError } from '@/contexts/sales/domain/errors/deliveryDateRequired.error';
+import { CustomerNotFoundForSaleError } from '@/contexts/sales/domain/errors/customerNotFoundForSale.error';
+import { ProductNotFoundForSaleError } from '@/contexts/sales/domain/errors/productNotFoundForSale.error';
+import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
 
 export class CreateSaleUseCase {
   constructor(

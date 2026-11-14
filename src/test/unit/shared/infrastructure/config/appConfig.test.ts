@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ConfigurationError, loadAppConfig } from '@shared/infrastructure/config/appConfig';
+import { ConfigurationError, loadAppConfig } from '@/shared/infrastructure/config/appConfig';
 
 const required = {
   DB_USER: 'postgres',

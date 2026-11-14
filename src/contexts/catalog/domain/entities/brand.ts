@@ -1,4 +1,4 @@
-import { InvalidBrandError } from '@catalog/domain/errors/invalidBrand.error';
+import { InvalidBrandError } from '@/contexts/catalog/domain/errors/invalidBrand.error';
 
 export type BrandPrimitives = {
   id: string;

@@ -1,4 +1,4 @@
-import { DomainError } from '@shared/domain/errors/domainError';
+import { DomainError } from '@/shared/domain/errors/domainError';
 
 export class DeliveryDateRequiredError extends DomainError {
   readonly code = 'DELIVERY_DATE_REQUIRED';

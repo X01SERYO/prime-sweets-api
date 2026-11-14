@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ConfirmedSaleItemsAdapter } from '@apps/dependency-injection/acl/confirmedSaleItems.adapter';
-import { SaleRepository, ListSalesFilters } from '@sales/application/ports/outbound/sale.repository';
-import { Sale } from '@sales/domain/entities/sale';
-import { SaleItem } from '@sales/domain/entities/saleItem';
+import { ConfirmedSaleItemsAdapter } from '@/apps/dependency-injection/acl/confirmedSaleItems.adapter';
+import { SaleRepository, ListSalesFilters } from '@/contexts/sales/application/ports/outbound/sale.repository';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
+import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 
 function item(id: string, productId: string, itemName: string, quantity: number): SaleItem {
   return SaleItem.create({

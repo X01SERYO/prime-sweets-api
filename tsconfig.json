@@ -24,14 +24,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "@apps/*": ["src/apps/*"],
-      "@catalog/*": ["src/contexts/catalog/*"],
-      "@customers/*": ["src/contexts/customers/*"],
-      "@sales/*": ["src/contexts/sales/*"],
-      "@identity/*": ["src/contexts/identity/*"],
-      "@fulfillment-output/*": ["src/contexts/fulfillment-output/*"],
-      "@alegra/*": ["src/contexts/alegra/*"],
-      "@shared/*": ["src/shared/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*.ts"],

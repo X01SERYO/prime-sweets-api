@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Customer } from '@customers/domain/entities/customer';
-import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
+import { Customer } from '@/contexts/customers/domain/entities/customer';
+import { InvalidCustomerError } from '@/contexts/customers/domain/errors/invalidCustomer.error';
 
 test('Customer entity - creates valid customer instance with required fields', () => {
   const customer = Customer.create({

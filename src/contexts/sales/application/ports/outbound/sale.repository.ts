@@ -1,4 +1,4 @@
-import { Sale } from '@sales/domain/entities/sale';
+import { Sale } from '@/contexts/sales/domain/entities/sale';
 
 export type ListSalesFilters = {
   deliveryDate?: string;

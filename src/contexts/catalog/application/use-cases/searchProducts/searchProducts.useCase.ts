@@ -1,7 +1,7 @@
-import { Result } from '@shared/application/result/result';
-import { Product, ProductPrimitives } from '@catalog/domain/entities/product';
-import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
-import { SearchProductsDto } from '@catalog/application/dto/searchProducts.dto';
+import { Result } from '@/shared/application/result/result';
+import { Product, ProductPrimitives } from '@/contexts/catalog/domain/entities/product';
+import { ProductRepository } from '@/contexts/catalog/application/ports/outbound/product.repository';
+import { SearchProductsDto } from '@/contexts/catalog/application/dto/searchProducts.dto';
 
 export class SearchProductsUseCase {
   constructor(private readonly productRepository: ProductRepository) {}

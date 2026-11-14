@@ -49,6 +49,18 @@
 
     "esModuleInterop": true,
     // Enables compatibility with CommonJS and ES modules.
+
+    "baseUrl": ".",
+    "paths": {
+      "@apps/*": ["src/apps/*"],
+      "@catalog/*": ["src/contexts/catalog/*"],
+      "@customers/*": ["src/contexts/customers/*"],
+      "@sales/*": ["src/contexts/sales/*"],
+      "@identity/*": ["src/contexts/identity/*"],
+      "@fulfillment-output/*": ["src/contexts/fulfillment-output/*"],
+      "@alegra/*": ["src/contexts/alegra/*"],
+      "@shared/*": ["src/shared/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   // Includes all TypeScript files under the src directory

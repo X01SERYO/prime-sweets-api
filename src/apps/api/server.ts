@@ -1,6 +1,6 @@
-import { AppContainer } from '../dependency-injection/appContainer';
+import { AppContainer } from '@apps/dependency-injection/appContainer';
 import { createApp } from './app';
-import { getAppConfig } from '../../shared/infrastructure/config/appConfig';
+import { getAppConfig } from '@shared/infrastructure/config/appConfig';
 
 export async function startApi(container: AppContainer) {
   const app = createApp(container);

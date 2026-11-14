@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { requireSession } from '../../../../apps/middlewares/requireSession';
-import { Result } from '../../../../shared/application/result/result';
-import { InvalidCredentialsError } from '../../../../contexts/identity/domain/errors/invalidCredentials.error';
-import { AppContainer } from '../../../../apps/dependency-injection/appContainer';
+import { requireSession } from '@apps/middlewares/requireSession';
+import { Result } from '@shared/application/result/result';
+import { InvalidCredentialsError } from '@identity/domain/errors/invalidCredentials.error';
+import { AppContainer } from '@apps/dependency-injection/appContainer';
 
 function response() {
   const state: { status?: number } = {};

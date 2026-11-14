@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { UpdateSaleItemQuantityUseCase } from '../../../../../../../contexts/sales/application/use-cases/updateSaleItemQuantity/updateSaleItemQuantity.useCase';
-import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
-import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
-import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
+import { UpdateSaleItemQuantityUseCase } from '@sales/application/use-cases/updateSaleItemQuantity/updateSaleItemQuantity.useCase';
+import { Sale } from '@sales/domain/entities/sale';
+import { SaleItem } from '@sales/domain/entities/saleItem';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
 
 test('UpdateSaleItemQuantityUseCase - updates item quantity', async () => {
   const item = SaleItem.create({

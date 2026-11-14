@@ -1,5 +1,5 @@
 import { ContainerBuilder } from 'node-dependency-injection';
-import { getAppConfig } from '../../shared/infrastructure/config/appConfig';
+import { getAppConfig } from '@shared/infrastructure/config/appConfig';
 import { registerPersistenceDependencies } from './context/persistence.di';
 import { registerCatalogDependencies } from './context/catalog.di';
 import { registerCustomerDependencies } from './context/customer.di';

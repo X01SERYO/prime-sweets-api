@@ -1,4 +1,4 @@
-import { DomainError } from '../../../../shared/domain/errors/domainError';
+import { DomainError } from '@shared/domain/errors/domainError';
 
 export class AlegraRequestError extends DomainError {
   readonly code = 'ALEGRA_REQUEST_FAILED';

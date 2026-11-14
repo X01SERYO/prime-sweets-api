@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { InMemorySessionStore } from '../../../../../../contexts/identity/adapters/outbound/inMemorySession.store';
+import { InMemorySessionStore } from '@identity/adapters/outbound/inMemorySession.store';
 
 const user = { id: 'user-1', email: 'user@example.com', displayName: 'Usuario' };
 

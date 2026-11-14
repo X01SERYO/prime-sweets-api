@@ -1,14 +1,14 @@
-import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
-import { Result } from '../../../../../shared/application/result/result';
-import { Product, ProductPrimitives } from '../../../domain/entities/product';
-import { ProductRepository } from '../../ports/outbound/product.repository';
-import { BrandRepository } from '../../ports/outbound/brand.repository';
-import { ProductAlreadyExistsError } from '../../../domain/errors/productAlreadyExists.error';
-import { InvalidProductError } from '../../../domain/errors/invalidProduct.error';
-import { ProductAlegraSyncError } from '../../../domain/errors/productAlegraSync.error';
-import { BrandNotFoundError } from '../../../domain/errors/brandNotFound.error';
-import { ProductAlegraCreateService } from '../../ports/outbound/productAlegraCreate.service';
-import { CreateProductDto } from '../../dto/createProduct.dto';
+import { IdGenerator } from '@shared/application/ports/idGenerator';
+import { Result } from '@shared/application/result/result';
+import { Product, ProductPrimitives } from '@catalog/domain/entities/product';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
+import { ProductAlreadyExistsError } from '@catalog/domain/errors/productAlreadyExists.error';
+import { InvalidProductError } from '@catalog/domain/errors/invalidProduct.error';
+import { ProductAlegraSyncError } from '@catalog/domain/errors/productAlegraSync.error';
+import { BrandNotFoundError } from '@catalog/domain/errors/brandNotFound.error';
+import { ProductAlegraCreateService } from '@catalog/application/ports/outbound/productAlegraCreate.service';
+import { CreateProductDto } from '@catalog/application/dto/createProduct.dto';
 
 function optionalNumber(value: unknown, field: string): Result<number | null | undefined> {
   if (value === undefined) {

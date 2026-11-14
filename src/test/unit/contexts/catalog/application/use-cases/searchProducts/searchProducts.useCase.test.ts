@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Product } from '../../../../../../../contexts/catalog/domain/entities/product';
-import { ProductRepository } from '../../../../../../../contexts/catalog/application/ports/outbound/product.repository';
-import { SearchProductsUseCase } from '../../../../../../../contexts/catalog/application/use-cases/searchProducts/searchProducts.useCase';
+import { Product } from '@catalog/domain/entities/product';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { SearchProductsUseCase } from '@catalog/application/use-cases/searchProducts/searchProducts.useCase';
 
 class MockProductRepository implements ProductRepository {
   public searchCalledWith: string | null = null;

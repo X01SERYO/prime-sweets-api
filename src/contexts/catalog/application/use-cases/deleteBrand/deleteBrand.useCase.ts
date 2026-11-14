@@ -1,7 +1,7 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { BrandRepository } from '../../ports/outbound/brand.repository';
-import { BrandNotFoundError } from '../../../domain/errors/brandNotFound.error';
-import { BrandInUseError } from '../../../domain/errors/brandInUse.error';
+import { Result } from '@shared/application/result/result';
+import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
+import { BrandNotFoundError } from '@catalog/domain/errors/brandNotFound.error';
+import { BrandInUseError } from '@catalog/domain/errors/brandInUse.error';
 
 export class DeleteBrandUseCase {
   constructor(private readonly brandRepository: BrandRepository) {}

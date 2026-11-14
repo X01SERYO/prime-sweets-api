@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Customer } from '../../../../../../../contexts/customers/domain/entities/customer';
-import { CustomerRepository } from '../../../../../../../contexts/customers/application/ports/outbound/customer.repository';
-import { SearchCustomersUseCase } from '../../../../../../../contexts/customers/application/use-cases/searchCustomers/searchCustomers.useCase';
+import { Customer } from '@customers/domain/entities/customer';
+import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
+import { SearchCustomersUseCase } from '@customers/application/use-cases/searchCustomers/searchCustomers.useCase';
 
 class InMemoryCustomerRepository implements CustomerRepository {
   public searchCalledWith: string | null = null;

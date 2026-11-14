@@ -1,13 +1,13 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { CatalogProductDisplayAdapter } from '../acl/catalogProductDisplay.adapter';
-import { ConfirmedSaleItemsAdapter } from '../acl/confirmedSaleItems.adapter';
-import { EnvCompanyProfileAdapter } from '../../../contexts/fulfillment-output/adapters/outbound/envCompanyProfile.adapter';
-import { InvoiceCustomerAdapter } from '../acl/invoiceCustomer.adapter';
-import { InvoiceQueryAdapter } from '../acl/invoiceQuery.adapter';
-import { InvoiceSaleAdapter } from '../acl/invoiceSale.adapter';
-import { GenerateInvoiceUseCase } from '../../../contexts/fulfillment-output/application/use-cases/generateInvoice/generateInvoice.useCase';
-import { GenerateLoadSheetUseCase } from '../../../contexts/fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
-import { ListInvoicesUseCase } from '../../../contexts/fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
+import { CatalogProductDisplayAdapter } from '@apps/dependency-injection/acl/catalogProductDisplay.adapter';
+import { ConfirmedSaleItemsAdapter } from '@apps/dependency-injection/acl/confirmedSaleItems.adapter';
+import { EnvCompanyProfileAdapter } from '@fulfillment-output/adapters/outbound/envCompanyProfile.adapter';
+import { InvoiceCustomerAdapter } from '@apps/dependency-injection/acl/invoiceCustomer.adapter';
+import { InvoiceQueryAdapter } from '@apps/dependency-injection/acl/invoiceQuery.adapter';
+import { InvoiceSaleAdapter } from '@apps/dependency-injection/acl/invoiceSale.adapter';
+import { GenerateInvoiceUseCase } from '@fulfillment-output/application/use-cases/generateInvoice/generateInvoice.useCase';
+import { GenerateLoadSheetUseCase } from '@fulfillment-output/application/use-cases/generateLoadSheet/generateLoadSheet.useCase';
+import { ListInvoicesUseCase } from '@fulfillment-output/application/use-cases/listInvoices/listInvoices.useCase';
 
 export function registerFulfillmentOutputDependencies(container: ContainerBuilder): void {
   const saleRepoRef = new Reference('sales.domain.sale_repository');

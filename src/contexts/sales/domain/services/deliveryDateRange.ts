@@ -1,5 +1,5 @@
-import { DeliveryDateOutOfRangeError } from '../errors/deliveryDateOutOfRange.error';
-import { DeliveryDateRequiredError } from '../errors/deliveryDateRequired.error';
+import { DeliveryDateOutOfRangeError } from '@sales/domain/errors/deliveryDateOutOfRange.error';
+import { DeliveryDateRequiredError } from '@sales/domain/errors/deliveryDateRequired.error';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 

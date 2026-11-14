@@ -1,4 +1,4 @@
-import { DomainError } from '../../../../shared/domain/errors/domainError';
+import { DomainError } from '@shared/domain/errors/domainError';
 
 export class InvoiceSaleDateMissingError extends DomainError {
   readonly code = 'INVOICE_SALE_DATE_MISSING';

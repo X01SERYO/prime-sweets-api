@@ -1,5 +1,5 @@
 import { scrypt, timingSafeEqual } from 'crypto';
-import { PasswordMatcher } from '../../application/ports/outbound/passwordMatcher.port';
+import { PasswordMatcher } from '@identity/application/ports/outbound/passwordMatcher.port';
 
 export class ScryptPasswordMatcher implements PasswordMatcher {
   async matches(password: string, passwordHash: string): Promise<boolean> {

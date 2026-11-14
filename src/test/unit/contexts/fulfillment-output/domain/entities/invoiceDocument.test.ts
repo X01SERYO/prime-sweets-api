@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { InvoiceDocument, SIMPLIFIED_TAX_REGIME } from '../../../../../../contexts/fulfillment-output/domain/entities/invoiceDocument';
+import { InvoiceDocument, SIMPLIFIED_TAX_REGIME } from '@fulfillment-output/domain/entities/invoiceDocument';
 
 const company = {
   name: 'Configured Company',

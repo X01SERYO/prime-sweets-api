@@ -1,4 +1,4 @@
-import { Product } from '../../../domain/entities/product';
+import { Product } from '@catalog/domain/entities/product';
 
 export interface ProductRepository {
   findById(id: string): Promise<Product | null>;

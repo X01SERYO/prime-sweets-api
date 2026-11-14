@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { InMemorySessionStore } from '../../../../../../../contexts/identity/adapters/outbound/inMemorySession.store';
-import { User } from '../../../../../../../contexts/identity/domain/entities/user';
-import { CredentialStore } from '../../../../../../../contexts/identity/application/ports/outbound/credentialStore.port';
-import { PasswordMatcher } from '../../../../../../../contexts/identity/application/ports/outbound/passwordMatcher.port';
-import { LoginUseCase } from '../../../../../../../contexts/identity/application/use-cases/login/login.useCase';
-import { InvalidCredentialsError } from '../../../../../../../contexts/identity/domain/errors/invalidCredentials.error';
+import { InMemorySessionStore } from '@identity/adapters/outbound/inMemorySession.store';
+import { User } from '@identity/domain/entities/user';
+import { CredentialStore } from '@identity/application/ports/outbound/credentialStore.port';
+import { PasswordMatcher } from '@identity/application/ports/outbound/passwordMatcher.port';
+import { LoginUseCase } from '@identity/application/use-cases/login/login.useCase';
+import { InvalidCredentialsError } from '@identity/domain/errors/invalidCredentials.error';
 
 const credentials: CredentialStore = {
   async findByEmail(email: string) {

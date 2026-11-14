@@ -1,8 +1,8 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { CustomerPrimitives } from '../../../domain/entities/customer';
-import { CustomerRepository } from '../../ports/outbound/customer.repository';
-import { CustomerNotFoundError } from '../../../domain/errors/customerNotFound.error';
-import { InvalidCustomerError } from '../../../domain/errors/invalidCustomer.error';
+import { Result } from '@shared/application/result/result';
+import { CustomerPrimitives } from '@customers/domain/entities/customer';
+import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
+import { CustomerNotFoundError } from '@customers/domain/errors/customerNotFound.error';
+import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
 
 export class GetCustomerUseCase {
   constructor(private readonly customerRepository: CustomerRepository) {}

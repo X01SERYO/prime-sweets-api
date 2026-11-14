@@ -1,12 +1,12 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { SalePrimitives } from '../../../domain/entities/sale';
-import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { BusinessCalendar } from '../../ports/outbound/businessCalendar.port';
-import { InvoiceNumberAllocator } from '../../ports/outbound/invoiceNumberAllocator.port';
-import { ConfirmSaleDto } from '../../dto/confirmSale.dto';
-import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { SaleCannotBeModifiedError } from '../../../domain/errors/saleCannotBeModified.error';
-import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
+import { Result } from '@shared/application/result/result';
+import { SalePrimitives } from '@sales/domain/entities/sale';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
+import { InvoiceNumberAllocator } from '@sales/application/ports/outbound/invoiceNumberAllocator.port';
+import { ConfirmSaleDto } from '@sales/application/dto/confirmSale.dto';
+import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
+import { SaleCannotBeModifiedError } from '@sales/domain/errors/saleCannotBeModified.error';
+import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
 
 export class ConfirmSaleUseCase {
   constructor(

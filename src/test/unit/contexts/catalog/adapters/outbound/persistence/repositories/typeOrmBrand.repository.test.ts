@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmBrandRepository } from '../../../../../../../../contexts/catalog/adapters/outbound/persistence/repositories/typeOrmBrand.repository';
-import { Brand } from '../../../../../../../../contexts/catalog/domain/entities/brand';
+import { TypeOrmBrandRepository } from '@catalog/adapters/outbound/persistence/repositories/typeOrmBrand.repository';
+import { Brand } from '@catalog/domain/entities/brand';
 
 test('TypeOrmBrandRepository maps a brand and returns null when it is missing', async () => {
   let found = true;

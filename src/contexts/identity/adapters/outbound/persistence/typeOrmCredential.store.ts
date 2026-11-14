@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { User } from '../../../domain/entities/user';
-import { CredentialStore } from '../../../application/ports/outbound/credentialStore.port';
+import { User } from '@identity/domain/entities/user';
+import { CredentialStore } from '@identity/application/ports/outbound/credentialStore.port';
 import { UserEntity } from './user.entity';
 
 export class TypeOrmCredentialStore implements CredentialStore {

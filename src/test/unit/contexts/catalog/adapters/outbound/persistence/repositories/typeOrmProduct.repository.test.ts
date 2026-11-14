@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DataSource } from 'typeorm';
-import { TypeOrmProductRepository } from '../../../../../../../../contexts/catalog/adapters/outbound/persistence/repositories/typeOrmProduct.repository';
-import { Product } from '../../../../../../../../contexts/catalog/domain/entities/product';
+import { TypeOrmProductRepository } from '@catalog/adapters/outbound/persistence/repositories/typeOrmProduct.repository';
+import { Product } from '@catalog/domain/entities/product';
 
 const productRow = {
   id: 'p1',

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { User } from '../../../../../../contexts/identity/domain/entities/user';
-import { InvalidUserError } from '../../../../../../contexts/identity/domain/errors/invalidUser.error';
+import { User } from '@identity/domain/entities/user';
+import { InvalidUserError } from '@identity/domain/errors/invalidUser.error';
 
 test('User.toPrimitives omits the password hash', () => {
   const user = User.rehydrate({

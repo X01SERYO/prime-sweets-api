@@ -1,4 +1,4 @@
-import { DomainError } from '../../../../shared/domain/errors/domainError';
+import { DomainError } from '@shared/domain/errors/domainError';
 
 export class ProductAlreadyExistsError extends DomainError {
   readonly code = 'PRODUCT_ALREADY_EXISTS';

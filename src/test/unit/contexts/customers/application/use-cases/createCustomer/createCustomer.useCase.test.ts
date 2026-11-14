@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Customer } from '../../../../../../../contexts/customers/domain/entities/customer';
-import { CustomerRepository } from '../../../../../../../contexts/customers/application/ports/outbound/customer.repository';
-import { CreateCustomerUseCase } from '../../../../../../../contexts/customers/application/use-cases/createCustomer/createCustomer.useCase';
-import { CustomerAlreadyExistsError } from '../../../../../../../contexts/customers/domain/errors/customerAlreadyExists.error';
-import { InvalidCustomerError } from '../../../../../../../contexts/customers/domain/errors/invalidCustomer.error';
+import { Customer } from '@customers/domain/entities/customer';
+import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
+import { CreateCustomerUseCase } from '@customers/application/use-cases/createCustomer/createCustomer.useCase';
+import { CustomerAlreadyExistsError } from '@customers/domain/errors/customerAlreadyExists.error';
+import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
 
 const ids = { next: () => `id-${Math.random()}` };
 

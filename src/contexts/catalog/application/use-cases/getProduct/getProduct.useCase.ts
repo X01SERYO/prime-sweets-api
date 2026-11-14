@@ -1,7 +1,7 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { ProductPrimitives } from '../../../domain/entities/product';
-import { ProductRepository } from '../../ports/outbound/product.repository';
-import { ProductNotFoundError } from '../../../domain/errors/productNotFound.error';
+import { Result } from '@shared/application/result/result';
+import { ProductPrimitives } from '@catalog/domain/entities/product';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { ProductNotFoundError } from '@catalog/domain/errors/productNotFound.error';
 
 export class GetProductUseCase {
   constructor(private readonly productRepository: ProductRepository) {}

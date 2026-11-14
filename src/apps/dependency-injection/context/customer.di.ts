@@ -1,9 +1,9 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { TypeOrmCustomerRepository } from '../../../contexts/customers/adapters/outbound/persistence/repositories/typeOrmCustomer.repository';
-import { CreateCustomerUseCase } from '../../../contexts/customers/application/use-cases/createCustomer/createCustomer.useCase';
-import { GetCustomerUseCase } from '../../../contexts/customers/application/use-cases/getCustomer/getCustomer.useCase';
-import { SearchCustomersUseCase } from '../../../contexts/customers/application/use-cases/searchCustomers/searchCustomers.useCase';
-import { UpdateCustomerUseCase } from '../../../contexts/customers/application/use-cases/updateCustomer/updateCustomer.useCase';
+import { TypeOrmCustomerRepository } from '@customers/adapters/outbound/persistence/repositories/typeOrmCustomer.repository';
+import { CreateCustomerUseCase } from '@customers/application/use-cases/createCustomer/createCustomer.useCase';
+import { GetCustomerUseCase } from '@customers/application/use-cases/getCustomer/getCustomer.useCase';
+import { SearchCustomersUseCase } from '@customers/application/use-cases/searchCustomers/searchCustomers.useCase';
+import { UpdateCustomerUseCase } from '@customers/application/use-cases/updateCustomer/updateCustomer.useCase';
 
 export function registerCustomerDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');

@@ -1,7 +1,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { EnvCompanyProfileAdapter } from '../../../../../../contexts/fulfillment-output/adapters/outbound/envCompanyProfile.adapter';
-import { loadAppConfig } from '../../../../../../shared/infrastructure/config/appConfig';
+import { EnvCompanyProfileAdapter } from '@fulfillment-output/adapters/outbound/envCompanyProfile.adapter';
+import { loadAppConfig } from '@shared/infrastructure/config/appConfig';
 
 const keys = [
   'COMPANY_NAME',

@@ -1,10 +1,10 @@
 import { randomUUID } from 'crypto';
 import { Brackets, DataSource, In } from 'typeorm';
-import { Product } from '../../../../domain/entities/product';
-import { ProductRepository } from '../../../../application/ports/outbound/product.repository';
-import { formatProductCode } from '../../../../domain/productCode';
-import { ProductEntity } from '../entities/product.entity';
-import { ProductPriceEntity } from '../entities/productPrice.entity';
+import { Product } from '@catalog/domain/entities/product';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { formatProductCode } from '@catalog/domain/productCode';
+import { ProductEntity } from '@catalog/adapters/outbound/persistence/entities/product.entity';
+import { ProductPriceEntity } from '@catalog/adapters/outbound/persistence/entities/productPrice.entity';
 
 export class TypeOrmProductRepository implements ProductRepository {
   constructor(private readonly dataSource: DataSource) {}

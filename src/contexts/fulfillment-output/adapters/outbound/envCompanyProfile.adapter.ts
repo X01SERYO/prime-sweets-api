@@ -1,6 +1,6 @@
-import { getAppConfig } from '../../../../shared/infrastructure/config/appConfig';
-import { CompanyProfileQuery } from '../../application/ports/outbound/companyProfileQuery.port';
-import { InvoiceCompanyProfile } from '../../domain/entities/invoiceDocument';
+import { getAppConfig } from '@shared/infrastructure/config/appConfig';
+import { CompanyProfileQuery } from '@fulfillment-output/application/ports/outbound/companyProfileQuery.port';
+import { InvoiceCompanyProfile } from '@fulfillment-output/domain/entities/invoiceDocument';
 
 export class EnvCompanyProfileAdapter implements CompanyProfileQuery {
   async get(): Promise<InvoiceCompanyProfile | null> {

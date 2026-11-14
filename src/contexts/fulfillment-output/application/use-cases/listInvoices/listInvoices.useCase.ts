@@ -1,6 +1,6 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { ListInvoicesDto } from '../../dto/listInvoices.dto';
-import { InvoiceQuery, InvoiceSummary } from '../../ports/outbound/invoiceQuery.port';
+import { Result } from '@shared/application/result/result';
+import { ListInvoicesDto } from '@fulfillment-output/application/dto/listInvoices.dto';
+import { InvoiceQuery, InvoiceSummary } from '@fulfillment-output/application/ports/outbound/invoiceQuery.port';
 
 export class ListInvoicesUseCase {
   constructor(private readonly invoiceQuery: InvoiceQuery) {}

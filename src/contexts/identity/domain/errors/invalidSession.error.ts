@@ -1,4 +1,4 @@
-import { UnauthorizedError } from '../../../../shared/domain/errors/unauthorized.error';
+import { UnauthorizedError } from '@shared/domain/errors/unauthorized.error';
 
 export class InvalidSessionError extends UnauthorizedError {
   readonly code = 'INVALID_SESSION';

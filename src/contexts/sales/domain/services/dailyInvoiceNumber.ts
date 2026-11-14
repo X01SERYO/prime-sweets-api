@@ -1,4 +1,4 @@
-import { InvalidSaleError } from '../errors/invalidSale.error';
+import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
 
 export function formatDailyInvoiceNumber(value: number): string {
   if (!Number.isInteger(value) || value < 1) {

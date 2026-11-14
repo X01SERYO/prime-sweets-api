@@ -1,10 +1,10 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { CustomerPrimitives } from '../../../domain/entities/customer';
-import { CustomerRepository } from '../../ports/outbound/customer.repository';
-import { CustomerNotFoundError } from '../../../domain/errors/customerNotFound.error';
-import { CustomerAlreadyExistsError } from '../../../domain/errors/customerAlreadyExists.error';
-import { InvalidCustomerError } from '../../../domain/errors/invalidCustomer.error';
-import { UpdateCustomerDto } from '../../dto/updateCustomer.dto';
+import { Result } from '@shared/application/result/result';
+import { CustomerPrimitives } from '@customers/domain/entities/customer';
+import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
+import { CustomerNotFoundError } from '@customers/domain/errors/customerNotFound.error';
+import { CustomerAlreadyExistsError } from '@customers/domain/errors/customerAlreadyExists.error';
+import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
+import { UpdateCustomerDto } from '@customers/application/dto/updateCustomer.dto';
 
 export class UpdateCustomerUseCase {
   constructor(private readonly customerRepository: CustomerRepository) {}

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomBytes, scryptSync } from 'crypto';
-import { ScryptPasswordMatcher } from '../../../../../../contexts/identity/adapters/outbound/scryptPassword.matcher';
+import { ScryptPasswordMatcher } from '@identity/adapters/outbound/scryptPassword.matcher';
 
 test('ScryptPasswordMatcher accepts the matching password and rejects a bad hash', async () => {
   const salt = randomBytes(8);

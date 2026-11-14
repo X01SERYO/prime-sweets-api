@@ -1,4 +1,4 @@
-import { InvalidCustomerError } from '../errors/invalidCustomer.error';
+import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
 
 export type CustomerPrimitives = {
   id: string;

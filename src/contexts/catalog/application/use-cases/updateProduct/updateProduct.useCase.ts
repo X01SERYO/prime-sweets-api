@@ -1,11 +1,11 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { ProductPrimitives } from '../../../domain/entities/product';
-import { ProductRepository } from '../../ports/outbound/product.repository';
-import { ProductAlegraSyncService } from '../../ports/outbound/productAlegraSync.service';
-import { ProductNotFoundError } from '../../../domain/errors/productNotFound.error';
-import { InvalidProductError } from '../../../domain/errors/invalidProduct.error';
-import { ProductAlegraSyncError } from '../../../domain/errors/productAlegraSync.error';
-import { UpdateProductDto } from '../../dto/updateProduct.dto';
+import { Result } from '@shared/application/result/result';
+import { ProductPrimitives } from '@catalog/domain/entities/product';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { ProductAlegraSyncService } from '@catalog/application/ports/outbound/productAlegraSync.service';
+import { ProductNotFoundError } from '@catalog/domain/errors/productNotFound.error';
+import { InvalidProductError } from '@catalog/domain/errors/invalidProduct.error';
+import { ProductAlegraSyncError } from '@catalog/domain/errors/productAlegraSync.error';
+import { UpdateProductDto } from '@catalog/application/dto/updateProduct.dto';
 
 function presentMoney(value: unknown, field: string): Result<number | undefined> {
   if (value === undefined) {

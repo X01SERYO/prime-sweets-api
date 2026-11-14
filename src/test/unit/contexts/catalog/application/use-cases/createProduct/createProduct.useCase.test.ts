@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CreateProductUseCase } from '../../../../../../../contexts/catalog/application/use-cases/createProduct/createProduct.useCase';
-import { ProductRepository } from '../../../../../../../contexts/catalog/application/ports/outbound/product.repository';
-import { BrandRepository } from '../../../../../../../contexts/catalog/application/ports/outbound/brand.repository';
-import { Brand } from '../../../../../../../contexts/catalog/domain/entities/brand';
-import { Product } from '../../../../../../../contexts/catalog/domain/entities/product';
-import { ProductAlegraSyncError } from '../../../../../../../contexts/catalog/domain/errors/productAlegraSync.error';
-import { BrandNotFoundError } from '../../../../../../../contexts/catalog/domain/errors/brandNotFound.error';
+import { CreateProductUseCase } from '@catalog/application/use-cases/createProduct/createProduct.useCase';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
+import { Brand } from '@catalog/domain/entities/brand';
+import { Product } from '@catalog/domain/entities/product';
+import { ProductAlegraSyncError } from '@catalog/domain/errors/productAlegraSync.error';
+import { BrandNotFoundError } from '@catalog/domain/errors/brandNotFound.error';
 
 const ids = { next: () => 'p-1' };
 

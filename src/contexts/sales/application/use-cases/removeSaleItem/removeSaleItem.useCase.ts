@@ -1,9 +1,9 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { SalePrimitives } from '../../../domain/entities/sale';
-import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { RemoveSaleItemDto } from '../../dto/removeSaleItem.dto';
-import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
+import { Result } from '@shared/application/result/result';
+import { SalePrimitives } from '@sales/domain/entities/sale';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { RemoveSaleItemDto } from '@sales/application/dto/removeSaleItem.dto';
+import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
+import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
 
 export class RemoveSaleItemUseCase {
   constructor(

@@ -3,15 +3,15 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import express from 'express';
 import { AddressInfo } from 'node:net';
-import { AppContainer } from '../../../apps/dependency-injection/appContainer';
-import { Result } from '../../../shared/application/result/result';
-import { createAuthRouter } from '../../../contexts/identity/adapters/inbound/http/auth.route';
-import { createBrandsRouter } from '../../../contexts/catalog/adapters/inbound/http/brands.route';
-import { createProductsRouter } from '../../../contexts/catalog/adapters/inbound/http/products.route';
-import { createCustomersRouter } from '../../../contexts/customers/adapters/inbound/http/customers.route';
-import { createSalesRouter } from '../../../contexts/sales/adapters/inbound/http/sales.route';
-import { createLoadSheetsRouter } from '../../../contexts/fulfillment-output/adapters/inbound/http/loadSheet.route';
-import { createInvoicesRouter } from '../../../contexts/fulfillment-output/adapters/inbound/http/invoices.route';
+import { AppContainer } from '@apps/dependency-injection/appContainer';
+import { Result } from '@shared/application/result/result';
+import { createAuthRouter } from '@identity/adapters/inbound/http/auth.route';
+import { createBrandsRouter } from '@catalog/adapters/inbound/http/brands.route';
+import { createProductsRouter } from '@catalog/adapters/inbound/http/products.route';
+import { createCustomersRouter } from '@customers/adapters/inbound/http/customers.route';
+import { createSalesRouter } from '@sales/adapters/inbound/http/sales.route';
+import { createLoadSheetsRouter } from '@fulfillment-output/adapters/inbound/http/loadSheet.route';
+import { createInvoicesRouter } from '@fulfillment-output/adapters/inbound/http/invoices.route';
 
 function container(): AppContainer {
   return {

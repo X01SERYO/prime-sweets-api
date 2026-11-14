@@ -1,14 +1,14 @@
-import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
-import { Result } from '../../../../../shared/application/result/result';
-import { SalePrimitives } from '../../../domain/entities/sale';
-import { SaleItem } from '../../../domain/entities/saleItem';
-import { SaleRepository } from '../../ports/outbound/sale.repository';
-import { ProductSnapshotProvider } from '../../ports/outbound/productSnapshotProvider.port';
-import { AddSaleItemDto } from '../../dto/addSaleItem.dto';
-import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { DeliveryDateRequiredError } from '../../../domain/errors/deliveryDateRequired.error';
-import { ProductNotFoundForSaleError } from '../../../domain/errors/productNotFoundForSale.error';
-import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
+import { IdGenerator } from '@shared/application/ports/idGenerator';
+import { Result } from '@shared/application/result/result';
+import { SalePrimitives } from '@sales/domain/entities/sale';
+import { SaleItem } from '@sales/domain/entities/saleItem';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { ProductSnapshotProvider } from '@sales/application/ports/outbound/productSnapshotProvider.port';
+import { AddSaleItemDto } from '@sales/application/dto/addSaleItem.dto';
+import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
+import { DeliveryDateRequiredError } from '@sales/domain/errors/deliveryDateRequired.error';
+import { ProductNotFoundForSaleError } from '@sales/domain/errors/productNotFoundForSale.error';
+import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
 
 export class AddSaleItemUseCase {
   constructor(

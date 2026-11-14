@@ -1,6 +1,6 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { ProductRepository } from '../../ports/outbound/product.repository';
-import { ProductNotFoundError } from '../../../domain/errors/productNotFound.error';
+import { Result } from '@shared/application/result/result';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { ProductNotFoundError } from '@catalog/domain/errors/productNotFound.error';
 
 export class DeleteProductUseCase {
   constructor(private readonly productRepository: ProductRepository) {}

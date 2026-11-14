@@ -1,6 +1,6 @@
 import path from 'path';
 import express from 'express';
-import { AppContainer } from '../dependency-injection/appContainer';
+import { AppContainer } from '@apps/dependency-injection/appContainer';
 import { registerRoutes } from './routes';
 
 export function createApp(container: AppContainer) {

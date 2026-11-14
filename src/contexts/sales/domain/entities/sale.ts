@@ -1,9 +1,9 @@
 import { SaleItem, SaleItemPrimitives } from './saleItem';
-import { InvalidSaleError } from '../errors/invalidSale.error';
-import { SaleMustContainItemsError } from '../errors/saleMustContainItems.error';
-import { SaleCannotBeModifiedError } from '../errors/saleCannotBeModified.error';
-import { SaleAlreadyVoidedError } from '../errors/saleAlreadyVoided.error';
-import { assertDeliveryDateAllowed, normalizeBusinessDate } from '../services/deliveryDateRange';
+import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
+import { SaleMustContainItemsError } from '@sales/domain/errors/saleMustContainItems.error';
+import { SaleCannotBeModifiedError } from '@sales/domain/errors/saleCannotBeModified.error';
+import { SaleAlreadyVoidedError } from '@sales/domain/errors/saleAlreadyVoided.error';
+import { assertDeliveryDateAllowed, normalizeBusinessDate } from '@sales/domain/services/deliveryDateRange';
 
 function newestFirst(items: SaleItem[]): SaleItem[] {
   return [...items].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());

@@ -1,15 +1,15 @@
-import { IdGenerator } from '../../../../../shared/application/ports/idGenerator';
-import { Result } from '../../../../../shared/application/result/result';
-import { Sale, SalePrimitives } from '../../../domain/entities/sale';
-import { SaleItem } from '../../../domain/entities/saleItem';
-import { SaleNotFoundError } from '../../../domain/errors/saleNotFound.error';
-import { InvalidSaleError } from '../../../domain/errors/invalidSale.error';
-import { assertDeliveryDateAllowed, normalizeBusinessDate } from '../../../domain/services/deliveryDateRange';
-import { SetSaleDeliveryDateDto } from '../../dto/setSaleDeliveryDate.dto';
-import { BusinessCalendar } from '../../ports/outbound/businessCalendar.port';
-import { InvoiceNumberAllocator } from '../../ports/outbound/invoiceNumberAllocator.port';
-import { SaleBatch } from '../../ports/outbound/saleBatch.port';
-import { SaleRepository } from '../../ports/outbound/sale.repository';
+import { IdGenerator } from '@shared/application/ports/idGenerator';
+import { Result } from '@shared/application/result/result';
+import { Sale, SalePrimitives } from '@sales/domain/entities/sale';
+import { SaleItem } from '@sales/domain/entities/saleItem';
+import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
+import { InvalidSaleError } from '@sales/domain/errors/invalidSale.error';
+import { assertDeliveryDateAllowed, normalizeBusinessDate } from '@sales/domain/services/deliveryDateRange';
+import { SetSaleDeliveryDateDto } from '@sales/application/dto/setSaleDeliveryDate.dto';
+import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
+import { InvoiceNumberAllocator } from '@sales/application/ports/outbound/invoiceNumberAllocator.port';
+import { SaleBatch } from '@sales/application/ports/outbound/saleBatch.port';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
 
 export class SetSaleDeliveryDateUseCase {
   constructor(

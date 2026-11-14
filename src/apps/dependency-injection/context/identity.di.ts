@@ -1,10 +1,10 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
-import { TypeOrmSessionStore } from '../../../contexts/identity/adapters/outbound/persistence/typeOrmSession.store';
-import { TypeOrmCredentialStore } from '../../../contexts/identity/adapters/outbound/persistence/typeOrmCredential.store';
-import { ScryptPasswordMatcher } from '../../../contexts/identity/adapters/outbound/scryptPassword.matcher';
-import { GetSessionUseCase } from '../../../contexts/identity/application/use-cases/getSession/getSession.useCase';
-import { LoginUseCase } from '../../../contexts/identity/application/use-cases/login/login.useCase';
-import { LogoutUseCase } from '../../../contexts/identity/application/use-cases/logout/logout.useCase';
+import { TypeOrmSessionStore } from '@identity/adapters/outbound/persistence/typeOrmSession.store';
+import { TypeOrmCredentialStore } from '@identity/adapters/outbound/persistence/typeOrmCredential.store';
+import { ScryptPasswordMatcher } from '@identity/adapters/outbound/scryptPassword.matcher';
+import { GetSessionUseCase } from '@identity/application/use-cases/getSession/getSession.useCase';
+import { LoginUseCase } from '@identity/application/use-cases/login/login.useCase';
+import { LogoutUseCase } from '@identity/application/use-cases/logout/logout.useCase';
 
 export function registerIdentityDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');

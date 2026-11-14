@@ -1,6 +1,6 @@
 import { randomBytes } from 'crypto';
-import { IssuedSession, SessionStore } from '../../application/ports/outbound/sessionStore.port';
-import { MAX_OPEN_SESSIONS } from '../../domain/sessionLimit';
+import { IssuedSession, SessionStore } from '@identity/application/ports/outbound/sessionStore.port';
+import { MAX_OPEN_SESSIONS } from '@identity/domain/sessionLimit';
 
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000;
 

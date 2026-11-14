@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { z } from 'zod';
-import { validateRequest } from '../../../../apps/middlewares/validateRequest';
+import { validateRequest } from '@apps/middlewares/validateRequest';
 
 function createMockResponse() {
   const res: any = {

@@ -1,10 +1,10 @@
 import { DataSource, Repository } from 'typeorm';
-import { Sale } from '../../../../domain/entities/sale';
-import { ListSalesFilters, SaleRepository } from '../../../../application/ports/outbound/sale.repository';
-import { SaleBatch } from '../../../../application/ports/outbound/saleBatch.port';
-import { SaleEntity } from '../sale.entity';
-import { SaleItemEntity } from '../saleItem.entity';
-import { SaleMapper } from '../sale.mapper';
+import { Sale } from '@sales/domain/entities/sale';
+import { ListSalesFilters, SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { SaleBatch } from '@sales/application/ports/outbound/saleBatch.port';
+import { SaleEntity } from '@sales/adapters/outbound/persistence/sale.entity';
+import { SaleItemEntity } from '@sales/adapters/outbound/persistence/saleItem.entity';
+import { SaleMapper } from '@sales/adapters/outbound/persistence/sale.mapper';
 
 export class TypeOrmSaleRepository implements SaleRepository, SaleBatch {
   constructor(private readonly dataSource: DataSource) {}

@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CatalogProductDisplayAdapter } from '../../../../../../apps/dependency-injection/acl/catalogProductDisplay.adapter';
-import { ProductRepository } from '../../../../../../contexts/catalog/application/ports/outbound/product.repository';
-import { BrandRepository } from '../../../../../../contexts/catalog/application/ports/outbound/brand.repository';
-import { Product } from '../../../../../../contexts/catalog/domain/entities/product';
-import { Brand } from '../../../../../../contexts/catalog/domain/entities/brand';
+import { CatalogProductDisplayAdapter } from '@apps/dependency-injection/acl/catalogProductDisplay.adapter';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
+import { Product } from '@catalog/domain/entities/product';
+import { Brand } from '@catalog/domain/entities/brand';
 
 test('CatalogProductDisplayAdapter - resolves catalog name and brand, skipping missing products', async () => {
   const product = Product.create({

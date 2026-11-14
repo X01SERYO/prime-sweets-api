@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { AddSaleItemUseCase } from '../../../../../../../contexts/sales/application/use-cases/addSaleItem/addSaleItem.useCase';
-import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
-import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { ProductSnapshotProvider } from '../../../../../../../contexts/sales/application/ports/outbound/productSnapshotProvider.port';
-import { SaleNotFoundError } from '../../../../../../../contexts/sales/domain/errors/saleNotFound.error';
-import { ProductNotFoundForSaleError } from '../../../../../../../contexts/sales/domain/errors/productNotFoundForSale.error';
+import { AddSaleItemUseCase } from '@sales/application/use-cases/addSaleItem/addSaleItem.useCase';
+import { Sale } from '@sales/domain/entities/sale';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { ProductSnapshotProvider } from '@sales/application/ports/outbound/productSnapshotProvider.port';
+import { SaleNotFoundError } from '@sales/domain/errors/saleNotFound.error';
+import { ProductNotFoundForSaleError } from '@sales/domain/errors/productNotFoundForSale.error';
 
 const ids = { next: () => `id-${Math.random()}` };
 

@@ -1,15 +1,15 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { InvoiceDocument, InvoiceDocumentPrimitives } from '../../../domain/entities/invoiceDocument';
-import { CompanyProfileNotConfiguredError } from '../../../domain/errors/companyProfileNotConfigured.error';
-import { CustomerNotFoundForInvoiceError } from '../../../domain/errors/customerNotFoundForInvoice.error';
-import { InvoiceNumberMissingError } from '../../../domain/errors/invoiceNumberMissing.error';
-import { InvoiceSaleDateMissingError } from '../../../domain/errors/invoiceSaleDateMissing.error';
-import { SaleNotFoundForInvoiceError } from '../../../domain/errors/saleNotFoundForInvoice.error';
-import { SaleNotInvoiceableError } from '../../../domain/errors/saleNotInvoiceable.error';
-import { GenerateInvoiceDto } from '../../dto/generateInvoice.dto';
-import { CompanyProfileQuery } from '../../ports/outbound/companyProfileQuery.port';
-import { InvoiceCustomerQuery } from '../../ports/outbound/invoiceCustomerQuery.port';
-import { InvoiceSaleQuery } from '../../ports/outbound/invoiceSaleQuery.port';
+import { Result } from '@shared/application/result/result';
+import { InvoiceDocument, InvoiceDocumentPrimitives } from '@fulfillment-output/domain/entities/invoiceDocument';
+import { CompanyProfileNotConfiguredError } from '@fulfillment-output/domain/errors/companyProfileNotConfigured.error';
+import { CustomerNotFoundForInvoiceError } from '@fulfillment-output/domain/errors/customerNotFoundForInvoice.error';
+import { InvoiceNumberMissingError } from '@fulfillment-output/domain/errors/invoiceNumberMissing.error';
+import { InvoiceSaleDateMissingError } from '@fulfillment-output/domain/errors/invoiceSaleDateMissing.error';
+import { SaleNotFoundForInvoiceError } from '@fulfillment-output/domain/errors/saleNotFoundForInvoice.error';
+import { SaleNotInvoiceableError } from '@fulfillment-output/domain/errors/saleNotInvoiceable.error';
+import { GenerateInvoiceDto } from '@fulfillment-output/application/dto/generateInvoice.dto';
+import { CompanyProfileQuery } from '@fulfillment-output/application/ports/outbound/companyProfileQuery.port';
+import { InvoiceCustomerQuery } from '@fulfillment-output/application/ports/outbound/invoiceCustomerQuery.port';
+import { InvoiceSaleQuery } from '@fulfillment-output/application/ports/outbound/invoiceSaleQuery.port';
 
 export class GenerateInvoiceUseCase {
   constructor(

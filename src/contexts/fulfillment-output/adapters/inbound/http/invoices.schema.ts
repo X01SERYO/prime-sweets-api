@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { RequestValidationSchema } from '../../../../../apps/middlewares/validateRequest';
+import { RequestValidationSchema } from '@apps/middlewares/validateRequest';
 
 export const listInvoicesSchema: RequestValidationSchema = {
   query: z.object({

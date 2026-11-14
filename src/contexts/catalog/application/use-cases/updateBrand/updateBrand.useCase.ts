@@ -1,10 +1,10 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { BrandPrimitives } from '../../../domain/entities/brand';
-import { BrandRepository } from '../../ports/outbound/brand.repository';
-import { BrandAlreadyExistsError } from '../../../domain/errors/brandAlreadyExists.error';
-import { BrandNotFoundError } from '../../../domain/errors/brandNotFound.error';
-import { InvalidBrandError } from '../../../domain/errors/invalidBrand.error';
-import { UpdateBrandDto } from '../../dto/updateBrand.dto';
+import { Result } from '@shared/application/result/result';
+import { BrandPrimitives } from '@catalog/domain/entities/brand';
+import { BrandRepository } from '@catalog/application/ports/outbound/brand.repository';
+import { BrandAlreadyExistsError } from '@catalog/domain/errors/brandAlreadyExists.error';
+import { BrandNotFoundError } from '@catalog/domain/errors/brandNotFound.error';
+import { InvalidBrandError } from '@catalog/domain/errors/invalidBrand.error';
+import { UpdateBrandDto } from '@catalog/application/dto/updateBrand.dto';
 
 export class UpdateBrandUseCase {
   constructor(private readonly brandRepository: BrandRepository) {}

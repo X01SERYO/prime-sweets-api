@@ -1,5 +1,5 @@
-import { ProductRepository } from '../../../contexts/catalog/application/ports/outbound/product.repository';
-import { ProductSnapshot, ProductSnapshotProvider } from '../../../contexts/sales/application/ports/outbound/productSnapshotProvider.port';
+import { ProductRepository } from '@catalog/application/ports/outbound/product.repository';
+import { ProductSnapshot, ProductSnapshotProvider } from '@sales/application/ports/outbound/productSnapshotProvider.port';
 
 export class CatalogProductSnapshotAdapter implements ProductSnapshotProvider {
   constructor(private readonly productRepository: ProductRepository) {}

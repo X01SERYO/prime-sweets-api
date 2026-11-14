@@ -70,7 +70,7 @@ Decisions that must be agreed upon before completing subsequent modules of Versi
 
 | ID | Decision Area | Options Considered | Recommendation | Related Docs |
 |---|---|---|---|---|
-| **DEC-01** | TypeScript Path Aliases vs Relative Imports | **A:** Use tsconfig path aliases (`@catalog/*`, `@shared/*`).<br>**B:** Maintain strict normalized relative paths. | **Option A** — Eliminates brittle multi-level relative paths (`../../..`) that caused TD-01. | `tsconfig.json`, `ADR-001` |
+| **DEC-01** | TypeScript Path Aliases vs Relative Imports | **A:** Use tsconfig path aliases (`@catalog/*`, `@shared/*`).<br>**B:** Maintain strict normalized relative paths. | **[DECIDED] Option A.** Parent imports use `@apps`, `@catalog`, `@customers`, `@sales`, `@identity`, `@fulfillment-output`, `@alegra`, and `@shared`. `tsc` does not rewrite them, so `build` runs `tsc-alias` and dev/migrations load `tsconfig-paths`. | `tsconfig.json` |
 | **DEC-02** | Adoption of Domain Value Objects (`Price`, `Quantity`, `Sku`) | **A:** Keep primitives (`number`, `string`) with use-case validation.<br>**B:** Implement dedicated Value Objects in `domain/value-objects/`. | **Option B** — Enforces business invariants at the domain boundary, removing duplicate checks across use cases. | `.cursor/skills/backend-hexagonal-ddd/` |
 | **DEC-03** | Resilience Strategy for External Integrations (Alegra) | **A:** Transactional Outbox pattern with background worker.<br>**B:** Retry queue with exponential backoff.<br>**C:** Direct HTTP with asynchronous Event Emitter. | **[DECIDED]** Version 1 keeps the current path: save the product, then call Alegra on the same request. A failure is logged and the saved product is returned. No outbox and no extra event emitter. | `docs/flows/README.md` |
 | **DEC-04** | Input Schema Validation Library | **A:** Zod.<br>**B:** Joi / Express-validator.<br>**C:** Class-validator with decorators. | **[DECIDED] Option A (Zod).** Implemented in `validateRequest` and the `*.schema.ts` files. | `package.json`, `src/apps/middlewares/validateRequest.ts` |
@@ -88,7 +88,9 @@ Checked against the running contexts `identity`, `catalog`, `customers`, `sales`
 | Unused imports or orphan modules | No unused context was deleted in this pass. `PriceListEntity` was already removed (H-02). |
 | PDR-004 retail | Documented only. Not implemented. Not debt. |
 
-Still open: DEC-01, DEC-02. H-01 and DEC-03 are closed: version 1 keeps the direct Alegra call after the local save. H-03 is resolved.
+ESLint is on 10 with `eslint.config.mjs`. `npm run lint` passes. The four `no-explicit-any` warnings in the request-validation test stay warnings, as before.
+
+Still open: DEC-02. DEC-01 is decided: parent imports use the path aliases above. H-01 and DEC-03 are closed: version 1 keeps the direct Alegra call after the local save. H-03 is resolved.
 
 ## 6. Non-Duplicated Cross-References
 

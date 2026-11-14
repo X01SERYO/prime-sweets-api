@@ -1,6 +1,6 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { InvalidSessionError } from '../../../domain/errors/invalidSession.error';
-import { IssuedSession, SessionStore } from '../../ports/outbound/sessionStore.port';
+import { Result } from '@shared/application/result/result';
+import { InvalidSessionError } from '@identity/domain/errors/invalidSession.error';
+import { IssuedSession, SessionStore } from '@identity/application/ports/outbound/sessionStore.port';
 
 export class GetSessionUseCase {
   constructor(private readonly sessions: SessionStore) {}

@@ -1,5 +1,5 @@
-import { Result } from '../../../../../shared/application/result/result';
-import { SessionStore } from '../../ports/outbound/sessionStore.port';
+import { Result } from '@shared/application/result/result';
+import { SessionStore } from '@identity/application/ports/outbound/sessionStore.port';
 
 export class LogoutUseCase {
   constructor(private readonly sessions: SessionStore) {}

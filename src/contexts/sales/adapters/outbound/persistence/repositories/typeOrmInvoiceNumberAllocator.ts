@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { formatDailyInvoiceNumber } from '../../../../domain/services/dailyInvoiceNumber';
-import { InvoiceNumberAllocator } from '../../../../application/ports/outbound/invoiceNumberAllocator.port';
+import { formatDailyInvoiceNumber } from '@sales/domain/services/dailyInvoiceNumber';
+import { InvoiceNumberAllocator } from '@sales/application/ports/outbound/invoiceNumberAllocator.port';
 
 export class TypeOrmInvoiceNumberAllocator implements InvoiceNumberAllocator {
   constructor(private readonly dataSource: DataSource) {}

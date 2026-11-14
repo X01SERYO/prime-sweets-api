@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { Customer } from '../../../../../../../contexts/customers/domain/entities/customer';
-import { CustomerRepository } from '../../../../../../../contexts/customers/application/ports/outbound/customer.repository';
-import { UpdateCustomerUseCase } from '../../../../../../../contexts/customers/application/use-cases/updateCustomer/updateCustomer.useCase';
-import { CustomerNotFoundError } from '../../../../../../../contexts/customers/domain/errors/customerNotFound.error';
-import { CustomerAlreadyExistsError } from '../../../../../../../contexts/customers/domain/errors/customerAlreadyExists.error';
-import { InvalidCustomerError } from '../../../../../../../contexts/customers/domain/errors/invalidCustomer.error';
+import { Customer } from '@customers/domain/entities/customer';
+import { CustomerRepository } from '@customers/application/ports/outbound/customer.repository';
+import { UpdateCustomerUseCase } from '@customers/application/use-cases/updateCustomer/updateCustomer.useCase';
+import { CustomerNotFoundError } from '@customers/domain/errors/customerNotFound.error';
+import { CustomerAlreadyExistsError } from '@customers/domain/errors/customerAlreadyExists.error';
+import { InvalidCustomerError } from '@customers/domain/errors/invalidCustomer.error';
 
 class InMemoryCustomerRepository implements CustomerRepository {
   public customers: Customer[] = [];

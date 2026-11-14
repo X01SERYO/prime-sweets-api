@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ConfirmSaleUseCase } from '../../../../../../../contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
-import { formatDailyInvoiceNumber } from '../../../../../../../contexts/sales/domain/services/dailyInvoiceNumber';
-import { Sale } from '../../../../../../../contexts/sales/domain/entities/sale';
-import { SaleItem } from '../../../../../../../contexts/sales/domain/entities/saleItem';
-import { SaleRepository } from '../../../../../../../contexts/sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '../../../../../../../contexts/sales/application/ports/outbound/businessCalendar.port';
-import { InvoiceNumberAllocator } from '../../../../../../../contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
-import { SaleCannotBeModifiedError } from '../../../../../../../contexts/sales/domain/errors/saleCannotBeModified.error';
-import { SaleMustContainItemsError } from '../../../../../../../contexts/sales/domain/errors/saleMustContainItems.error';
+import { ConfirmSaleUseCase } from '@sales/application/use-cases/confirmSale/confirmSale.useCase';
+import { formatDailyInvoiceNumber } from '@sales/domain/services/dailyInvoiceNumber';
+import { Sale } from '@sales/domain/entities/sale';
+import { SaleItem } from '@sales/domain/entities/saleItem';
+import { SaleRepository } from '@sales/application/ports/outbound/sale.repository';
+import { BusinessCalendar } from '@sales/application/ports/outbound/businessCalendar.port';
+import { InvoiceNumberAllocator } from '@sales/application/ports/outbound/invoiceNumberAllocator.port';
+import { SaleCannotBeModifiedError } from '@sales/domain/errors/saleCannotBeModified.error';
+import { SaleMustContainItemsError } from '@sales/domain/errors/saleMustContainItems.error';
 
 function dailyAllocator(): InvoiceNumberAllocator {
   const sequences = new Map<string, number>();

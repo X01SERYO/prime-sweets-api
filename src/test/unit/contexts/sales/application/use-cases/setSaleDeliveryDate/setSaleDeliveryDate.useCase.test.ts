@@ -5,7 +5,7 @@ import { Sale } from '@/contexts/sales/domain/entities/sale';
 import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
 import { SaleBatch } from '@/contexts/sales/application/ports/outbound/saleBatch.port';
-import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
 import { SaleAlreadyVoidedError } from '@/contexts/sales/domain/errors/saleAlreadyVoided.error';
 import { DeliveryDateOutOfRangeError } from '@/contexts/sales/domain/errors/deliveryDateOutOfRange.error';

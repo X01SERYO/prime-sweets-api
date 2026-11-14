@@ -6,7 +6,7 @@ import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.e
 import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
 import { assertDeliveryDateAllowed, normalizeBusinessDate } from '@/contexts/sales/domain/services/deliveryDateRange';
 import { SetSaleDeliveryDateDto } from '@/contexts/sales/application/dto/setSaleDeliveryDate.dto';
-import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
 import { SaleBatch } from '@/contexts/sales/application/ports/outbound/saleBatch.port';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';

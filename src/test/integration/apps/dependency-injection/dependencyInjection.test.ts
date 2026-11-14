@@ -100,4 +100,11 @@ test('Dependency Injection Container - compiles and resolves all core services',
   assert.ok(syncProductItemUseCase);
   const productAlegraSyncService = container.get('alegra.infrastructure.product_alegra_sync_service');
   assert.ok(productAlegraSyncService);
+
+  const addRetailItemUseCase = container.get('retail.application.add_retail_item_use_case');
+  assert.ok(addRetailItemUseCase);
+  const setRetailItemQuantityUseCase = container.get('retail.application.set_retail_item_quantity_use_case');
+  assert.ok(setRetailItemQuantityUseCase);
+  const removeRetailItemUseCase = container.get('retail.application.remove_retail_item_use_case');
+  assert.ok(removeRetailItemUseCase);
 });

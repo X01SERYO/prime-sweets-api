@@ -1,7 +1,7 @@
 import { Result } from '@/shared/application/result/result';
 import { SalePrimitives } from '@/contexts/sales/domain/entities/sale';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
 import { ConfirmSaleDto } from '@/contexts/sales/application/dto/confirmSale.dto';
 import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.error';

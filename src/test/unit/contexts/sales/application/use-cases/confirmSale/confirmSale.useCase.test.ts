@@ -5,7 +5,7 @@ import { formatDailyInvoiceNumber } from '@/contexts/sales/domain/services/daily
 import { Sale } from '@/contexts/sales/domain/entities/sale';
 import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
 import { SaleCannotBeModifiedError } from '@/contexts/sales/domain/errors/saleCannotBeModified.error';
 import { SaleMustContainItemsError } from '@/contexts/sales/domain/errors/saleMustContainItems.error';

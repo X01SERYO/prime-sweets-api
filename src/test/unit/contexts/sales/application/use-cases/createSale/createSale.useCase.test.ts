@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { CreateSaleUseCase } from '@/contexts/sales/application/use-cases/createSale/createSale.useCase';
 import { Sale } from '@/contexts/sales/domain/entities/sale';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { CustomerChecker } from '@/contexts/sales/application/ports/outbound/customerChecker.port';
 import { ProductSnapshot, ProductSnapshotProvider } from '@/contexts/sales/application/ports/outbound/productSnapshotProvider.port';
 import { DeliveryDateOutOfRangeError } from '@/contexts/sales/domain/errors/deliveryDateOutOfRange.error';

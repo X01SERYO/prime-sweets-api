@@ -3,7 +3,7 @@ import { Result } from '@/shared/application/result/result';
 import { Sale, SalePrimitives } from '@/contexts/sales/domain/entities/sale';
 import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
-import { BusinessCalendar } from '@/contexts/sales/application/ports/outbound/businessCalendar.port';
+import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { CustomerChecker } from '@/contexts/sales/application/ports/outbound/customerChecker.port';
 import { ProductSnapshotProvider } from '@/contexts/sales/application/ports/outbound/productSnapshotProvider.port';
 import { CreateSaleDto } from '@/contexts/sales/application/dto/createSale.dto';

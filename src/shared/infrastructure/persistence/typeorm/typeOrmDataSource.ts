@@ -10,6 +10,7 @@ import { SaleItemEntity } from '@/contexts/sales/adapters/outbound/persistence/s
 import { InvoiceSequenceEntity } from '@/contexts/sales/adapters/outbound/persistence/invoiceSequence.entity';
 import { SessionEntity } from '@/contexts/identity/adapters/outbound/persistence/session.entity';
 import { UserEntity } from '@/contexts/identity/adapters/outbound/persistence/user.entity';
+import { RetailDayEntity } from '@/contexts/retail-sales/adapters/outbound/persistence/retailDay.entity';
 
 export function createTypeOrmOptions(): DataSourceOptions {
   const config = getAppConfig();
@@ -30,7 +31,8 @@ export function createTypeOrmOptions(): DataSourceOptions {
       SaleItemEntity,
       InvoiceSequenceEntity,
       UserEntity,
-      SessionEntity
+      SessionEntity,
+      RetailDayEntity
     ],
     migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
     synchronize: false

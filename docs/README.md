@@ -17,6 +17,9 @@ This index is the map of project documents. Runtime descriptions below match the
 | [adrs/ADR-001.md](./adrs/ADR-001.md) | Architecture decision: modular monolith, DDD bounded contexts, hexagon per context | Proposed. Binding for Version 1. Current runtime shape is in `architecture/`. |
 | [adrs/ADR-002.md](./adrs/ADR-002.md) | Week window and delivery date stay in Sales and Fulfillment Output | Proposed. Binding for PDR-002. |
 | [adrs/ADR-003.md](./adrs/ADR-003.md) | Product administration stays in catalog and Alegra | Proposed. Binding for PDR-003. |
+| [pdrs/PDR-004.md](./pdrs/PDR-004.md) | Daily retail sale | Proposal. Not implemented. |
+| [specs/SPEC-004.md](./specs/SPEC-004.md) | Implementation guide for PDR-004 | Proposed. Do not copy it into architecture, data-model, or flows until the code lands. |
+| [adrs/ADR-004.md](./adrs/ADR-004.md) | Retail sales are a separate bounded context | Proposed. Binding for PDR-004. |
 | [architecture/](./architecture/README.md) | C4 model of **the current API** | Implemented. One C4 set only. |
 | [data-model/](./data-model/README.md) | Entities, tables, and relations verified in code and migrations | Catalog, customers, sales, and the invoice sequence. There is no Sales Day table. Load Sheet, invoice list, and invoice document are projections and have no table. |
 | [flows/](./flows/README.md) | Business/application flows verified in code | Identity, catalog, customers, sales by delivery date, Load Sheet, invoice listing, invoice generation, and Alegra outbound sync. Remaining gaps are listed, not invented. |

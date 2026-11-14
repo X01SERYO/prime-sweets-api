@@ -47,7 +47,7 @@ export class RetailDayItem {
   }
 
   get hasCost(): boolean {
-    return this.retailCost !== null;
+    return this.retailCost !== null && this.retailCost > 0;
   }
 
   get totalPrice(): number {
@@ -55,7 +55,7 @@ export class RetailDayItem {
   }
 
   get profit(): number {
-    if (this.retailCost === null) {
+    if (!this.hasCost || this.retailCost === null) {
       return 0;
     }
     return roundMoney((this.retailPrice - this.retailCost) * this._quantity);

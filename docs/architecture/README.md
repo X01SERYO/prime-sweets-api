@@ -4,7 +4,7 @@ This folder is the **only** C4 description of the system. It documents the backe
 
 Version 1 target architecture (bounded contexts `catalog`, `customers`, `sales-day`, `sales`, `fulfillment-output`, hexagonal folder convention, modular monolith) is the decision in [ADR-001](../adrs/ADR-001.md) and the guide in [SPEC](../specs/SPEC.md). It is not duplicated here as a second C4 model.
 
-Canonical domain terms follow the PDR (`Sales Day`, `Sale`, `Load Sheet`, `Customer`, `Catalog`). Current code contexts are `catalog`, `customers`, `sales-day`, `sales`, `fulfillment-output`, and `alegra`.
+Canonical domain terms follow the PDR (`Sale`, `Load Sheet`, `Customer`, `Catalog`). Current code contexts are `identity`, `catalog`, `customers`, `sales`, `fulfillment-output`, and `alegra`. There is no `sales-day` context. A sale is keyed by delivery date.
 
 | Level | Question | Document |
 |---|---|---|

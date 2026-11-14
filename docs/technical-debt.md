@@ -77,7 +77,20 @@ Decisions that must be agreed upon before completing subsequent modules of Versi
 
 ---
 
-## 5. Non-Duplicated Cross-References
+## 5. Review on 2026-11-14
+
+Checked against the running contexts `identity`, `catalog`, `customers`, `sales`, `fulfillment-output`, and `alegra`.
+
+| Check | Result |
+|---|---|
+| Coverage | **[RESOLVED]** TD-05 stays at 86.81% lines. |
+| `sales-day` context and `/sales-days` routes | **[RESOLVED]** Removed from code. `docs/architecture/03-component.md` and the product list in `docs/flows/README.md` now match delivery-date sales, paged products, and the Alegra port layout. |
+| Unused imports or orphan modules | No unused context was deleted in this pass. `PriceListEntity` was already removed (H-02). |
+| PDR-004 retail | Documented only. Not implemented. Not debt. |
+
+Still open: H-01, H-03, DEC-01, DEC-02, DEC-03.
+
+## 6. Non-Duplicated Cross-References
 
 To preserve a single source of truth across the project:
 

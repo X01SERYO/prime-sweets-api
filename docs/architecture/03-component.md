@@ -2,7 +2,7 @@
 
 **Sources:** `src/contexts/`, `src/apps/`, `src/shared/`.
 
-Top-level modules are the bounded contexts `catalog`, `customers`, `sales-day`, `sales`, `fulfillment-output`, and `alegra`. `catalog`, `customers`, `sales-day`, `sales`, and `fulfillment-output` use `application/ports` and `adapters/`. `alegra` still uses `domain/interfaces` and `infrastructure/`.
+Top-level modules are the bounded contexts `identity`, `catalog`, `customers`, `sales`, `fulfillment-output`, and `alegra`. They use `application/ports` and `adapters/`. There is no `sales-day` context. Alegra's HTTP client lives in `adapters/outbound/http/`.
 
 ## Diagram
 
@@ -22,9 +22,7 @@ Container_Boundary(api, "Prime Sweets Core API") {
   Component(fulfillmentDom, "Fulfillment domain", "LoadSheet, InvoiceDocument", "Group by productId; render invoice from itemName")
   Component(fulfillmentInf, "Fulfillment queries", "Sales day, sale, customer, catalog, and company-profile adapters", "Read-only cross-context ports")
 
-  Component(salesDayApp, "Sales Day application", "Sales Day use cases", "Open/GetCurrent/Close/Reopen")
-  Component(salesDayDom, "Sales Day domain", "SalesDay aggregate root, errors, date provider", "Operational daily lifecycle")
-  Component(salesDayInf, "Sales Day persistence", "TypeOrmSalesDayRepository + SalesDayEntity", "Maps domain ↔ ORM")
+  Component(identityApp, "Identity", "Login and logout", "Bearer session. No sales-day context")
 
   Component(customersApp, "Customers application", "Customer use cases", "Create/Get/Search/Update")
   Component(customersDom, "Customers domain", "Customer entity, errors", "Customer model")
@@ -54,11 +52,10 @@ Rel(alegraInf, alegraApp, "delegates SyncProductItem")
 Rel(alegraApp, alegraExt, "PUT /items")
 Rel(di, http, "Resolves use cases")
 Rel(di, productsApp, "Wires repositories and sync")
-Rel(http, fulfillmentApp, "GET /load-sheets/:salesDayId and GET /invoices")
+Rel(http, fulfillmentApp, "GET /load-sheets and GET /invoices by deliveryDate")
 Rel(fulfillmentApp, fulfillmentDom, "LoadSheet.compose")
 Rel(fulfillmentApp, fulfillmentInf, "via outbound query ports")
 Rel(fulfillmentInf, salesInf, "SaleRepository.list confirmed")
-Rel(fulfillmentInf, salesDayInf, "SalesDayRepository.findById")
 Rel(fulfillmentInf, productsInf, "product and brand display")
 Rel(http, shared, "httpResponse(Result)")
 Rel(productsApp, shared, "Result")
@@ -75,12 +72,12 @@ src/
     dependency-injection/          *.di.ts composition modules
       acl/                         adapters that read another context
   contexts/
+    identity/                      login, logout, session
     catalog/
     customers/
-    sales-day/
     sales/
-    fulfillment-output/            Load Sheet, invoice list, and invoice document; no persistence
-    alegra/
+    fulfillment-output/            Load Sheet and invoice document by delivery date; no persistence
+    alegra/                        outbound HTTP client and item sync
   shared/
     application/result/
     domain/errors/
@@ -94,36 +91,35 @@ src/
 |---|---|---|
 | GET/POST | `/brands` | List / Create Brand |
 | GET/PUT/DELETE | `/brands/:id` | Get / Update / Delete Brand |
-| GET/POST | `/products` | List / Search / Create Product |
+| POST | `/auth/login` | Start a session |
+| POST | `/auth/logout` | End the session |
+| GET/POST | `/products` | Page / Create Product. `page`, `pageSize`, and `q` page the catalog |
 | GET | `/products/search` | Search Products |
 | GET/PUT/DELETE | `/products/:id` | Get / Update / Delete Product |
 | GET/POST | `/customers` | List / Search / Create Customer |
 | GET | `/customers/search` | Search Customers |
 | GET/PUT | `/customers/:id` | Get / Update Customer |
-| POST | `/sales-days/open` | Open current Sales Day |
-| GET | `/sales-days/current` | Get current Sales Day |
-| POST | `/sales-days/:id/close` | Close Sales Day |
-| POST | `/sales-days/:id/reopen` | Reopen current Sales Day |
-| GET/POST | `/sales` | List / Create Draft Sale |
+| GET/POST | `/sales` | List by delivery date / Create Draft Sale |
 | GET | `/sales/:id` | Get Sale details |
+| PATCH | `/sales/:id/delivery-date` | Move a draft, or void and reissue a confirmed sale |
 | POST | `/sales/:id/items` | Add item to Sale |
-| PUT | `/sales/:id/items/:productId/quantity` | Update item quantity |
-| PUT | `/sales/:id/items/:productId/name` | Update transaction-time item name |
-| DELETE | `/sales/:id/items/:productId` | Remove item from Sale |
+| PUT | `/sales/:id/items/:itemId/quantity` | Update item quantity |
+| PUT | `/sales/:id/items/:itemId/name` | Update the draft line name |
+| DELETE | `/sales/:id/items/:itemId` | Remove item from Sale |
 | POST | `/sales/:id/confirm` | Confirm Sale and allocate Invoice Number |
-| POST | `/sales/:id/void` | Void Confirmed Sale logically |
-| GET | `/load-sheets/:salesDayId` | Generate Load Sheet for a closed Sales Day |
-| GET | `/invoices?salesDayId=` | List invoices already allocated on a Sales Day |
-| GET | `/invoices/:saleId` | Generate the invoice document for a confirmed Sale |
+| POST | `/sales/:id/void` | Void a confirmed Sale |
+| GET | `/load-sheets?deliveryDate=` | Load Sheet for that delivery date |
+| GET | `/invoices?deliveryDate=` | List invoices for that delivery date |
+| GET | `/invoices/:saleId` | Generate the invoice document for a confirmed or voided Sale |
 
 `httpResponse` maps `Result`: 200/201 success, 404 `NotFoundError`, 400 `DomainError`, 500 otherwise.
 
 `CreateProduct` and `DeleteProduct` do not call Alegra. `CreateProduct` requires `alegraId` and treats it as already existing in Alegra.
 
-`GET /load-sheets/:salesDayId` reads a closed Sales Day and confirmed sales. It does not persist a Load Sheet and does not write Sales tables.
+`GET /load-sheets?deliveryDate=` reads confirmed sales for that delivery date. It does not persist a Load Sheet and does not write Sales tables.
 
-`GET /invoices?salesDayId=` reads allocated invoice numbers for that Sales Day. It accepts an open or closed day and does not write Sales tables.
+`GET /invoices?deliveryDate=` reads allocated invoice numbers for that delivery date. It does not write Sales tables.
 
-`GET /invoices/:saleId` renders a confirmed sale into an invoice document. It does not write Sales tables and does not allocate an invoice number. The UI prints that document with the Windows print dialog. This API has no printer adapter.
+`GET /invoices/:saleId` renders a confirmed or voided sale into an invoice document. It does not write Sales tables and does not allocate an invoice number. The UI prints that document with the Windows print dialog. This API has no printer adapter.
 
-`alegra` still uses the legacy `infrastructure/` layout.
+There is no `/sales-days` route. Alegra uses `application/ports/outbound` and `adapters/outbound/http`.

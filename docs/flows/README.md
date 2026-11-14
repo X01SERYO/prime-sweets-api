@@ -47,7 +47,7 @@ Required: `alegraId` (non-empty trim). Optional: `name`, `brandId`, `suggestedPr
 
 ### List / get / search product — `GET /products`, `GET /products/search?q=...`, `GET /products/:id`
 
-- `GET /products`: returns all products ordered by name, with channel prices mapped onto domain fields.
+- `GET /products`: returns one page (`page`, `pageSize`, optional `q`) ordered by name, with channel prices mapped onto domain fields.
 - `GET /products/search?q=...` (or `GET /products?q=...`): server-side search filtering by product name, brand name, brand code, or `alegraId` using SQL ILIKE, ordered by product name.
 - `GET /products/:id`: returns one product or `ProductNotFoundError`.
 

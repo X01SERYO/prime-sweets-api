@@ -16,7 +16,11 @@ function emptyRepo(): RetailDayRepository {
       return day;
     },
     async save() {},
+    async saveAll() {},
     async delete() {},
+    async listByStatus() {
+      return { items: [], total: 0 };
+    },
   };
 }
 

@@ -109,4 +109,8 @@ test('Dependency Injection Container - compiles and resolves all core services',
   assert.ok(setRetailItemQuantityUseCase);
   const removeRetailItemUseCase = container.get('retail.application.remove_retail_item_use_case');
   assert.ok(removeRetailItemUseCase);
+  const listRetailDaysUseCase = container.get('retail.application.list_retail_days_use_case');
+  assert.ok(listRetailDaysUseCase);
+  const reviewRetailDaysUseCase = container.get('retail.application.review_retail_days_use_case');
+  assert.ok(reviewRetailDaysUseCase);
 });

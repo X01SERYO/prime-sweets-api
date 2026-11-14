@@ -31,6 +31,8 @@ import { UpdateSaleItemQuantityUseCase } from '@/contexts/sales/application/use-
 import { VoidSaleUseCase } from '@/contexts/sales/application/use-cases/voidSale/voidSale.useCase';
 import { GetTodayRetailDayUseCase } from '@/contexts/retail-sales/application/use-cases/getTodayRetailDay/getTodayRetailDay.useCase';
 import { AddRetailItemUseCase } from '@/contexts/retail-sales/application/use-cases/addRetailItem/addRetailItem.useCase';
+import { ListRetailDaysUseCase } from '@/contexts/retail-sales/application/use-cases/listRetailDays/listRetailDays.useCase';
+import { ReviewRetailDaysUseCase } from '@/contexts/retail-sales/application/use-cases/reviewRetailDays/reviewRetailDays.useCase';
 import { RemoveRetailItemUseCase } from '@/contexts/retail-sales/application/use-cases/removeRetailItem/removeRetailItem.useCase';
 import { SetRetailItemQuantityUseCase } from '@/contexts/retail-sales/application/use-cases/setRetailItemQuantity/setRetailItemQuantity.useCase';
 
@@ -67,6 +69,8 @@ export interface AppContainer {
   get(id: 'retail.application.add_retail_item_use_case'): AddRetailItemUseCase;
   get(id: 'retail.application.set_retail_item_quantity_use_case'): SetRetailItemQuantityUseCase;
   get(id: 'retail.application.remove_retail_item_use_case'): RemoveRetailItemUseCase;
+  get(id: 'retail.application.list_retail_days_use_case'): ListRetailDaysUseCase;
+  get(id: 'retail.application.review_retail_days_use_case'): ReviewRetailDaysUseCase;
   get(id: 'fulfillment.application.generate_load_sheet_use_case'): GenerateLoadSheetUseCase;
   get(id: 'fulfillment.application.list_invoices_use_case'): ListInvoicesUseCase;
   get(id: 'fulfillment.application.generate_invoice_use_case'): GenerateInvoiceUseCase;

@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 
 export type StoredRetailItem = {
   productId: string;
@@ -20,8 +21,8 @@ export class RetailDayEntity {
   @Column({ type: 'date', name: 'business_date' })
   businessDate!: string;
 
-  @Column({ type: 'varchar', length: 20, default: 'UNREVIEWED' })
-  status!: string;
+  @Column({ type: 'varchar', length: 20, default: RetailDayStatus.Unreviewed })
+  status!: RetailDayStatus;
 
   @Column({ type: 'numeric', precision: 12, scale: 2, name: 'total_amount', default: 0 })
   totalAmount!: string;

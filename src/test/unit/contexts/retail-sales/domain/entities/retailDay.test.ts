@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RetailDay } from '@/contexts/retail-sales/domain/entities/retailDay';
+import { RetailDay, RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 import { RetailDayItem, type RetailProductSnapshot } from '@/contexts/retail-sales/domain/entities/retailDayItem';
 import { InvalidRetailQuantityError } from '@/contexts/retail-sales/domain/errors/invalidRetailQuantity.error';
 import { ProductWithoutRetailPriceError } from '@/contexts/retail-sales/domain/errors/productWithoutRetailPrice.error';
@@ -30,7 +30,7 @@ const peanuts: RetailProductSnapshot = {
 
 test('RetailDay starts empty and unreviewed', () => {
   const day = RetailDay.create('day-1', today);
-  assert.equal(day.status, 'UNREVIEWED');
+  assert.equal(day.status, RetailDayStatus.Unreviewed);
   assert.equal(day.items.length, 0);
   assert.equal(day.totalAmount, 0);
   assert.equal(day.totalProfit, 0);
@@ -127,7 +127,7 @@ test('compaction drops items and keeps totals, and a second run changes nothing'
   assert.equal(once.items.length, 0);
   assert.equal(once.totalAmount, open.totalAmount);
   assert.equal(once.totalProfit, open.totalProfit);
-  assert.equal(once.status, 'UNREVIEWED');
+  assert.equal(once.status, RetailDayStatus.Unreviewed);
   assert.equal(twice.totalAmount, once.totalAmount);
   assert.equal(twice.items.length, 0);
 });
@@ -136,7 +136,7 @@ test('reviewing sets status and discards detail; a second review is rejected', (
   const open = RetailDay.create('day-1', today).addProduct(chocolate, 2, today);
   const reviewedAt = new Date('2026-11-14T18:00:00.000Z');
   const reviewed = open.review('user-1', reviewedAt);
-  assert.equal(reviewed.status, 'REVIEWED');
+  assert.equal(reviewed.status, RetailDayStatus.Reviewed);
   assert.equal(reviewed.reviewedBy, 'user-1');
   assert.equal(reviewed.reviewedAt?.toISOString(), reviewedAt.toISOString());
   assert.equal(reviewed.items.length, 0);
@@ -150,7 +150,7 @@ test('a rehydrated past day keeps persisted totals with no items', () => {
   const day = RetailDay.rehydrate({
     id: 'day-1',
     businessDate: '2026-11-01',
-    status: 'UNREVIEWED',
+    status: RetailDayStatus.Unreviewed,
     items: [],
     totalAmount: 64000,
     totalProfit: 15200,
@@ -162,7 +162,7 @@ test('a rehydrated past day keeps persisted totals with no items', () => {
   assert.equal(day.isEditable(today), false);
   const reviewed = day.review('user-9', new Date('2026-11-14T12:00:00.000Z'));
   assert.equal(reviewed.totalAmount, 64000);
-  assert.equal(reviewed.status, 'REVIEWED');
+  assert.equal(reviewed.status, RetailDayStatus.Reviewed);
 });
 
 test('line money is rounded to 2 decimals before summing', () => {

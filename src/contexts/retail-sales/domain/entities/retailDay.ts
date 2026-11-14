@@ -3,7 +3,10 @@ import { RetailDayAlreadyReviewedError } from '@/contexts/retail-sales/domain/er
 import { RetailDayClosedError } from '@/contexts/retail-sales/domain/errors/retailDayClosed.error';
 import { RetailItemNotFoundError } from '@/contexts/retail-sales/domain/errors/retailItemNotFound.error';
 
-export type RetailDayStatus = 'UNREVIEWED' | 'REVIEWED';
+export enum RetailDayStatus {
+  Unreviewed = 'UNREVIEWED',
+  Reviewed = 'REVIEWED',
+}
 
 export type RetailDayPrimitives = {
   id: string;
@@ -57,12 +60,12 @@ export class RetailDay {
   }
 
   isEditable(today: string): boolean {
-    return this.businessDate === today && this.state.status === 'UNREVIEWED';
+    return this.businessDate === today && this.state.status === RetailDayStatus.Unreviewed;
   }
 
   static create(id: string, today: string): RetailDay {
     return new RetailDay(id, today, {
-      status: 'UNREVIEWED',
+      status: RetailDayStatus.Unreviewed,
       items: [],
       totalAmount: 0,
       totalProfit: 0,
@@ -123,13 +126,13 @@ export class RetailDay {
   }
 
   review(userId: string, now: Date): RetailDay {
-    if (this.state.status === 'REVIEWED') {
+    if (this.state.status === RetailDayStatus.Reviewed) {
       throw new RetailDayAlreadyReviewedError(this.businessDate);
     }
     const compacted = this.compact();
     return new RetailDay(this.id, this.businessDate, {
       ...compacted.state,
-      status: 'REVIEWED',
+      status: RetailDayStatus.Reviewed,
       reviewedAt: now,
       reviewedBy: userId,
     });

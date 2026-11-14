@@ -53,6 +53,12 @@ class MemoryRetailDays implements RetailDayRepository {
     this.rows.set(day.businessDate, day);
   }
 
+  async saveAll(days: RetailDay[]): Promise<void> {
+    for (const day of days) {
+      await this.save(day);
+    }
+  }
+
   async delete(id: string): Promise<void> {
     this.deleted.push(id);
     for (const [date, day] of this.rows) {
@@ -60,6 +66,10 @@ class MemoryRetailDays implements RetailDayRepository {
         this.rows.delete(date);
       }
     }
+  }
+
+  async listByStatus(): Promise<{ items: RetailDay[]; total: number }> {
+    return { items: [], total: 0 };
   }
 }
 

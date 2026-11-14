@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { RetailDayRepository } from '@/contexts/retail-sales/application/ports/outbound/retailDay.repository';
-import { RetailDay } from '@/contexts/retail-sales/domain/entities/retailDay';
+import { RetailDay, RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 import { RetailDayEntity } from '@/contexts/retail-sales/adapters/outbound/persistence/retailDay.entity';
 import { RetailDayMapper } from '@/contexts/retail-sales/adapters/outbound/persistence/retailDay.mapper';
 import { RetailDayNotFoundError } from '@/contexts/retail-sales/domain/errors/retailDayNotFound.error';
@@ -51,10 +51,32 @@ export class TypeOrmRetailDayRepository implements RetailDayRepository {
   }
 
   async save(day: RetailDay): Promise<void> {
-    await this.dataSource.getRepository(RetailDayEntity).save(RetailDayMapper.toEntity(day));
+    await this.saveAll([day]);
+  }
+
+  async saveAll(days: RetailDay[]): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      for (const day of days) {
+        await manager.getRepository(RetailDayEntity).save(RetailDayMapper.toEntity(day));
+      }
+    });
   }
 
   async delete(id: string): Promise<void> {
     await this.dataSource.getRepository(RetailDayEntity).delete({ id });
+  }
+
+  async listByStatus(
+    status: RetailDayStatus,
+    page: number,
+    pageSize: number
+  ): Promise<{ items: RetailDay[]; total: number }> {
+    const [entities, total] = await this.dataSource.getRepository(RetailDayEntity).findAndCount({
+      where: { status },
+      order: { businessDate: 'DESC' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+    return { items: entities.map((entity) => RetailDayMapper.toDomain(entity)), total };
   }
 }

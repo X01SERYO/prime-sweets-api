@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { RetailDay } from '@/contexts/retail-sales/domain/entities/retailDay';
+import { RetailDay, RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 import { RetailDayMapper } from '@/contexts/retail-sales/adapters/outbound/persistence/retailDay.mapper';
 
 const snapshot = {
@@ -34,11 +34,11 @@ test('RetailDayMapper keeps persisted totals when the draft is gone', () => {
   const entity = RetailDayMapper.toEntity(reviewed);
 
   assert.equal(entity.openItems, null);
-  assert.equal(entity.status, 'REVIEWED');
+  assert.equal(entity.status, RetailDayStatus.Reviewed);
   assert.equal(entity.reviewedBy, 'user-1');
 
   const restored = RetailDayMapper.toDomain(entity);
   assert.equal(restored.items.length, 0);
   assert.equal(restored.totalAmount, 3000);
-  assert.equal(restored.status, 'REVIEWED');
+  assert.equal(restored.status, RetailDayStatus.Reviewed);
 });

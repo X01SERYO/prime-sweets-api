@@ -2,6 +2,7 @@ import { Result } from '@/shared/application/result/result';
 import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { RetailDayRepository } from '@/contexts/retail-sales/application/ports/outbound/retailDay.repository';
 import { RetailDayView, toRetailDayView } from '@/contexts/retail-sales/application/retailDayView';
+import { RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 
 export class GetTodayRetailDayUseCase {
   constructor(
@@ -18,7 +19,7 @@ export class GetTodayRetailDayUseCase {
         id: null,
         businessDate: today,
         editable: true,
-        status: 'UNREVIEWED',
+        status: RetailDayStatus.Unreviewed,
         reviewedAt: null,
         totalAmount: 0,
         totalProfit: 0,

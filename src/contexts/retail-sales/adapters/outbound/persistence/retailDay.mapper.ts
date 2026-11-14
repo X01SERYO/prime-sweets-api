@@ -1,4 +1,4 @@
-import { RetailDay, RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
+import { RetailDay } from '@/contexts/retail-sales/domain/entities/retailDay';
 import { RetailDayItem } from '@/contexts/retail-sales/domain/entities/retailDayItem';
 import { RetailDayEntity, StoredRetailItem } from './retailDay.entity';
 
@@ -34,7 +34,7 @@ export class RetailDayMapper {
     return RetailDay.rehydrate({
       id: entity.id,
       businessDate: normalizeDate(entity.businessDate),
-      status: entity.status as RetailDayStatus,
+      status: entity.status,
       items,
       totalAmount: Number(entity.totalAmount),
       totalProfit: Number(entity.totalProfit),

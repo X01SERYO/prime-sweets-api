@@ -114,6 +114,8 @@ test('HTTP routers accept a valid call on every route and reject an empty body',
       ['GET', '/invoices?deliveryDate=2026-11-14'],
       ['GET', '/invoices/s1'],
       ['GET', '/retail-days/today'],
+      ['GET', '/retail-days?status=UNREVIEWED&page=1&pageSize=10'],
+      ['POST', '/retail-days/review', { dates: ['2026-11-13'] }],
       ['POST', '/retail-days/today/items', { productId: 'p1', quantity: 2 }],
       ['PATCH', '/retail-days/today/items/p1', { quantity: 3 }],
       ['DELETE', '/retail-days/today/items/p1']

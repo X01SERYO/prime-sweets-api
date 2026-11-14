@@ -158,14 +158,20 @@ export class TypeOrmProductRepository implements ProductRepository {
       return;
     }
 
-    const existing = await this.priceRepo.findOne({ where: { productId, channel } });
-    await this.priceRepo.save({
-      id: existing?.id ?? randomUUID(),
-      productId,
-      channel,
-      cost,
-      price
-    });
+    await this.priceRepo
+      .createQueryBuilder()
+      .insert()
+      .into(ProductPriceEntity)
+      .values({
+        id: randomUUID(),
+        productId,
+        channel,
+        cost,
+        price,
+        updatedAt: new Date()
+      })
+      .orUpdate(['cost', 'price', 'updated_at'], ['product_id', 'channel'])
+      .execute();
   }
 
   private toDomain(entity: ProductEntity): Product {

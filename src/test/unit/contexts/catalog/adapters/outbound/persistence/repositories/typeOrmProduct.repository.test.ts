@@ -47,6 +47,29 @@ function query(empty = false) {
   return self;
 }
 
+const priceWrites: Array<{ conflict?: string[]; overwrite?: string[]; channel?: string }> = [];
+
+function priceQuery() {
+  const write: { conflict?: string[]; overwrite?: string[]; channel?: string } = {};
+  const self = {
+    insert: () => self,
+    into: () => self,
+    values: (row: { channel?: string }) => {
+      write.channel = row.channel;
+      return self;
+    },
+    orUpdate: (overwrite: string[], conflict: string[]) => {
+      write.overwrite = overwrite;
+      write.conflict = conflict;
+      return self;
+    },
+    execute: async () => {
+      priceWrites.push(write);
+    }
+  };
+  return self;
+}
+
 function dataSource(rawEmpty = false): DataSource {
   const productRepo = {
     findOne: async () => productRow,
@@ -56,9 +79,8 @@ function dataSource(rawEmpty = false): DataSource {
     createQueryBuilder: () => query(rawEmpty)
   };
   const priceRepo = {
-    findOne: async () => ({ id: 'price-1' }),
     delete: async () => undefined,
-    save: async () => undefined
+    createQueryBuilder: () => priceQuery()
   };
   return {
     getRepository: (entity: { name?: string }) => (entity.name === 'ProductPriceEntity' ? priceRepo : productRepo)
@@ -86,7 +108,12 @@ test('TypeOrmProductRepository reads, searches, pages, codes, and saves channel 
     wholesalePrice: 2,
     retailPrice: null
   });
+  priceWrites.length = 0;
   await repository.save(product);
+  assert.equal(priceWrites.length, 1);
+  assert.equal(priceWrites[0].channel, 'wholesale');
+  assert.deepEqual(priceWrites[0].conflict, ['product_id', 'channel']);
+  assert.deepEqual(priceWrites[0].overwrite, ['cost', 'price', 'updated_at']);
 });
 
 test('TypeOrmProductRepository returns an empty page when no ids match', async () => {

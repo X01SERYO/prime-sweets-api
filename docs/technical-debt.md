@@ -60,7 +60,7 @@ Assumptions that require profiling, load testing, or codebase audits before deci
 |---|---|---|---|
 | **H-01** | Synchronous Alegra HTTP call causes latency spikes and thread blocking on bulk product updates. | Measure p95/p99 latency of `PUT /products/:id` with varying network delays to the external Alegra sandbox/endpoint. | High latency experienced by mobile sellers when updating catalog entries under unstable connectivity. |
 | **H-02** | ~~`priceList.entity.ts` is orphaned dead code.~~ | **[RESOLVED]** It was not registered in the DataSource or in migrations. The file was removed. Channel prices stay on `product_prices`. | None. |
-| **H-03** | Concurrent price updates on the same product could lead to race conditions in `upsertChannelPrice`. | Review `TypeOrmProductRepository.upsertChannelPrice` which does a `findOne` followed by `save`. Test with concurrent updates. | Database unique constraint violations or overwriting channel prices under concurrent requests. |
+| **H-03** | ~~Concurrent price updates on the same product could lead to race conditions in `upsertChannelPrice`.~~ | **[RESOLVED]** The channel price is inserted with `ON CONFLICT (product_id, channel) DO UPDATE` of `cost`, `price`, and `updated_at`. Two saves of the same product no longer read the row before writing it. A null price still deletes that channel. | None. |
 
 ---
 
@@ -88,7 +88,7 @@ Checked against the running contexts `identity`, `catalog`, `customers`, `sales`
 | Unused imports or orphan modules | No unused context was deleted in this pass. `PriceListEntity` was already removed (H-02). |
 | PDR-004 retail | Documented only. Not implemented. Not debt. |
 
-Still open: H-01, H-03, DEC-01, DEC-02, DEC-03.
+Still open: H-01, DEC-01, DEC-02, DEC-03. H-03 is resolved.
 
 ## 6. Non-Duplicated Cross-References
 

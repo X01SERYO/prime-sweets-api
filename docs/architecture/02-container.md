@@ -13,7 +13,7 @@ title Prime Sweets Core API — Containers (current)
 Person(operator, "Catalog and sales operator", "HTTP client")
 
 Container_Boundary(sweets, "Prime Sweets Core API") {
-  Container(api, "HTTP API", "Node.js 22+, Express 5, TypeScript", "Exposes /brands, /products, /customers, /sales-days, /sales, /load-sheets, and /invoices. Builds the DI container and starts TypeORM")
+  Container(api, "HTTP API", "Node.js 26, Express 5, TypeScript 6", "Exposes /auth, /brands, /products, /customers, /sales, /load-sheets, and /invoices. Builds the DI container and starts TypeORM")
 }
 
 ContainerDb(postgres, "PostgreSQL", "Tables brands, products, product_prices, customers, sales_days, sales, sale_items, invoice_sequences", "Catalog, customer, sales-day, and sales persistence. Load Sheet, invoice list, and invoice document are not stored.")
@@ -26,11 +26,11 @@ Rel(api, alegra, "Item sync on product update", "HTTPS")
 
 ## HTTP API
 
-`src/main.ts` loads `.env` and `reflect-metadata`, validates environment variables with `loadAppConfig`, builds the `node-dependency-injection` container using typed TypeScript modules (`persistence.di`, `catalog.di`, `customer.di`, `salesDay.di`, `sales.di`, `fulfillmentOutput.di`, `alegra.di`), initializes the TypeORM `DataSource`, and starts Express (`src/apps/api`).
+`src/main.ts` loads `.env` and `reflect-metadata`, validates environment variables with `loadAppConfig`, builds the `node-dependency-injection` container using typed TypeScript modules (`persistence.di`, `identity.di`, `catalog.di`, `customer.di`, `sales.di`, `fulfillmentOutput.di`, `alegra.di`), initializes the TypeORM `DataSource`, and starts Express (`src/apps/api`).
 
 `startApi` listens on `config.port` from that validated configuration (default `3000`). `DB_USER` and `DB_NAME` are required at startup.
 
-Stack: TypeScript CommonJS, Express 5, TypeORM 0.3, `pg`, `node-dependency-injection`.
+Stack: Node.js 26, TypeScript 6, CommonJS, Express 5, TypeORM 0.3, `pg`, `node-dependency-injection`.
 
 ## PostgreSQL
 

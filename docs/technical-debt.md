@@ -88,7 +88,7 @@ Checked against the running contexts `identity`, `catalog`, `customers`, `sales`
 | Unused imports or orphan modules | No unused context was deleted in this pass. `PriceListEntity` was already removed (H-02). |
 | PDR-004 retail | Documented only. Not implemented. Not debt. |
 
-ESLint is on 10 with `eslint.config.mjs`. `npm run lint` passes. The four `no-explicit-any` warnings in the request-validation test stay warnings, as before.
+Runtime is Node.js 26 and TypeScript 6. ESLint is on 10 with `eslint.config.mjs`. `npm run lint` passes. The four `no-explicit-any` warnings in the request-validation test stay warnings, as before.
 
 Still open: DEC-02. DEC-01 is decided: parent imports use the path aliases above. H-01 and DEC-03 are closed: version 1 keeps the direct Alegra call after the local save. H-03 is resolved.
 

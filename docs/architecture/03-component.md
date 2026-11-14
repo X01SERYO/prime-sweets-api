@@ -12,7 +12,7 @@ title HTTP API — Components (current)
 
 Container_Boundary(api, "Prime Sweets Core API") {
   Component(http, "HTTP inbound", "Express routers + httpResponse + validateRequest", "/brands, /products, /customers, /sales-days, /sales, /load-sheets, /invoices. Maps Result to JSON")
-  Component(di, "Composition root", "TypeScript DI modules", "persistence.di, catalog.di, customer.di, salesDay.di, sales.di, fulfillmentOutput.di, alegra.di")
+  Component(di, "Composition root", "TypeScript DI modules", "persistence.di, identity.di, catalog.di, customer.di, sales.di, fulfillmentOutput.di, alegra.di")
 
   Component(salesApp, "Sales application", "Sale use cases", "Create/Add/Update/Remove/Confirm/Void/Get/List")
   Component(salesDom, "Sales domain", "Sale aggregate, SaleItem entity, errors", "Financial calculations & invoice numbering")

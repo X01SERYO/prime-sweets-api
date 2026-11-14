@@ -1,7 +1,7 @@
 import path from 'path';
 import express from 'express';
 import { AppContainer } from '@apps/dependency-injection/appContainer';
-import { registerRoutes } from './routes';
+import { registerRoutes } from './routes/index';
 
 export function createApp(container: AppContainer) {
   const app = express();

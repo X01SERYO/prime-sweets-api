@@ -2,7 +2,7 @@ import 'dotenv/config';
 import 'reflect-metadata';
 import { loadAppConfig, getAppConfig } from './shared/infrastructure/config/appConfig';
 import { startApi } from './apps/api/server';
-import { buildContainer } from './apps/dependency-injection';
+import { buildContainer } from './apps/dependency-injection/index';
 
 async function bootstrap() {
   try {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { loadAppConfig } from '@shared/infrastructure/config/appConfig';
-import { buildContainer } from '@apps/dependency-injection';
+import { buildContainer } from '@apps/dependency-injection/index';
 
 test('Dependency Injection Container - compiles and resolves all core services', async () => {
   process.env.DB_USER ??= 'test';

@@ -1,54 +1,26 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    // JavaScript version emitted by TypeScript.
-    // ES2022 matches the baseline of Node 24.
+    "target": "ES2024",
+    "lib": ["ES2024"],
 
     "module": "CommonJS",
-    // Module system used in the output JavaScript.
-    // CommonJS is the native module system for Node.js.
-
     "moduleResolution": "node10",
-    // Classic Node resolution for CommonJS. Keeps relative imports without a .js extension.
-    // The editor must use this project's TypeScript 5.9. A newer language service warns that node10 is deprecated.
-
-    "outDir": "dist",
-    // Directory where compiled JavaScript files are emitted.
-
-    "rootDir": "src",
-    // Root directory of the TypeScript source code.
+    // node10 keeps extensionless imports in the CommonJS output.
+    // bundler cannot emit CommonJS. nodenext would require a .js suffix.
+    // TypeScript 6 deprecates node10; this keeps it until TypeScript 7.
+    "ignoreDeprecations": "6.0",
 
     "strict": true,
-    // Enables all strict type-checking options.
-    // Critical for business rules and domain safety.
-
-    "noImplicitAny": true,
-    // Disallows variables and parameters with implicit `any` type.
-
-    "strictNullChecks": true,
-    // Forces explicit handling of null and undefined values.
-    // Prevents many runtime errors.
-
     "forceConsistentCasingInFileNames": true,
-    // Ensures consistent file name casing across different OS (Windows/Linux).
-
     "skipLibCheck": true,
-    // Skips type checking of declaration files in node_modules.
-    // Improves build performance without sacrificing safety.
 
     "experimentalDecorators": true,
-    // Enables decorators support.
-    // Required by TypeORM and some DDD patterns.
-
     "emitDecoratorMetadata": true,
-    // Emits metadata for decorators.
-    // Needed for dependency injection and ORM reflection.
 
+    "outDir": "dist",
+    "rootDir": "src",
     "sourceMap": true,
-    // Generates source maps for better debugging experience.
-
     "esModuleInterop": true,
-    // Enables compatibility with CommonJS and ES modules.
 
     "baseUrl": ".",
     "paths": {
@@ -63,8 +35,5 @@
     }
   },
   "include": ["src/**/*.ts"],
-  // Includes all TypeScript files under the src directory
-
   "exclude": ["node_modules", "dist"]
-  // Excludes dependencies and compiled output
 }

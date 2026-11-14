@@ -58,7 +58,7 @@ Assumptions that require profiling, load testing, or codebase audits before deci
 
 | ID | Hypothesis | Proposed Verification | Risk / Potential Impact |
 |---|---|---|---|
-| **H-01** | Synchronous Alegra HTTP call causes latency spikes and thread blocking on bulk product updates. | Measure p95/p99 latency of `PUT /products/:id` with varying network delays to the external Alegra sandbox/endpoint. | High latency experienced by mobile sellers when updating catalog entries under unstable connectivity. |
+| **H-01** | ~~Synchronous Alegra HTTP call causes latency spikes and thread blocking on bulk product updates.~~ | **[CLOSED]** Version 1 keeps the call on the same request, after the local save. A slow Alegra response is an operations measurement, not a code change. | None for this version. The saved product is still returned when Alegra fails. |
 | **H-02** | ~~`priceList.entity.ts` is orphaned dead code.~~ | **[RESOLVED]** It was not registered in the DataSource or in migrations. The file was removed. Channel prices stay on `product_prices`. | None. |
 | **H-03** | ~~Concurrent price updates on the same product could lead to race conditions in `upsertChannelPrice`.~~ | **[RESOLVED]** The channel price is inserted with `ON CONFLICT (product_id, channel) DO UPDATE` of `cost`, `price`, and `updated_at`. Two saves of the same product no longer read the row before writing it. A null price still deletes that channel. | None. |
 
@@ -72,7 +72,7 @@ Decisions that must be agreed upon before completing subsequent modules of Versi
 |---|---|---|---|---|
 | **DEC-01** | TypeScript Path Aliases vs Relative Imports | **A:** Use tsconfig path aliases (`@catalog/*`, `@shared/*`).<br>**B:** Maintain strict normalized relative paths. | **Option A** — Eliminates brittle multi-level relative paths (`../../..`) that caused TD-01. | `tsconfig.json`, `ADR-001` |
 | **DEC-02** | Adoption of Domain Value Objects (`Price`, `Quantity`, `Sku`) | **A:** Keep primitives (`number`, `string`) with use-case validation.<br>**B:** Implement dedicated Value Objects in `domain/value-objects/`. | **Option B** — Enforces business invariants at the domain boundary, removing duplicate checks across use cases. | `.cursor/skills/backend-hexagonal-ddd/` |
-| **DEC-03** | Resilience Strategy for External Integrations (Alegra) | **A:** Transactional Outbox pattern with background worker.<br>**B:** Retry queue with exponential backoff.<br>**C:** Direct HTTP with asynchronous Event Emitter. | Start with **Option C (in-process events)** for Version 1 modular monolith, graduating to **Option A** if webhook/sync volume increases. | `docs/flows/README.md`, `ADR-001` |
+| **DEC-03** | Resilience Strategy for External Integrations (Alegra) | **A:** Transactional Outbox pattern with background worker.<br>**B:** Retry queue with exponential backoff.<br>**C:** Direct HTTP with asynchronous Event Emitter. | **[DECIDED]** Version 1 keeps the current path: save the product, then call Alegra on the same request. A failure is logged and the saved product is returned. No outbox and no extra event emitter. | `docs/flows/README.md` |
 | **DEC-04** | Input Schema Validation Library | **A:** Zod.<br>**B:** Joi / Express-validator.<br>**C:** Class-validator with decorators. | **[DECIDED] Option A (Zod).** Implemented in `validateRequest` and the `*.schema.ts` files. | `package.json`, `src/apps/middlewares/validateRequest.ts` |
 
 ---
@@ -88,7 +88,7 @@ Checked against the running contexts `identity`, `catalog`, `customers`, `sales`
 | Unused imports or orphan modules | No unused context was deleted in this pass. `PriceListEntity` was already removed (H-02). |
 | PDR-004 retail | Documented only. Not implemented. Not debt. |
 
-Still open: H-01, DEC-01, DEC-02, DEC-03. H-03 is resolved.
+Still open: DEC-01, DEC-02. H-01 and DEC-03 are closed: version 1 keeps the direct Alegra call after the local save. H-03 is resolved.
 
 ## 6. Non-Duplicated Cross-References
 

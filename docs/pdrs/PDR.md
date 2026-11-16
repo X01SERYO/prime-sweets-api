@@ -42,6 +42,7 @@ The system shall allow a seller to:
 | Cargue | **Load Sheet** | The grouped product-level output used for preparing the day's delivery/load. |
 | Venta | **Sale** | A commercial transaction containing one or more sale items. |
 | Cliente | **Customer** | A store/customer identified by document type, document number, and name. |
+| Pedido | **Purchase order** | An order the business sends to a supplier. Not a sale to a customer. The Spanish screen title stays **Pedidos**. |
 
 The English terms above are the canonical terms for the codebase, API contracts, documentation, and folder names.
 

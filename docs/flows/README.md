@@ -4,6 +4,8 @@
 
 Only flows that exist in code are described as current. Version 1 store-to-store flows from the PDR/SPEC are listed as **pending**; they are not filled in.
 
+Supplier and purchase-order routes are pending. They are specified in [SPEC-005](../specs/SPEC-005.md) and are not described below.
+
 HTTP mapping for all current flows: success 200 (POST create 201), `NotFoundError` → 404, other `DomainError` → 400, untyped errors → 500. Business routes require a bearer session. A missing or unknown token is `INVALID_SESSION` (401).
 
 ## 1. Brand CRUD

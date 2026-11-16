@@ -14,3 +14,5 @@ Canonical domain terms follow the PDR (`Sale`, `Load Sheet`, `Customer`, `Catalo
 | 4 — Code | How is the critical implemented flow wired? | [04-code.md](./04-code.md) |
 
 Related: [data model](../data-model/README.md), [flows](../flows/README.md).
+
+Purchase orders are not in this C4 yet. The target is [ADR-005](../adrs/ADR-005.md) and [SPEC-005](../specs/SPEC-005.md). Add `purchasing` here only after the context exists in code.

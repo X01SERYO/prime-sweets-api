@@ -8,6 +8,7 @@ import { registerFulfillmentOutputDependencies } from './context/fulfillmentOutp
 import { registerAlegraDependencies } from './context/alegra.di';
 import { registerIdentityDependencies } from './context/identity.di';
 import { registerRetailSalesDependencies } from './context/retailSales.di';
+import { registerPurchasingDependencies } from './context/purchasing.di';
 
 export async function buildContainer(): Promise<ContainerBuilder> {
   const container = new ContainerBuilder();
@@ -20,6 +21,7 @@ export async function buildContainer(): Promise<ContainerBuilder> {
   registerCustomerDependencies(container);
   registerSalesDependencies(container);
   registerRetailSalesDependencies(container);
+  registerPurchasingDependencies(container);
   registerFulfillmentOutputDependencies(container);
   registerAlegraDependencies(container);
   registerIdentityDependencies(container);

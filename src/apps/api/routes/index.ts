@@ -8,6 +8,8 @@ import { createLoadSheetsRouter } from '@/contexts/fulfillment-output/adapters/i
 import { createInvoicesRouter } from '@/contexts/fulfillment-output/adapters/inbound/http/invoices.route';
 import { createAuthRouter } from '@/contexts/identity/adapters/inbound/http/auth.route';
 import { createRetailDaysRouter } from '@/contexts/retail-sales/adapters/inbound/http/retailDays.route';
+import { createPurchaseOrdersRouter } from '@/contexts/purchasing/adapters/inbound/http/purchaseOrders.route';
+import { createSuppliersRouter } from '@/contexts/purchasing/adapters/inbound/http/suppliers.route';
 import { requireSession } from '@/apps/middlewares/requireSession';
 
 export function registerRoutes(app: Application, container: AppContainer) {
@@ -18,6 +20,8 @@ export function registerRoutes(app: Application, container: AppContainer) {
   app.use('/customers', session, createCustomersRouter(container));
   app.use('/sales', session, createSalesRouter(container));
   app.use('/retail-days', session, createRetailDaysRouter(container));
+  app.use('/suppliers', session, createSuppliersRouter(container));
+  app.use('/purchase-orders', session, createPurchaseOrdersRouter(container));
   app.use('/load-sheets', session, createLoadSheetsRouter(container));
   app.use('/invoices', session, createInvoicesRouter(container));
 }

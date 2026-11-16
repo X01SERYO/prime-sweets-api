@@ -36,6 +36,14 @@ import { ListRetailDaysUseCase } from '@/contexts/retail-sales/application/use-c
 import { ReviewRetailDaysUseCase } from '@/contexts/retail-sales/application/use-cases/reviewRetailDays/reviewRetailDays.useCase';
 import { RemoveRetailItemUseCase } from '@/contexts/retail-sales/application/use-cases/removeRetailItem/removeRetailItem.useCase';
 import { SetRetailItemQuantityUseCase } from '@/contexts/retail-sales/application/use-cases/setRetailItemQuantity/setRetailItemQuantity.useCase';
+import { CreatePurchaseOrderUseCase } from '@/contexts/purchasing/application/use-cases/createPurchaseOrder/createPurchaseOrder.useCase';
+import { CreateSupplierUseCase } from '@/contexts/purchasing/application/use-cases/createSupplier/createSupplier.useCase';
+import { GetPurchaseOrderUseCase } from '@/contexts/purchasing/application/use-cases/getPurchaseOrder/getPurchaseOrder.useCase';
+import { ListPurchaseOrdersUseCase } from '@/contexts/purchasing/application/use-cases/listPurchaseOrders/listPurchaseOrders.useCase';
+import { GetSupplierUseCase } from '@/contexts/purchasing/application/use-cases/getSupplier/getSupplier.useCase';
+import { ListSuppliersUseCase } from '@/contexts/purchasing/application/use-cases/listSuppliers/listSuppliers.useCase';
+import { RenameSupplierUseCase } from '@/contexts/purchasing/application/use-cases/renameSupplier/renameSupplier.useCase';
+import { SetSupplierProductsUseCase } from '@/contexts/purchasing/application/use-cases/setSupplierProducts/setSupplierProducts.useCase';
 
 export interface AppContainer {
   get(id: 'identity.application.login_use_case'): LoginUseCase;
@@ -73,6 +81,14 @@ export interface AppContainer {
   get(id: 'retail.application.remove_retail_item_use_case'): RemoveRetailItemUseCase;
   get(id: 'retail.application.list_retail_days_use_case'): ListRetailDaysUseCase;
   get(id: 'retail.application.review_retail_days_use_case'): ReviewRetailDaysUseCase;
+  get(id: 'purchasing.application.list_suppliers_use_case'): ListSuppliersUseCase;
+  get(id: 'purchasing.application.create_supplier_use_case'): CreateSupplierUseCase;
+  get(id: 'purchasing.application.rename_supplier_use_case'): RenameSupplierUseCase;
+  get(id: 'purchasing.application.get_supplier_use_case'): GetSupplierUseCase;
+  get(id: 'purchasing.application.set_supplier_products_use_case'): SetSupplierProductsUseCase;
+  get(id: 'purchasing.application.create_purchase_order_use_case'): CreatePurchaseOrderUseCase;
+  get(id: 'purchasing.application.list_purchase_orders_use_case'): ListPurchaseOrdersUseCase;
+  get(id: 'purchasing.application.get_purchase_order_use_case'): GetPurchaseOrderUseCase;
   get(id: 'fulfillment.application.generate_load_sheet_use_case'): GenerateLoadSheetUseCase;
   get(id: 'fulfillment.application.list_invoices_use_case'): ListInvoicesUseCase;
   get(id: 'fulfillment.application.generate_invoice_use_case'): GenerateInvoiceUseCase;

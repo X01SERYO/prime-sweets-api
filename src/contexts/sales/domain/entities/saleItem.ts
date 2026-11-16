@@ -1,6 +1,6 @@
 import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
 import { InvalidQuantityError } from '@/contexts/sales/domain/errors/invalidQuantity.error';
-import { saleItemNames } from '@/contexts/sales/domain/services/saleItemName';
+import { itemNames } from '@/shared/domain/itemName';
 
 export function isSellableQuantity(quantity: number): boolean {
   if (!Number.isFinite(quantity) || quantity <= 0) {
@@ -99,7 +99,7 @@ export class SaleItem {
       throw new InvalidSaleError('Wholesale cost must be a number greater than or equal to 0');
     }
 
-    const names = saleItemNames(params.catalogName?.trim() || trimmedItemName, trimmedItemName);
+    const names = itemNames(params.catalogName?.trim() || trimmedItemName, trimmedItemName);
 
     return new SaleItem(
       trimmedId,
@@ -137,7 +137,7 @@ export class SaleItem {
     if (!trimmed) {
       throw new InvalidSaleError('Sale item name cannot be empty');
     }
-    const names = saleItemNames(this._catalogName, trimmed);
+    const names = itemNames(this._catalogName, trimmed);
 
     return new SaleItem(
       this.id,

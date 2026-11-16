@@ -1,0 +1,37 @@
+import { Supplier } from '@/contexts/purchasing/domain/entities/supplier';
+import { SupplierEntity } from './supplier.entity';
+import { SupplierProductEntity } from './supplierProduct.entity';
+
+export class SupplierMapper {
+  static toProducts(supplier: Supplier): SupplierProductEntity[] {
+    return supplier.products.map(link => {
+      const product = new SupplierProductEntity();
+      product.supplierId = supplier.id;
+      product.productId = link.productId;
+      product.lastQuantity = link.lastQuantity;
+      product.lastUnitCost = link.lastUnitCost;
+      product.lastItemName = link.lastItemName;
+      return product;
+    });
+  }
+
+  static toEntity(supplier: Supplier): SupplierEntity {
+    const entity = new SupplierEntity();
+    entity.id = supplier.id;
+    entity.name = supplier.name;
+    return entity;
+  }
+
+  static toDomain(entity: SupplierEntity, products: SupplierProductEntity[]): Supplier {
+    return Supplier.rehydrate({
+      id: entity.id,
+      name: entity.name,
+      products: products.map(product => ({
+        productId: product.productId,
+        lastQuantity: product.lastQuantity,
+        lastUnitCost: product.lastUnitCost,
+        lastItemName: product.lastItemName
+      }))
+    });
+  }
+}

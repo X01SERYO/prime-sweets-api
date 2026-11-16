@@ -1,6 +1,6 @@
 const LOCALE = 'es-CO';
 
-export function saleItemNames(catalogName: string, itemName: string): { catalogName: string; itemName: string } {
+export function itemNames(catalogName: string, itemName: string): { catalogName: string; itemName: string } {
   const catalog = (catalogName || itemName).trim().toLocaleUpperCase(LOCALE);
   const typed = itemName.trim();
   const typedUpper = typed.toLocaleUpperCase(LOCALE);

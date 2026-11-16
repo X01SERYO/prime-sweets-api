@@ -4,7 +4,7 @@
 
 Tables registered on the DataSource and created by migrations are documented below.
 
-`suppliers`, `supplier_products`, and `purchase_orders` are not created yet. Their shape is [SPEC-005](../specs/SPEC-005.md) §2. Do not add them to the diagram until the migration exists.
+`suppliers`, `supplier_products`, and `purchase_orders` are created by migration `1760000000018-CreatePurchasing.ts`. There is no HTTP route for them yet. The column list is [SPEC-005](../specs/SPEC-005.md) §2.
 
 ## Schema
 

@@ -11,6 +11,9 @@ import { InvoiceSequenceEntity } from '@/contexts/sales/adapters/outbound/persis
 import { SessionEntity } from '@/contexts/identity/adapters/outbound/persistence/session.entity';
 import { UserEntity } from '@/contexts/identity/adapters/outbound/persistence/user.entity';
 import { RetailDayEntity } from '@/contexts/retail-sales/adapters/outbound/persistence/retailDay.entity';
+import { SupplierEntity } from '@/contexts/purchasing/adapters/outbound/persistence/supplier.entity';
+import { SupplierProductEntity } from '@/contexts/purchasing/adapters/outbound/persistence/supplierProduct.entity';
+import { PurchaseOrderEntity } from '@/contexts/purchasing/adapters/outbound/persistence/purchaseOrder.entity';
 
 export function createTypeOrmOptions(): DataSourceOptions {
   const config = getAppConfig();
@@ -32,7 +35,10 @@ export function createTypeOrmOptions(): DataSourceOptions {
       InvoiceSequenceEntity,
       UserEntity,
       SessionEntity,
-      RetailDayEntity
+      RetailDayEntity,
+      SupplierEntity,
+      SupplierProductEntity,
+      PurchaseOrderEntity
     ],
     migrations: [path.join(__dirname, 'migrations', '*.{ts,js}')],
     synchronize: false

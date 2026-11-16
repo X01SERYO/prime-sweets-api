@@ -1,12 +1,14 @@
 import { Result } from '@/shared/application/result/result';
 import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { RetailDayRepository } from '@/contexts/retail-sales/application/ports/outbound/retailDay.repository';
+import { RetailReviewerQuery } from '@/contexts/retail-sales/application/ports/outbound/retailReviewerQuery.port';
 import { RetailDayView, toRetailDayView } from '@/contexts/retail-sales/application/retailDayView';
 import { RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 
 export class GetTodayRetailDayUseCase {
   constructor(
     private readonly retailDays: RetailDayRepository,
+    private readonly reviewers: RetailReviewerQuery,
     private readonly calendar: BusinessCalendar
   ) {}
 
@@ -21,11 +23,16 @@ export class GetTodayRetailDayUseCase {
         editable: true,
         status: RetailDayStatus.Unreviewed,
         reviewedAt: null,
+        reviewedByName: null,
         totalAmount: 0,
         totalProfit: 0,
         items: [],
       });
     }
-    return Result.ok(toRetailDayView(day, today));
+    const view = toRetailDayView(day, today);
+    const reviewedByName = day.reviewedBy
+      ? (await this.reviewers.findNames([day.reviewedBy])).get(day.reviewedBy) ?? null
+      : null;
+    return Result.ok({ ...view, reviewedByName });
   }
 }

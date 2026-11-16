@@ -1,6 +1,6 @@
 # Data model (current)
 
-**Sources:** TypeORM entities, migrations `1760000000001-CreateBrands.ts` through `1760000000008-DailyInvoiceNumbers.ts`, `TypeOrmDataSource`, domain `Product` / `Brand` / `Customer` / `SalesDay` / `Sale` / `SaleItem`, TypeORM repositories.
+**Sources:** TypeORM entities, migrations `1760000000001-CreateBrands.ts` through `1760000000017-CreateRetailDays.ts`, `TypeOrmDataSource`, domain `Product` / `Brand` / `Customer` / `SalesDay` / `Sale` / `SaleItem` / `RetailDay`, TypeORM repositories.
 
 Tables registered on the DataSource and created by migrations are documented below.
 
@@ -211,6 +211,24 @@ Migration `1760000000006` seeded `('default', 0, 'INV-')`. Migration `1760000000
 | `created_at` | timestamptz | default `now()` |
 
 A seller keeps at most 3 open sessions. A new login closes the oldest.
+
+### `retail_days`
+
+One row per business date that had a retail sale. Migration `1760000000017`.
+
+| Column | Type | Constraints |
+|---|---|---|
+| `id` | uuid | PK |
+| `business_date` | date | NOT NULL, UNIQUE |
+| `status` | varchar(20) | NOT NULL, `UNREVIEWED` or `REVIEWED` |
+| `total_amount` | numeric(12,2) | NOT NULL |
+| `total_profit` | numeric(12,2) | NOT NULL |
+| `open_items` | jsonb | NULL after the day is compacted or reviewed. Draft lines only: product id, code, brand, name, frozen retail price and cost, quantity |
+| `reviewed_at` | timestamptz | NULL until reviewed |
+| `reviewed_by` | uuid | NULL until reviewed. The display name is read from `users` when the day is returned |
+| `created_at`, `updated_at` | timestamptz | NOT NULL |
+
+There is no retail line table. Past days keep the totals and drop `open_items`.
 
 ## Domain mapping
 

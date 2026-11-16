@@ -3,8 +3,15 @@ import { RequestValidationSchema } from '@/apps/middlewares/validateRequest';
 import { RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 
 const retailQuantity = z.number().int().min(1, 'quantity must be an integer of at least 1');
+const businessDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD');
 
 export const getTodayRetailDaySchema: RequestValidationSchema = {};
+
+export const getRetailDaySchema: RequestValidationSchema = {
+  params: z.object({
+    date: businessDate,
+  }),
+};
 
 export const addRetailItemSchema: RequestValidationSchema = {
   body: z.object({
@@ -27,8 +34,6 @@ export const removeRetailItemSchema: RequestValidationSchema = {
     productId: z.string().trim().min(1, 'productId is required'),
   }),
 };
-
-const businessDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD');
 
 export const listRetailDaysSchema: RequestValidationSchema = {
   query: z.object({

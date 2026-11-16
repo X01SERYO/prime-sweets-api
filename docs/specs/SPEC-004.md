@@ -125,8 +125,8 @@ All routes require the bearer session. The server decides "today"; the client ne
 
 | Method and path | Use case | Behavior |
 |---|---|---|
-| `GET /retail-days/today` | `GetTodayRetailDay` | Returns today's day. If it does not exist, returns an empty day `{ businessDate, items: [], totals 0, editable: true }` without inserting. |
-| `GET /retail-days/:date` | `GetRetailDay` | Summary of a past day, with `items: []`. 404 `RETAIL_DAY_NOT_FOUND` if nothing was recorded that day. Future dates → 400. |
+| `GET /retail-days/today` | `GetTodayRetailDay` | Returns today's day. If it does not exist, returns an empty day `{ businessDate, items: [], totals 0, editable: true, reviewedByName: null }` without inserting. When the day is `REVIEWED`, `reviewedByName` is the reviewer's display name, or `null` if that user no longer exists. |
+| `GET /retail-days/:date` | `GetRetailDay` | Summary of a stored day. `items` is always `[]`. Includes status, totals, `reviewedAt`, and `reviewedByName`. A past day is `editable: false`. 404 `RETAIL_DAY_NOT_FOUND` if nothing was recorded that day. A future date or a date that is not a real calendar day → 400 `INVALID_RETAIL_DATE`. |
 | `GET /retail-days?status=&page=&pageSize=` | `ListRetailDays` | Previous-days views. `status` required: `UNREVIEWED` or `REVIEWED`. Same pagination contract as `GET /products`: `page` from 1, `pageSize` default **10**, max 50; response `{ items, total, page, pageSize }`. Each item: `businessDate`, `status`, `totalAmount`, `totalProfit`, `reviewedAt`, `reviewedByName`. Newest first. Today is included when it exists and is `UNREVIEWED`. No zero-total filter is needed: such days are never stored. |
 | `POST /retail-days/review` | `ReviewRetailDays` | Cierre de caja for several days. Body `{ dates: ["YYYY-MM-DD", ...] }`, 1 to 50 distinct dates. One transaction, all or none: 404 `RETAIL_DAY_NOT_FOUND` if any date has no record, 409 `RETAIL_DAY_ALREADY_REVIEWED` (with the offending dates) if any is already reviewed; in both cases nothing changes. Each day gets `REVIEWED`, the same `reviewed_at` and `reviewed_by`, and `open_items = NULL`. Returns `{ reviewed: n, totalAmount, totalProfit }` of the reviewed days. |
 | `POST /retail-days/today/items` | `AddRetailItem` | Body `{ productId, quantity }`, `quantity` integer ≥ 1. Creates today's day if needed. If the product is already on the list, the quantity is added to that row. Returns the full day. |
@@ -146,6 +146,7 @@ Response shape:
   "editable": true,
   "status": "UNREVIEWED",
   "reviewedAt": null,
+  "reviewedByName": null,
   "totalAmount": 0,
   "totalProfit": 0,
   "items": [
@@ -183,7 +184,7 @@ Register entities in `TypeOrmDataSource` and the route in `src/apps/api/routes`.
 - Setting quantity recomputes the line and both totals; profit uses retail cost.
 - Quantity `0`, negative, and non-integer values are rejected on add and on set.
 - Deleting a row recomputes totals.
-- A product without a retail price is rejected; a retired product is rejected.
+- A product without a retail price is rejected. A retired product is not rejected yet: the catalog has no retired mark, so search and add cannot exclude it.
 - With the calendar moved to the next day, `GET /today` returns a new empty day, and the previous day has `open_items = NULL` with its totals and status unchanged.
 - Compaction run twice changes nothing else.
 - Reviewing today sets `open_items = NULL`, keeps totals, and later item writes return `RETAIL_DAY_CLOSED`.

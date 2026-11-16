@@ -18,6 +18,7 @@ export type RetailDayView = {
   editable: boolean;
   status: RetailDayStatus;
   reviewedAt: string | null;
+  reviewedByName: string | null;
   totalAmount: number;
   totalProfit: number;
   items: RetailDayItemView[];
@@ -31,6 +32,7 @@ export function toRetailDayView(day: RetailDay, today: string): RetailDayView {
     editable: day.isEditable(today),
     status: primitives.status,
     reviewedAt: primitives.reviewedAt,
+    reviewedByName: null,
     totalAmount: primitives.totalAmount,
     totalProfit: primitives.totalProfit,
     items: primitives.items.map((item) => ({

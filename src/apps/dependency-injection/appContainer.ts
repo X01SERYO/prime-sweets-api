@@ -29,6 +29,7 @@ import { RemoveSaleItemUseCase } from '@/contexts/sales/application/use-cases/re
 import { UpdateSaleItemNameUseCase } from '@/contexts/sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
 import { UpdateSaleItemQuantityUseCase } from '@/contexts/sales/application/use-cases/updateSaleItemQuantity/updateSaleItemQuantity.useCase';
 import { VoidSaleUseCase } from '@/contexts/sales/application/use-cases/voidSale/voidSale.useCase';
+import { GetRetailDayUseCase } from '@/contexts/retail-sales/application/use-cases/getRetailDay/getRetailDay.useCase';
 import { GetTodayRetailDayUseCase } from '@/contexts/retail-sales/application/use-cases/getTodayRetailDay/getTodayRetailDay.useCase';
 import { AddRetailItemUseCase } from '@/contexts/retail-sales/application/use-cases/addRetailItem/addRetailItem.useCase';
 import { ListRetailDaysUseCase } from '@/contexts/retail-sales/application/use-cases/listRetailDays/listRetailDays.useCase';
@@ -66,6 +67,7 @@ export interface AppContainer {
   get(id: 'sales.application.confirm_sale_use_case'): ConfirmSaleUseCase;
   get(id: 'sales.application.void_sale_use_case'): VoidSaleUseCase;
   get(id: 'retail.application.get_today_retail_day_use_case'): GetTodayRetailDayUseCase;
+  get(id: 'retail.application.get_retail_day_use_case'): GetRetailDayUseCase;
   get(id: 'retail.application.add_retail_item_use_case'): AddRetailItemUseCase;
   get(id: 'retail.application.set_retail_item_quantity_use_case'): SetRetailItemQuantityUseCase;
   get(id: 'retail.application.remove_retail_item_use_case'): RemoveRetailItemUseCase;

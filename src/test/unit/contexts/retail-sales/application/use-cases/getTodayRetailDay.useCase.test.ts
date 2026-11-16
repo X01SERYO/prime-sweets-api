@@ -31,11 +31,26 @@ test('the first read of today returns an empty editable day and stores nothing',
     inserted = true;
     return RetailDay.create('day-1', today);
   };
-  const useCase = new GetTodayRetailDayUseCase(repo, { today: () => today });
+  const useCase = new GetTodayRetailDayUseCase(repo, { findNames: async () => new Map() }, { today: () => today });
   const result = await useCase.run();
   assert.equal(result.value?.id, null);
   assert.equal(result.value?.businessDate, today);
   assert.equal(result.value?.editable, true);
   assert.equal(result.value?.items.length, 0);
   assert.equal(inserted, false);
+  assert.equal(result.value?.reviewedByName, null);
+});
+
+test('a reviewed today includes the reviewer name', async () => {
+  const repo = emptyRepo();
+  repo.findByBusinessDate = async () =>
+    RetailDay.create('day-1', today).review('user-1', new Date('2026-11-14T18:00:00.000Z'));
+  const useCase = new GetTodayRetailDayUseCase(
+    repo,
+    { findNames: async () => new Map([['user-1', 'Ana']]) },
+    { today: () => today }
+  );
+  const result = await useCase.run();
+  assert.equal(result.value?.editable, false);
+  assert.equal(result.value?.reviewedByName, 'Ana');
 });

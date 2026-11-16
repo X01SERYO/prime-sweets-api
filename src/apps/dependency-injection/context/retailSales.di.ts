@@ -1,6 +1,7 @@
 import { ContainerBuilder, Reference } from 'node-dependency-injection';
 import { TypeOrmRetailDayRepository } from '@/contexts/retail-sales/adapters/outbound/persistence/repositories/typeOrmRetailDay.repository';
 import { CatalogRetailProductSnapshotProvider } from '@/apps/dependency-injection/acl/catalogRetailProductSnapshotProvider';
+import { GetRetailDayUseCase } from '@/contexts/retail-sales/application/use-cases/getRetailDay/getRetailDay.useCase';
 import { GetTodayRetailDayUseCase } from '@/contexts/retail-sales/application/use-cases/getTodayRetailDay/getTodayRetailDay.useCase';
 import { AddRetailItemUseCase } from '@/contexts/retail-sales/application/use-cases/addRetailItem/addRetailItem.useCase';
 import { SetRetailItemQuantityUseCase } from '@/contexts/retail-sales/application/use-cases/setRetailItemQuantity/setRetailItemQuantity.useCase';
@@ -30,9 +31,18 @@ export function registerRetailSalesDependencies(container: ContainerBuilder): vo
   const retailDaysRef = new Reference('retail.domain.retail_day_repository');
   const snapshotRef = new Reference('retail.infrastructure.product_snapshot_provider');
 
+  const reviewerRef = new Reference('retail.infrastructure.reviewer_query');
+
   container
     .register('retail.application.get_today_retail_day_use_case', GetTodayRetailDayUseCase)
     .addArgument(retailDaysRef)
+    .addArgument(reviewerRef)
+    .addArgument(calendarRef);
+
+  container
+    .register('retail.application.get_retail_day_use_case', GetRetailDayUseCase)
+    .addArgument(retailDaysRef)
+    .addArgument(reviewerRef)
     .addArgument(calendarRef);
 
   container
@@ -51,8 +61,6 @@ export function registerRetailSalesDependencies(container: ContainerBuilder): vo
     .register('retail.application.remove_retail_item_use_case', RemoveRetailItemUseCase)
     .addArgument(retailDaysRef)
     .addArgument(calendarRef);
-
-  const reviewerRef = new Reference('retail.infrastructure.reviewer_query');
 
   container
     .register('retail.application.list_retail_days_use_case', ListRetailDaysUseCase)

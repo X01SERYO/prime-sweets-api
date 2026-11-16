@@ -6,6 +6,7 @@ import { validateRequest } from '@/apps/middlewares/validateRequest';
 import { RetailDayStatus } from '@/contexts/retail-sales/domain/entities/retailDay';
 import {
   addRetailItemSchema,
+  getRetailDaySchema,
   getTodayRetailDaySchema,
   listRetailDaysSchema,
   removeRetailItemSchema,
@@ -66,6 +67,11 @@ export function createRetailDaysRouter(container: AppContainer) {
       return httpResponse(res, await useCase.run(routeParam(req.params.productId)));
     }
   );
+
+  router.get('/:date', validateRequest(getRetailDaySchema), async (req: Request, res: Response) => {
+    const useCase = container.get('retail.application.get_retail_day_use_case');
+    return httpResponse(res, await useCase.run(routeParam(req.params.date)));
+  });
 
   return router;
 }

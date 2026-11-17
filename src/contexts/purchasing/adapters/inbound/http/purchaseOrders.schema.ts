@@ -9,7 +9,15 @@ export const createPurchaseOrderSchema = {
         quantity: z.number().int().min(1),
         itemName: z.string().trim().min(1).optional()
       })
-    )
+    ),
+    assortment: z
+      .array(
+        z.object({
+          productId: z.string().uuid(),
+          itemName: z.string().trim().min(1)
+        })
+      )
+      .optional()
   })
 };
 
@@ -32,7 +40,15 @@ export const updatePurchaseOrderSchema = {
         quantity: z.number().int().min(1),
         itemName: z.string().trim().min(1).optional()
       })
-    )
+    ),
+    assortment: z
+      .array(
+        z.object({
+          productId: z.string().uuid(),
+          itemName: z.string().trim().min(1)
+        })
+      )
+      .optional()
   })
 };
 

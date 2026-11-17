@@ -23,7 +23,11 @@ export class CreatePurchaseOrderUseCase {
     private readonly ids: IdGenerator
   ) {}
 
-  async run(supplierId: string, lines: CreatePurchaseOrderLineDto[]): Promise<Result<PurchaseOrderPrimitives>> {
+  async run(
+    supplierId: string,
+    lines: CreatePurchaseOrderLineDto[],
+    assortment: { productId: string; itemName: string }[] = []
+  ): Promise<Result<PurchaseOrderPrimitives>> {
     const supplier = await this.suppliers.findById(supplierId);
     if (!supplier) {
       return Result.fail(new SupplierNotFoundError(supplierId));
@@ -53,6 +57,7 @@ export class CreatePurchaseOrderUseCase {
     }
     try {
       const order = PurchaseOrder.create(this.ids.next(), supplierId, snapshots, new Date());
+      supplier.rememberItems(assortment);
       supplier.applySavedLines(order.lines);
       await this.orders.save(order, supplier);
       return Result.ok(order.toPrimitives());

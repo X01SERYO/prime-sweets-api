@@ -12,6 +12,7 @@ export class SupplierMapper {
       product.lastQuantity = link.lastQuantity;
       product.lastUnitCost = link.lastUnitCost;
       product.lastItemName = link.lastItemName;
+      product.items = link.items.map(item => ({ itemName: item.itemName, lastQuantity: item.lastQuantity }));
       return product;
     });
   }
@@ -32,7 +33,8 @@ export class SupplierMapper {
         previousQuantity: product.previousQuantity,
         lastQuantity: product.lastQuantity,
         lastUnitCost: product.lastUnitCost,
-        lastItemName: product.lastItemName
+        lastItemName: product.lastItemName,
+        items: Array.isArray(product.items) ? product.items.map(item => ({ ...item })) : []
       }))
     });
   }

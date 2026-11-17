@@ -10,6 +10,7 @@ export type SupplierProductView = {
   previousQuantity: number | null;
   lastQuantity: number | null;
   lastItemName: string | null;
+  items: { itemName: string; lastQuantity: number | null }[];
 };
 
 export type SupplierView = {
@@ -33,7 +34,8 @@ export function toSupplierView(supplier: Supplier, catalog: PurchaseProductSheet
         unitCost: product?.unitCost ?? null,
         previousQuantity: link.previousQuantity,
         lastQuantity: link.lastQuantity,
-        lastItemName: link.lastItemName
+        lastItemName: link.lastItemName,
+        items: link.items.map(item => ({ ...item }))
       };
     })
   };

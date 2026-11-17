@@ -18,7 +18,11 @@ export class UpdatePurchaseOrderUseCase {
     private readonly products: PurchaseProductReader
   ) {}
 
-  async run(orderId: string, lines: CreatePurchaseOrderLineDto[]): Promise<Result<PurchaseOrderPrimitives>> {
+  async run(
+    orderId: string,
+    lines: CreatePurchaseOrderLineDto[],
+    assortment: { productId: string; itemName: string }[] = []
+  ): Promise<Result<PurchaseOrderPrimitives>> {
     const order = await this.orders.findById(orderId);
     if (!order) {
       return Result.fail(new PurchaseOrderNotFoundError(orderId));
@@ -55,6 +59,7 @@ export class UpdatePurchaseOrderUseCase {
     }
     try {
       order.replaceLines(snapshots);
+      supplier.rememberItems(assortment);
       supplier.applySavedLines(order.lines, false);
       await this.orders.update(order, supplier);
       return Result.ok(order.toPrimitives());

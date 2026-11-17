@@ -27,12 +27,12 @@ export function createPurchaseOrdersRouter(container: AppContainer) {
 
   router.post('/', validateRequest(createPurchaseOrderSchema), async (req: Request, res: Response) => {
     const useCase = container.get('purchasing.application.create_purchase_order_use_case');
-    return httpResponse(res, await useCase.run(req.body.supplierId, req.body.lines), 201);
+    return httpResponse(res, await useCase.run(req.body.supplierId, req.body.lines, req.body.assortment ?? []), 201);
   });
 
   router.patch('/:id', validateRequest(updatePurchaseOrderSchema), async (req: Request, res: Response) => {
     const useCase = container.get('purchasing.application.update_purchase_order_use_case');
-    return httpResponse(res, await useCase.run(routeParam(req.params.id), req.body.lines));
+    return httpResponse(res, await useCase.run(routeParam(req.params.id), req.body.lines, req.body.assortment ?? []));
   });
 
   router.get('/:id', validateRequest(getPurchaseOrderSchema), async (req: Request, res: Response) => {

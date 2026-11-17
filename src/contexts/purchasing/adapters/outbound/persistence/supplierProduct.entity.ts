@@ -32,4 +32,7 @@ export class SupplierProductEntity {
 
   @Column({ type: 'varchar', length: 255, name: 'last_item_name', nullable: true })
   lastItemName!: string | null;
+
+  @Column({ type: 'jsonb', name: 'items', default: () => "'[]'" })
+  items!: { itemName: string; lastQuantity: number | null }[];
 }

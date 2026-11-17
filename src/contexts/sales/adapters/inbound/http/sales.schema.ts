@@ -95,6 +95,15 @@ export const setSaleDeliveryDateSchema: RequestValidationSchema = {
   })
 };
 
+export const assignSaleCustomerSchema: RequestValidationSchema = {
+  params: z.object({
+    id: z.string().trim().min(1, 'Sale id is required')
+  }),
+  body: z.object({
+    customerId: z.string().trim().min(1, 'customerId is required')
+  })
+};
+
 export const voidSaleSchema: RequestValidationSchema = {
   params: z.object({
     id: z.string().trim().min(1, 'Sale id is required')

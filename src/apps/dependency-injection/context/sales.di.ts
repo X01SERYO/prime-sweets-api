@@ -12,6 +12,7 @@ import { UpdateSaleItemNameUseCase } from '@/contexts/sales/application/use-case
 import { RemoveSaleItemUseCase } from '@/contexts/sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
 import { ConfirmSaleUseCase } from '@/contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
 import { SetSaleDeliveryDateUseCase } from '@/contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
+import { AssignSaleCustomerUseCase } from '@/contexts/sales/application/use-cases/assignSaleCustomer/assignSaleCustomer.useCase';
 import { VoidSaleUseCase } from '@/contexts/sales/application/use-cases/voidSale/voidSale.useCase';
 import { GetSaleUseCase } from '@/contexts/sales/application/use-cases/getSale/getSale.useCase';
 import { ListSalesUseCase } from '@/contexts/sales/application/use-cases/listSales/listSales.useCase';
@@ -76,6 +77,11 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
   container
     .register('sales.application.remove_sale_item_use_case', RemoveSaleItemUseCase)
     .addArgument(saleRepoRef);
+
+  container
+    .register('sales.application.assign_sale_customer_use_case', AssignSaleCustomerUseCase)
+    .addArgument(saleRepoRef)
+    .addArgument(customerCheckerRef);
 
   container
     .register('sales.application.set_sale_delivery_date_use_case', SetSaleDeliveryDateUseCase)

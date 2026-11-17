@@ -115,8 +115,8 @@ export class SaleItem {
   }
 
   updateQuantity(newQuantity: number): SaleItem {
-    if (!Number.isInteger(newQuantity) || newQuantity <= 0) {
-      throw new InvalidQuantityError('Quantity must be an integer greater than 0');
+    if (!isSellableQuantity(newQuantity)) {
+      throw new InvalidQuantityError('Quantity must be greater than 0');
     }
 
     return new SaleItem(

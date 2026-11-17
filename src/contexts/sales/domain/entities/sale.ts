@@ -237,6 +237,18 @@ export class Sale {
     });
   }
 
+  changeCustomer(customerId: string): Sale {
+    this.assertNotVoided();
+    const nextCustomerId = customerId?.trim();
+    if (!nextCustomerId) {
+      throw new InvalidSaleError('Customer id cannot be empty');
+    }
+    if (nextCustomerId === this.customerId) {
+      return this;
+    }
+    return new Sale(this.id, this.sellerId, nextCustomerId, this.captureDate, this.createdAt, this.state);
+  }
+
   void(): Sale {
     this.assertNotVoided();
     if (this.state.status !== 'CONFIRMED') {

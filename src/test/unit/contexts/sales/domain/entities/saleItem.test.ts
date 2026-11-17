@@ -103,6 +103,8 @@ test('SaleItem entity - accepts a decimal quantity and rejects zero or negative'
   });
   assert.equal(decimal.quantity, 1.5);
   assert.equal(decimal.totalPrice, 150);
+  assert.equal(decimal.updateQuantity(2.25).quantity, 2.25);
+  assert.throws(() => decimal.updateQuantity(0), InvalidQuantityError);
 });
 
 test('SaleItem entity - validates prices, costs and mandatory fields', () => {

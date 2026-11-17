@@ -13,7 +13,8 @@ import {
   removeSaleItemSchema,
   confirmSaleSchema,
   voidSaleSchema,
-  setSaleDeliveryDateSchema
+  setSaleDeliveryDateSchema,
+  assignSaleCustomerSchema
 } from './sales.schema';
 
 export function createSalesRouter(container: AppContainer) {
@@ -94,6 +95,17 @@ export function createSalesRouter(container: AppContainer) {
       );
     }
   );
+
+  router.patch('/:id/customer', validateRequest(assignSaleCustomerSchema), async (req: Request, res: Response) => {
+    const useCase = container.get('sales.application.assign_sale_customer_use_case');
+    return httpResponse(
+      res,
+      await useCase.run({
+        saleId: routeParam(req.params.id),
+        customerId: req.body.customerId
+      })
+    );
+  });
 
   router.patch('/:id/delivery-date', validateRequest(setSaleDeliveryDateSchema), async (req: Request, res: Response) => {
     const useCase = container.get('sales.application.set_sale_delivery_date_use_case');

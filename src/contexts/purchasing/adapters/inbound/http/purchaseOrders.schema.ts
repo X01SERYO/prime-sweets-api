@@ -21,6 +21,21 @@ export const listPurchaseOrdersSchema = {
   })
 };
 
+export const updatePurchaseOrderSchema = {
+  params: z.object({
+    id: z.string().uuid()
+  }),
+  body: z.object({
+    lines: z.array(
+      z.object({
+        productId: z.string().uuid(),
+        quantity: z.number().int().min(1),
+        itemName: z.string().trim().min(1).optional()
+      })
+    )
+  })
+};
+
 export const getPurchaseOrderSchema = {
   params: z.object({
     id: z.string().trim().min(1)

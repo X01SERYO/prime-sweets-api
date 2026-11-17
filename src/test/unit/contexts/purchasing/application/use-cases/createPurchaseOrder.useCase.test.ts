@@ -39,6 +39,7 @@ test('saving an order snapshots the catalog cost and the extra name, and stores 
       committed.lines = order.lineCount;
       committed.lastQuantity = savedSupplier.products[0]?.lastQuantity ?? null;
     },
+    async update() {},
     async findById() {
       return null;
     },
@@ -73,6 +74,7 @@ test('a product that is not linked and a product without cost are rejected', asy
   };
   const orders: PurchaseOrderRepository = {
     async save() {},
+    async update() {},
     async findById() {
       return PurchaseOrder.rehydrate({
         id: 'po-1',

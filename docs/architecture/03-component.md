@@ -2,7 +2,7 @@
 
 **Sources:** `src/contexts/`, `src/apps/`, `src/shared/`.
 
-Top-level modules are the bounded contexts `identity`, `catalog`, `customers`, `sales`, `fulfillment-output`, and `alegra`. They use `application/ports` and `adapters/`. There is no `sales-day` context. Alegra's HTTP client lives in `adapters/outbound/http/`.
+Top-level modules are the bounded contexts `identity`, `catalog`, `customers`, `sales`, `fulfillment-output`, `purchasing`, and `alegra`. They use `application/ports` and `adapters/`. There is no `sales-day` context. Alegra's HTTP client lives in `adapters/outbound/http/`.
 
 ## Diagram
 
@@ -76,6 +76,7 @@ src/
     catalog/
     customers/
     sales/
+    purchasing/                    suppliers, supplier products, purchase orders
     fulfillment-output/            Load Sheet and invoice document by delivery date; no persistence
     alegra/                        outbound HTTP client and item sync
   shared/

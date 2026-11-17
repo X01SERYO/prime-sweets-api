@@ -4,7 +4,7 @@
 
 Tables registered on the DataSource and created by migrations are documented below.
 
-`suppliers`, `supplier_products`, and `purchase_orders` are created by migration `1760000000018-CreatePurchasing.ts`. There is no HTTP route for them yet. The column list is [SPEC-005](../specs/SPEC-005.md) §2.
+`suppliers`, `supplier_products`, and `purchase_orders` are created by migration `1760000000018-CreatePurchasing.ts`. `supplier_products.previous_quantity` is added by `1760000000019-SupplierProductPreviousQuantity.ts`. Routes are under `/suppliers` and `/purchase-orders`. Columns and the save rules are [SPEC-005](../specs/SPEC-005.md) §2.
 
 ## Schema
 

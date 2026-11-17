@@ -8,6 +8,7 @@ export class SupplierMapper {
       const product = new SupplierProductEntity();
       product.supplierId = supplier.id;
       product.productId = link.productId;
+      product.previousQuantity = link.previousQuantity;
       product.lastQuantity = link.lastQuantity;
       product.lastUnitCost = link.lastUnitCost;
       product.lastItemName = link.lastItemName;
@@ -28,6 +29,7 @@ export class SupplierMapper {
       name: entity.name,
       products: products.map(product => ({
         productId: product.productId,
+        previousQuantity: product.previousQuantity,
         lastQuantity: product.lastQuantity,
         lastUnitCost: product.lastUnitCost,
         lastItemName: product.lastItemName

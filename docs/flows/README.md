@@ -4,7 +4,7 @@
 
 Only flows that exist in code are described as current. Version 1 store-to-store flows from the PDR/SPEC are listed as **pending**; they are not filled in.
 
-Supplier and purchase-order routes are pending. They are specified in [SPEC-005](../specs/SPEC-005.md) and are not described below.
+Supplier and purchase-order routes are in §10. The column rules are [SPEC-005](../specs/SPEC-005.md).
 
 HTTP mapping for all current flows: success 200 (POST create 201), `NotFoundError` → 404, other `DomainError` → 400, untyped errors → 500. Business routes require a bearer session. A missing or unknown token is `INVALID_SESSION` (401).
 
@@ -183,6 +183,16 @@ Returns `CONFIRMED` and `VOIDED` sales that already have an invoice number for t
 3. A voided document sets `voided: true`. The UI draws a diagonal "ANULADA" mark and does not print it.
 4. `saleDate` is `confirmedAt`. `deliveryDate` is the sale delivery date. The printed label is "Fecha de entrega".
 5. The API does not print. The UI prints confirmed documents through one browser dialog, 70 mm, no margin, page break between invoices. It does not record a printed mark.
+
+## 10. Purchase orders
+
+Context `purchasing`. A purchase order does not change stock, sales, invoices, or Alegra.
+
+1. `POST /suppliers` stores a trimmed name. `PATCH /suppliers/:id` renames it. `GET /suppliers` returns `id`, `name`, `productCount`, and `latestOrderId` (the order whose `lines` are not null, or null).
+2. `PUT /suppliers/:id/products` replaces the link set. A product that stays keeps `lastQuantity`, `previousQuantity`, and `lastItemName`.
+3. `POST /purchase-orders` snapshots catalog cost and names. The body does not send `unitCost`. Older orders for that supplier have `lines` set to null. `lastQuantity` moves into `previousQuantity`, then `lastQuantity` becomes this order.
+4. `PATCH /purchase-orders/:id` replaces lines of the order that still has lines. Any other order is `PURCHASE_ORDER_NOT_EDITABLE`. `previousQuantity` stays; `lastQuantity` is replaced.
+5. `GET /purchase-orders?supplierId=` returns headers, newest first. `GET /purchase-orders/:id` returns lines only while `hasLines` is true.
 
 ## Pending definition / not implemented
 

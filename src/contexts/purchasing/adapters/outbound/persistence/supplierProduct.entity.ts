@@ -14,6 +14,9 @@ export class SupplierProductEntity {
   @JoinColumn({ name: 'supplier_id' })
   supplier!: SupplierEntity;
 
+  @Column({ type: 'int', name: 'previous_quantity', nullable: true })
+  previousQuantity!: number | null;
+
   @Column({ type: 'int', name: 'last_quantity', nullable: true })
   lastQuantity!: number | null;
 

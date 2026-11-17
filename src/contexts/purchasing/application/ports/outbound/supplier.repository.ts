@@ -4,6 +4,7 @@ export type SupplierListItem = {
   id: string;
   name: string;
   productCount: number;
+  latestOrderId: string | null;
 };
 
 export interface SupplierRepository {

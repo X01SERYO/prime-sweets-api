@@ -36,6 +36,12 @@ test('linking a product twice keeps one link and unlink drops its last quantity'
   assert.equal(supplier.products.find(link => link.productId === 'prod-1')?.lastQuantity, 4);
   assert.equal(supplier.products.find(link => link.productId === 'prod-1')?.lastItemName, 'CHOCOLATINA menta');
   assert.equal(supplier.products.find(link => link.productId === 'prod-2')?.lastQuantity, null);
+  supplier.applySavedLines([{ productId: 'prod-1', quantity: 9, unitCost: 10, itemName: 'CHOCOLATINA menta' }]);
+  assert.equal(supplier.products.find(link => link.productId === 'prod-1')?.previousQuantity, 4);
+  assert.equal(supplier.products.find(link => link.productId === 'prod-1')?.lastQuantity, 9);
+  supplier.applySavedLines([{ productId: 'prod-1', quantity: 7, unitCost: 10, itemName: 'CHOCOLATINA menta' }], false);
+  assert.equal(supplier.products.find(link => link.productId === 'prod-1')?.previousQuantity, 4);
+  assert.equal(supplier.products.find(link => link.productId === 'prod-1')?.lastQuantity, 7);
   supplier.unlinkProduct('prod-1');
   assert.deepEqual(
     supplier.products.map(link => link.productId),

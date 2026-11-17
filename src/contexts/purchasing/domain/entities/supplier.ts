@@ -2,6 +2,7 @@ import { SupplierNameInvalidError } from '@/contexts/purchasing/domain/errors/su
 
 export type SupplierProductLink = {
   productId: string;
+  previousQuantity: number | null;
   lastQuantity: number | null;
   lastUnitCost: number | null;
   lastItemName: string | null;
@@ -57,6 +58,7 @@ export class Supplier {
     }
     this._products.push({
       productId,
+      previousQuantity: null,
       lastQuantity: null,
       lastUnitCost: null,
       lastItemName: null
@@ -67,7 +69,7 @@ export class Supplier {
     this._products = this._products.filter(link => link.productId !== productId);
   }
 
-  applySavedLines(lines: SavedPurchaseLineHint[]): void {
+  applySavedLines(lines: SavedPurchaseLineHint[], shiftPrevious = true): void {
     const byProduct = new Map<string, SavedPurchaseLineHint[]>();
     for (const line of lines) {
       const group = byProduct.get(line.productId) ?? [];
@@ -76,12 +78,20 @@ export class Supplier {
     }
     this._products = this._products.map(link => {
       const group = byProduct.get(link.productId);
+      const previousQuantity = shiftPrevious ? link.lastQuantity : link.previousQuantity;
       if (!group) {
-        return { productId: link.productId, lastQuantity: null, lastUnitCost: null, lastItemName: null };
+        return {
+          productId: link.productId,
+          previousQuantity,
+          lastQuantity: null,
+          lastUnitCost: null,
+          lastItemName: null
+        };
       }
       const sameName = group.every(line => line.itemName === group[0].itemName);
       return {
         productId: link.productId,
+        previousQuantity,
         lastQuantity: group.reduce((sum, line) => sum + line.quantity, 0),
         lastUnitCost: group[0].unitCost,
         lastItemName: sameName ? group[0].itemName : null

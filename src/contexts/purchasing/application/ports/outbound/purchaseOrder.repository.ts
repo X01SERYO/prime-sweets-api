@@ -13,6 +13,7 @@ export type PurchaseOrderHeader = {
 
 export interface PurchaseOrderRepository {
   save(order: PurchaseOrder, supplier: Supplier): Promise<void>;
+  update(order: PurchaseOrder, supplier: Supplier): Promise<void>;
   findById(id: string): Promise<PurchaseOrder | null>;
   list(supplierId: string, page: number, pageSize: number): Promise<{ items: PurchaseOrderHeader[]; total: number }>;
 }

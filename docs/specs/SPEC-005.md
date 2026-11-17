@@ -1,9 +1,9 @@
 # SPEC-005 — Supplier purchase orders
 
-**Status:** Proposed
+**Status:** Implemented
 **Language:** English
-**Architecture:** Modular monolith per [ADR-001](../adrs/ADR-001.md); new context per [ADR-005](../adrs/ADR-005.md)
-**Document role:** Implementation guide for [PDR-005](../pdrs/PDR-005.md). Not a description of the current codebase.
+**Architecture:** Modular monolith per [ADR-001](../adrs/ADR-001.md); context per [ADR-005](../adrs/ADR-005.md)
+**Document role:** Record of the purchasing context built for [PDR-005](../pdrs/PDR-005.md).
 
 ## 0. Impact on what is already built
 
@@ -12,8 +12,8 @@
 | `sales`, `retail-sales`, `fulfillment-output`, `customers` | Yes | None. |
 | `GET /products/search` | Yes | Reused by the UI to pick supplier products. No new search route. |
 | Catalog cost | Yes, `product_prices.cost` for the wholesale channel | Read through a new ACL. Not updated by this context. |
-| New context `purchasing` | No | Create. |
-| Migration | No | `suppliers`, `supplier_products`, `purchase_orders`. |
+| New context `purchasing` | Yes | `src/contexts/purchasing`. |
+| Migration | Yes | `1760000000018-CreatePurchasing.ts` and `1760000000019-SupplierProductPreviousQuantity.ts`. |
 
 ## 1. Domain
 
@@ -23,12 +23,12 @@
 |---|---|
 | `id` | From `IdGenerator`. |
 | `name` | Trimmed, 1–120 characters. |
-| `products` | Links: `productId`, and the last-order hint `lastQuantity`, `lastUnitCost`, `lastItemName` (nullable). |
+| `products` | Links: `productId`, and the hints `previousQuantity`, `lastQuantity`, `lastUnitCost`, `lastItemName` (nullable). |
 
 - `rename(name)`.
 - `linkProduct(productId)` — no-op if already linked. Does not clear last-order hints.
 - `unlinkProduct(productId)` — drops the link and its hints. Does not edit saved orders.
-- `applySavedLines(lines)` — for each linked product, set the hint from the saved lines of that product, or clear `lastQuantity` / `lastUnitCost` / `lastItemName` when the product was not on this order. Quantity is the sum. `lastItemName` is set only when every line of that product has the same name.
+- `applySavedLines(lines, shiftPrevious)` — a new order (`shiftPrevious` true) copies `lastQuantity` into `previousQuantity`, then sets `lastQuantity` from the lines. Editing the latest order (`shiftPrevious` false) keeps `previousQuantity` and replaces `lastQuantity`. A product missing from the lines clears `lastQuantity`, `lastUnitCost`, and `lastItemName`. Quantity is the sum. `lastItemName` is set only when every line of that product has the same name.
 
 ### `PurchaseOrder`
 
@@ -48,6 +48,8 @@
 
 `dropLines()` — clears lines, keeps `lineCount` and `totalCost`.
 
+`replaceLines(lines)` — only while this order still has lines. Otherwise `PURCHASE_ORDER_NOT_EDITABLE`. Recomputes `lineCount` and `totalCost`.
+
 ### Line fields (value object)
 
 `productId`, `productCode`, `brandName`, `catalogName`, `itemName`, `unitCost`, `quantity`.
@@ -56,7 +58,7 @@ Snapshots of code, brand, and name come from the catalog at save time.
 
 ### Errors (stable codes)
 
-`SUPPLIER_NOT_FOUND`, `SUPPLIER_NAME_INVALID`, `PRODUCT_NOT_LINKED`, `PRODUCT_WITHOUT_COST`, `PURCHASE_ORDER_EMPTY`, `INVALID_PURCHASE_QUANTITY`, `PURCHASE_LINE_NAME_INVALID`.
+`SUPPLIER_NOT_FOUND`, `SUPPLIER_NAME_INVALID`, `PRODUCT_NOT_LINKED`, `PRODUCT_WITHOUT_COST`, `PURCHASE_ORDER_EMPTY`, `PURCHASE_ORDER_NOT_EDITABLE`, `INVALID_PURCHASE_QUANTITY`, `PURCHASE_LINE_NAME_INVALID`.
 
 ## 2. Persistence
 
@@ -69,6 +71,7 @@ suppliers
 supplier_products
   supplier_id     uuid FK suppliers ON DELETE CASCADE
   product_id      uuid NOT NULL
+  previous_quantity int NULL
   last_quantity   int NULL
   last_unit_cost  numeric(12,2) NULL
   last_item_name  varchar(255) NULL
@@ -96,7 +99,9 @@ purchase_orders
 3. Build the order.
 4. `UPDATE purchase_orders SET lines = NULL WHERE supplier_id = :id AND lines IS NOT NULL`.
 5. Insert the new order with lines.
-6. `applySavedLines` and update `supplier_products` hints in the same transaction.
+6. `applySavedLines(lines, true)` and update `supplier_products` hints in the same transaction.
+
+Editing the latest order loads that order, calls `replaceLines`, then `applySavedLines(lines, false)`. It does not null any other order.
 
 No cron. At most one order per supplier has `lines` after each save.
 
@@ -106,12 +111,13 @@ Bearer session on every route.
 
 | Method and path | Use case | Behavior |
 |---|---|---|
-| `GET /suppliers` | `ListSuppliers` | `{ items: [{ id, name, productCount }] }` sorted by name. |
+| `GET /suppliers` | `ListSuppliers` | `{ items: [{ id, name, productCount, latestOrderId }] }` sorted by name. `latestOrderId` is the order that still has lines. |
 | `POST /suppliers` | `CreateSupplier` | Body `{ name }`. Returns the supplier. |
 | `PATCH /suppliers/:id` | `RenameSupplier` | Body `{ name }`. |
-| `GET /suppliers/:id` | `GetSupplier` | Supplier plus links. Each link includes catalog code, brand, name, current unit cost, and `lastQuantity` / `lastItemName` (null when never ordered). This is the new-order sheet. It does not read `purchase_orders.lines`. |
+| `GET /suppliers/:id` | `GetSupplier` | Supplier plus links. Each link includes catalog code, brand, name, current unit cost, `previousQuantity`, `lastQuantity`, and `lastItemName`. It does not read `purchase_orders.lines`. |
 | `PUT /suppliers/:id/products` | `SetSupplierProducts` | Body `{ productIds: uuid[] }`. Replaces the link set. Keeps hints for ids that remain. Unknown product → 404 from the catalog ACL. |
-| `POST /purchase-orders` | `CreatePurchaseOrder` | Body `{ supplierId, lines: [{ productId, quantity, itemName? }] }`. A missing `itemName` uses the catalog name. Returns the created order with lines and `totalCost`. |
+| `POST /purchase-orders` | `CreatePurchaseOrder` | Body `{ supplierId, lines: [{ productId, quantity, itemName? }] }`. A missing `itemName` uses the catalog name. Returns the created order with lines and `totalCost`. Shifts `previousQuantity`. |
+| `PATCH /purchase-orders/:id` | `UpdatePurchaseOrder` | Body `{ lines }`. Only the order that still has lines. Does not shift `previousQuantity`. |
 | `GET /purchase-orders?supplierId=&page=&pageSize=` | `ListPurchaseOrders` | Headers only, newest first. `page` from 1, `pageSize` default 10, max 50. Item: `id`, `supplierId`, `supplierName`, `createdAt`, `lineCount`, `totalCost`, `hasLines`. |
 | `GET /purchase-orders/:id` | `GetPurchaseOrder` | Header plus `lines`. `lines` is `[]` when this order is no longer the latest (`hasLines: false`). |
 

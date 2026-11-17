@@ -2,6 +2,7 @@ import { InvalidPurchaseQuantityError } from '@/contexts/purchasing/domain/error
 import { ProductWithoutCostError } from '@/contexts/purchasing/domain/errors/productWithoutCost.error';
 import { PurchaseLineNameInvalidError } from '@/contexts/purchasing/domain/errors/purchaseLineNameInvalid.error';
 import { PurchaseOrderEmptyError } from '@/contexts/purchasing/domain/errors/purchaseOrderEmpty.error';
+import { PurchaseOrderNotEditableError } from '@/contexts/purchasing/domain/errors/purchaseOrderNotEditable.error';
 import { itemNames } from '@/shared/domain/itemName';
 
 export type PurchaseOrderLine = {
@@ -28,8 +29,8 @@ export class PurchaseOrder {
     readonly id: string,
     readonly supplierId: string,
     private _lines: PurchaseOrderLine[] | null,
-    private readonly _lineCount: number,
-    private readonly _totalCost: number,
+    private _lineCount: number,
+    private _totalCost: number,
     readonly createdAt: Date
   ) {}
 
@@ -75,6 +76,16 @@ export class PurchaseOrder {
 
   dropLines(): void {
     this._lines = null;
+  }
+
+  replaceLines(lines: PurchaseOrderLine[]): void {
+    if (!this.hasLines) {
+      throw new PurchaseOrderNotEditableError();
+    }
+    const normalized = normalizeLines(lines);
+    this._lines = normalized;
+    this._lineCount = normalized.length;
+    this._totalCost = roundMoney(normalized.reduce((sum, line) => sum + lineCost(line), 0));
   }
 
   toPrimitives(): PurchaseOrderPrimitives {

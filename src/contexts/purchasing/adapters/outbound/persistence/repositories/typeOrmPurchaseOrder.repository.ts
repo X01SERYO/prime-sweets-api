@@ -28,6 +28,17 @@ export class TypeOrmPurchaseOrderRepository implements PurchaseOrderRepository {
     });
   }
 
+  async update(order: PurchaseOrder, supplier: Supplier): Promise<void> {
+    await this.dataSource.transaction(async manager => {
+      await manager.getRepository(PurchaseOrderEntity).update(order.id, {
+        lineCount: order.lineCount,
+        totalCost: order.totalCost,
+        lines: order.lines
+      });
+      await replaceSupplierProducts(manager, supplier);
+    });
+  }
+
   async findById(id: string): Promise<PurchaseOrder | null> {
     const entity = await this.dataSource.getRepository(PurchaseOrderEntity).findOne({ where: { id } });
     return entity ? PurchaseOrderMapper.toDomain(entity) : null;

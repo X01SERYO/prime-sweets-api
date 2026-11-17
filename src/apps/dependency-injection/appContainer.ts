@@ -37,6 +37,7 @@ import { ReviewRetailDaysUseCase } from '@/contexts/retail-sales/application/use
 import { RemoveRetailItemUseCase } from '@/contexts/retail-sales/application/use-cases/removeRetailItem/removeRetailItem.useCase';
 import { SetRetailItemQuantityUseCase } from '@/contexts/retail-sales/application/use-cases/setRetailItemQuantity/setRetailItemQuantity.useCase';
 import { CreatePurchaseOrderUseCase } from '@/contexts/purchasing/application/use-cases/createPurchaseOrder/createPurchaseOrder.useCase';
+import { UpdatePurchaseOrderUseCase } from '@/contexts/purchasing/application/use-cases/updatePurchaseOrder/updatePurchaseOrder.useCase';
 import { CreateSupplierUseCase } from '@/contexts/purchasing/application/use-cases/createSupplier/createSupplier.useCase';
 import { GetPurchaseOrderUseCase } from '@/contexts/purchasing/application/use-cases/getPurchaseOrder/getPurchaseOrder.useCase';
 import { ListPurchaseOrdersUseCase } from '@/contexts/purchasing/application/use-cases/listPurchaseOrders/listPurchaseOrders.useCase';
@@ -87,6 +88,7 @@ export interface AppContainer {
   get(id: 'purchasing.application.get_supplier_use_case'): GetSupplierUseCase;
   get(id: 'purchasing.application.set_supplier_products_use_case'): SetSupplierProductsUseCase;
   get(id: 'purchasing.application.create_purchase_order_use_case'): CreatePurchaseOrderUseCase;
+  get(id: 'purchasing.application.update_purchase_order_use_case'): UpdatePurchaseOrderUseCase;
   get(id: 'purchasing.application.list_purchase_orders_use_case'): ListPurchaseOrdersUseCase;
   get(id: 'purchasing.application.get_purchase_order_use_case'): GetPurchaseOrderUseCase;
   get(id: 'fulfillment.application.generate_load_sheet_use_case'): GenerateLoadSheetUseCase;

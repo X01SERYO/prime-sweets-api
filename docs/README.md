@@ -20,9 +20,9 @@ This index is the map of project documents. Runtime descriptions below match the
 | [pdrs/PDR-004.md](./pdrs/PDR-004.md) | Daily retail sale | Proposal. Not implemented. |
 | [specs/SPEC-004.md](./specs/SPEC-004.md) | Implementation guide for PDR-004 | Proposed. Do not copy it into architecture, data-model, or flows until the code lands. |
 | [adrs/ADR-004.md](./adrs/ADR-004.md) | Retail sales are a separate bounded context | Proposed. Binding for PDR-004. |
-| [pdrs/PDR-005.md](./pdrs/PDR-005.md) | Supplier purchase orders (Pedidos) | Proposal. Not implemented. |
-| [specs/SPEC-005.md](./specs/SPEC-005.md) | Implementation guide for PDR-005 | Proposed. Do not copy it into architecture, data-model, or flows until the code lands. |
-| [adrs/ADR-005.md](./adrs/ADR-005.md) | Purchasing is a separate context; only the last order keeps lines | Proposed. Binding for PDR-005. |
+| [pdrs/PDR-005.md](./pdrs/PDR-005.md) | Supplier purchase orders (Pedidos) | Implemented. The feature record. Runtime shape is in architecture, data-model, and flows. |
+| [specs/SPEC-005.md](./specs/SPEC-005.md) | Implementation guide for PDR-005 | Implemented in `purchasing`. |
+| [adrs/ADR-005.md](./adrs/ADR-005.md) | Purchasing is a separate context; only the last order keeps lines | Accepted. The `purchasing` context follows it. |
 | [architecture/](./architecture/README.md) | C4 model of **the current API** | Implemented. One C4 set only. |
 | [data-model/](./data-model/README.md) | Entities, tables, and relations verified in code and migrations | Catalog, customers, sales, and the invoice sequence. There is no Sales Day table. Load Sheet, invoice list, and invoice document are projections and have no table. |
 | [flows/](./flows/README.md) | Business/application flows verified in code | Identity, catalog, customers, sales by delivery date, Load Sheet, invoice listing, invoice generation, and Alegra outbound sync. Remaining gaps are listed, not invented. |
@@ -53,6 +53,6 @@ This index is the map of project documents. Runtime descriptions below match the
 | Sales (draft/confirm/void, snapshots, invoice numbering) | Yes — context name is `sales` |
 | Fulfillment Output (Load Sheet, invoice render/print) | API: `GenerateLoadSheet` via `GET /load-sheets?deliveryDate=`, `ListInvoices` via `GET /invoices?deliveryDate=`, and `GenerateInvoice` via `GET /invoices/:saleId`. Printing is the UI, through the Windows print dialog (PDR OQ-04). |
 | Hexagonal folder convention (`adapters/`, `application/ports`) | Yes for `catalog`, `customers`, `sales-day`, `sales`, `fulfillment-output`, and `alegra`. |
-| Purchase orders ([SPEC-005](./specs/SPEC-005.md)) | No. Design only: [PDR-005](./pdrs/PDR-005.md), [ADR-005](./adrs/ADR-005.md). |
+| Purchase orders ([SPEC-005](./specs/SPEC-005.md)) | Yes — context `purchasing`: suppliers, linked products, create and edit of the latest order. |
 
 When a SPEC step is implemented, update `architecture/`, `data-model/`, and `flows/` to match the code. Do not mark SPEC sections as done only in the SPEC.

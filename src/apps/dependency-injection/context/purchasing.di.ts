@@ -10,6 +10,7 @@ import { ListPurchaseOrdersUseCase } from '@/contexts/purchasing/application/use
 import { ListSuppliersUseCase } from '@/contexts/purchasing/application/use-cases/listSuppliers/listSuppliers.useCase';
 import { RenameSupplierUseCase } from '@/contexts/purchasing/application/use-cases/renameSupplier/renameSupplier.useCase';
 import { SetSupplierProductsUseCase } from '@/contexts/purchasing/application/use-cases/setSupplierProducts/setSupplierProducts.useCase';
+import { UpdatePurchaseOrderUseCase } from '@/contexts/purchasing/application/use-cases/updatePurchaseOrder/updatePurchaseOrder.useCase';
 
 export function registerPurchasingDependencies(container: ContainerBuilder): void {
   const dataSourceRef = new Reference('shared.infrastructure.persistence.typeorm.data_source');
@@ -55,6 +56,12 @@ export function registerPurchasingDependencies(container: ContainerBuilder): voi
     .addArgument(ordersRef)
     .addArgument(productsRef)
     .addArgument(idsRef);
+
+  container
+    .register('purchasing.application.update_purchase_order_use_case', UpdatePurchaseOrderUseCase)
+    .addArgument(suppliersRef)
+    .addArgument(ordersRef)
+    .addArgument(productsRef);
 
   container
     .register('purchasing.application.list_purchase_orders_use_case', ListPurchaseOrdersUseCase)

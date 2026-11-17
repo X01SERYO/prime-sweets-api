@@ -4,6 +4,7 @@ import {
   SupplierListItem
 } from '@/contexts/purchasing/application/ports/outbound/supplier.repository';
 import { Supplier } from '@/contexts/purchasing/domain/entities/supplier';
+import { PurchaseOrderEntity } from '@/contexts/purchasing/adapters/outbound/persistence/purchaseOrder.entity';
 import { SupplierEntity } from '@/contexts/purchasing/adapters/outbound/persistence/supplier.entity';
 import { SupplierProductEntity } from '@/contexts/purchasing/adapters/outbound/persistence/supplierProduct.entity';
 import { SupplierMapper } from '@/contexts/purchasing/adapters/outbound/persistence/supplier.mapper';
@@ -25,10 +26,19 @@ export class TypeOrmSupplierRepository implements SupplierRepository {
       .orderBy('supplier.name', 'ASC')
       .getRawMany<{ id: string; name: string; productCount: string }>();
 
+    const openOrders = await this.dataSource
+      .getRepository(PurchaseOrderEntity)
+      .createQueryBuilder('order')
+      .select(['order.id', 'order.supplierId'])
+      .where('order.lines IS NOT NULL')
+      .getMany();
+    const latestBySupplier = new Map(openOrders.map(order => [order.supplierId, order.id]));
+
     return rows.map(row => ({
       id: row.id,
       name: row.name,
-      productCount: Number(row.productCount)
+      productCount: Number(row.productCount),
+      latestOrderId: latestBySupplier.get(row.id) ?? null
     }));
   }
 

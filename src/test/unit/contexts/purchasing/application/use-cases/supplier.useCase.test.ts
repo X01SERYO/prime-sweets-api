@@ -43,7 +43,7 @@ test('creating a supplier stores the trimmed name', async () => {
   const suppliers = memorySuppliers();
   const result = await new CreateSupplierUseCase(suppliers, { next: () => 'sup-1' }).run('  Norte  ');
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.name, 'Norte');
+  assert.equal(result.value?.name, 'NORTE');
   assert.equal(suppliers.saved?.id, 'sup-1');
 });
 

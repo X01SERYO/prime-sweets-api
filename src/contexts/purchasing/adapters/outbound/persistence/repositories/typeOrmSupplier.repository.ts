@@ -36,7 +36,7 @@ export class TypeOrmSupplierRepository implements SupplierRepository {
 
     return rows.map(row => ({
       id: row.id,
-      name: row.name,
+      name: row.name.toLocaleUpperCase('es-CO'),
       productCount: Number(row.productCount),
       latestOrderId: latestBySupplier.get(row.id) ?? null
     }));

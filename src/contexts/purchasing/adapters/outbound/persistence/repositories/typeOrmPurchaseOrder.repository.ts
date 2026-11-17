@@ -56,7 +56,7 @@ export class TypeOrmPurchaseOrderRepository implements PurchaseOrderRepository {
       take: pageSize
     });
     const supplier = await this.dataSource.getRepository(SupplierEntity).findOne({ where: { id: supplierId } });
-    const supplierName = supplier?.name ?? '';
+    const supplierName = supplier?.name.toLocaleUpperCase('es-CO') ?? '';
     return {
       total,
       items: entities.map(entity => ({

@@ -43,7 +43,7 @@ export class Supplier {
   static rehydrate(params: SupplierPrimitives): Supplier {
     return new Supplier(
       params.id,
-      params.name,
+      normalizeName(params.name),
       params.products.map(link => ({ ...link }))
     );
   }
@@ -109,5 +109,5 @@ function normalizeName(name: string): string {
   if (trimmed.length < 1 || trimmed.length > 120) {
     throw new SupplierNameInvalidError();
   }
-  return trimmed;
+  return trimmed.toLocaleUpperCase('es-CO');
 }

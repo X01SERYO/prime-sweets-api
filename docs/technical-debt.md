@@ -2,7 +2,7 @@
 
 **Document Role:** Central register of technical debt, code anomalies, architectural drift, hypotheses, and pending technical definitions identified in the codebase.
 **Objective:** Track, maintain visibility, and progressively reduce technical debt during the development of Version 1, updating this registry and related architecture documents as items are resolved.
-**Status:** Active — updated following repository review.
+**Status:** Active — last review 2026-11-17.
 
 ---
 
@@ -50,6 +50,24 @@ Defects, inconsistencies, and violations of project architectural standards (`AD
 | **TD-11** | ~~Unvalidated, scattered `process.env` access~~ | `src/shared/infrastructure/config/appConfig.ts`<br>`src/main.ts`<br>`src/apps/api/server.ts`<br>`src/shared/infrastructure/persistence/typeorm/typeOrmDataSource.ts` | **[RESOLVED]** Environment variables are parsed once by `loadAppConfig` (Zod) before the container starts. `DB_USER` and `DB_NAME` are required and fail startup when missing. Database host/port, HTTP port, and the business timezone keep their existing defaults. Alegra and company profile values are centralized; a blank company profile still fails invoice generation with `CompanyProfileNotConfiguredError` instead of blocking the whole API. | Resolved in the configuration step. |
 | **TD-12** | ~~Mixed module export styles~~ | `src/contexts/catalog/application/use-cases/*`<br>`src/contexts/customers/*`<br>`src/contexts/alegra/*`<br>`src/apps/dependency-injection/*` | **[RESOLVED]** Migrated dependency injection wiring from brittle YAML paths to modular TypeScript modules (`*.di.ts`). Removed all redundant `export default` statements across all use cases, repositories, and adapters, enforcing 100% typed named exports (`export class X`). | Resolved in Customer implementation phase. |
 
+### 2.4 Open after the 2026-11-17 review
+
+Confirmed in code. Nothing here is unused with enough confidence to delete. Pass-through use cases that only call a port are not debt.
+
+| ID | Priority | Item | Affected files | Problem | Corrective action |
+|---|---|---|---|---|---|
+| **TD-13** | P1 | `Product` does not protect its invariants | `src/contexts/catalog/domain/entities/product.ts`<br>`createProduct.useCase.ts`<br>`updateProduct.useCase.ts` | `create` and `update` assign fields and uppercase the name. They do not reject an empty name, a negative price, or an invalid count. Those checks live in the use cases as different local helpers (`optionalNumber` vs `presentMoney` / `presentCount`). Mappers rehydrate with `Product.create`, so every read runs `upperName` again. TD-08 fixed `Brand` and the use-case `Result`; the entity is still anemic. | Move the invariants into the entity. Add `rehydrate` for reads, as `PurchaseOrder` and `RetailDay` already do. |
+| **TD-14** | P1 | Create and update purchase order duplicate the same orchestration | `createPurchaseOrder.useCase.ts` (lines 31–57)<br>`updatePurchaseOrder.useCase.ts` (lines 33–59) | Both resolve the supplier, the product link, the catalog read, cost `<= 0`, and the line snapshot. Update imports `CreatePurchaseOrderLineDto` from the create file. | One application function builds the lines. Keep two use cases. |
+| **TD-15** | P1 | Domain errors collapse to HTTP 400 | `src/apps/controllers/httpResponse.ts` lines 33–46 | Only `RETAIL_DAY_CLOSED` and `RETAIL_DAY_ALREADY_REVIEWED` return 409. Every other `DomainError`, including conflicts such as a duplicate customer, returns 400 and sends `error.message`. | Map existing stable codes to status. Do not add new codes in that change. Keep the translated text in the adapter. |
+| **TD-16** | P2 | Alegra use cases skip `Result` | `src/contexts/alegra/application/createProductItem/`<br>`syncProductItem/` | No entities. Files are not under `use-cases/`. `run` returns `Promise<string>` or `Promise<void>`. Registered in DI and used by the ACL. Not dead code. | Return `Result` and move the files under `application/use-cases/`. Do not invent an entity for an HTTP client. |
+| **TD-17** | P2 | Price row ids are created in the repository | `typeOrmProduct.repository.ts` | `randomUUID` from `crypto` assigns the price id. The project standard asks the use case to take new ids from `IdGenerator`. | Generate the id in the use case and persist it as given. |
+| **TD-18** | P2 | `Sale.create` both builds and reloads | `src/contexts/sales/domain/entities/sale.ts`<br>`sale.mapper.ts`<br>`setSaleDeliveryDate.useCase.ts` | Draft creation is `Sale.start`. The mapper loads rows with `Sale.create` / `SaleItem.create`. There is no `rehydrate`. The delivery-date use case calls `sale.void()` on an already voided sale to force `SaleAlreadyVoidedError`, and `catch` does `Result.fail(error as Error)` for any exception. | Add `rehydrate`. Return the domain error without calling `void()`. Catch only `DomainError`. |
+| **TD-19** | P3 | Use-case signatures and DTO locations differ | purchasing `run(supplierId, lines, assortment)` and `run(name: string)`; catalog, customers, and sales gets/deletes use `run(id: string)`; retail types live inside the use case; Alegra uses an anonymous object | File DTOs exist for catalog, sales, customers, fulfillment, and identity. The purchase line DTO lives in the create use case. | Add a DTO file per purchasing and retail use case. Leave `run(id)` as it is. |
+| **TD-20** | P3 | DI keys name the domain for a TypeORM adapter | `src/apps/dependency-injection/` | Keys such as `sales.domain.sale_repository`, `catalog.domain.product_repository`, `purchasing.domain.supplier_repository`, `customers.domain.customer_repository`, `retail.domain.retail_day_repository`. Folders are `retail-sales`, `fulfillment-output`, and `customers`. | Rename to `*.repository` without the `domain` segment, aligned with the folder, in one composition change. |
+| **TD-21** | P3 | Same error `code` in different contexts | catalog, sales, and fulfillment `PRODUCT_NOT_FOUND`, `CUSTOMER_NOT_FOUND`, `SALE_NOT_FOUND` | The client cannot tell “missing in catalog” from “missing on this sale”. | Prefix the code with the context when a consumer is confirmed. Do not change the contract in the same change as a rename. |
+| **TD-22** | P2 | `GET /products` chooses the use case from the query | `products.route.ts` | A `query` value calls `search_products_use_case`; without it, `list_products_use_case`. The UI admin uses `GET /products?page`. Sale and retail search use `GET /products/search`. | Keep both routes. Document the split. Do not merge them without a consumer check. |
+| **TD-23** | P3 | `GET /invoices/:saleId` reads as a query and runs `GenerateInvoiceUseCase` | `invoices.route.ts` | The HTTP verb is a read. The use case name says generate. The UI calls the same GET. | Keep the GET. Rename only after confirming no other client depends on the use-case name. |
+
 ---
 
 ## 3. Hypotheses to Validate (Hipótesis y Aspectos a Verificar)
@@ -61,6 +79,9 @@ Assumptions that require profiling, load testing, or codebase audits before deci
 | **H-01** | ~~Synchronous Alegra HTTP call causes latency spikes and thread blocking on bulk product updates.~~ | **[CLOSED]** Version 1 keeps the call on the same request, after the local save. A slow Alegra response is an operations measurement, not a code change. | None for this version. The saved product is still returned when Alegra fails. |
 | **H-02** | ~~`priceList.entity.ts` is orphaned dead code.~~ | **[RESOLVED]** It was not registered in the DataSource or in migrations. The file was removed. Channel prices stay on `product_prices`. | None. |
 | **H-03** | ~~Concurrent price updates on the same product could lead to race conditions in `upsertChannelPrice`.~~ | **[RESOLVED]** The channel price is inserted with `ON CONFLICT (product_id, channel) DO UPDATE` of `cost`, `price`, and `updated_at`. Two saves of the same product no longer read the row before writing it. A null price still deletes that channel. | None. |
+| **H-04** | `InMemorySessionStore` is only a test double sitting in `adapters/` | `src/contexts/identity/adapters/outbound/inMemorySession.store.ts` is not in `identity.di.ts`. `login.useCase.test.ts` and its unit test use it. | Move under `test/` only after confirming no local boot constructs it. |
+| **H-05** | These routes have no caller in `prime-sweets-ui`. They are not obsolete. | `GET /auth/session`; `GET /brands/:id`, `PUT /brands/:id`, `DELETE /brands/:id`; `GET /products/:id`, `DELETE /products/:id`; `GET /customers` (same use case as `GET /customers/search`); `GET /retail-days/:date`. | Confirm external consumers before removing or collapsing any path. |
+| **H-06** | `GET /customers` and `GET /customers/search` are one contract twice | `customers.route.ts` maps both to `search_customers_use_case`. The UI calls `/customers/search` and `/customers/:id`. | Collapse only after H-05 confirms no external caller of `GET /customers`. |
 
 ---
 
@@ -92,7 +113,19 @@ Runtime is Node.js 26 and TypeScript 6. ESLint is on 10 with `eslint.config.mjs`
 
 Still open: DEC-02. DEC-01 is decided: parent imports use the path aliases above. H-01 and DEC-03 are closed: version 1 keeps the direct Alegra call after the local save. H-03 is resolved.
 
-## 6. Non-Duplicated Cross-References
+## 6. Review on 2026-11-17
+
+Read-only pass over `catalog`, `customers`, `sales`, `retail-sales`, `purchasing`, `identity`, `fulfillment-output`, and `alegra`, and over the UI HTTP adapters. No code was changed.
+
+| Check | Result |
+|---|---|
+| Dependency direction | Domain does not import Express, TypeORM, or `crypto`. No context imports another context’s repository. Cross-context reads stay in `src/apps/dependency-injection/acl/`. |
+| Dead code safe to delete | None. All use cases are registered in `src/apps/dependency-injection/` and the ten `*.route.ts` files are mounted from `src/apps/api/routes/index.ts`. |
+| Needs a consumer check | H-04, H-05, H-06. |
+| Secrets | `User.toPrimitives()` does not include the password hash. |
+| Open work | TD-13 through TD-23. Suggested order: TD-13, TD-14, TD-15, then TD-16–TD-18, then renames in TD-19–TD-21 and TD-23. |
+
+## 7. Non-Duplicated Cross-References
 
 To preserve a single source of truth across the project:
 

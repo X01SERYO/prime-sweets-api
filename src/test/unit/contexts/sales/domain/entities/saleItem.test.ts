@@ -61,7 +61,7 @@ test('SaleItem entity - updates transaction-time itemName', () => {
   });
 
   const updated = item.updateItemName('Galletas Original edición especial');
-  assert.equal(updated.itemName, 'GALLETAS ORIGINAL edición especial');
+  assert.equal(updated.itemName, 'GALLETAS ORIGINAL Edición especial');
   assert.equal(updated.catalogName, 'GALLETAS ORIGINAL');
   assert.equal(updated.productId, 'prod-100');
 });

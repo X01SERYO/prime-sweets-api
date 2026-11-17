@@ -26,7 +26,7 @@ test('a purchase order round-trips and a dropped detail stays null', () => {
   );
 
   const stored = PurchaseOrderMapper.toDomain(PurchaseOrderMapper.toEntity(order));
-  assert.equal(stored.lines[0]?.itemName, 'CHOCOLATINA fresa');
+  assert.equal(stored.lines[0]?.itemName, 'CHOCOLATINA Fresa');
   assert.equal(stored.totalCost, 1601);
   assert.equal(stored.createdAt.toISOString(), createdAt.toISOString());
 

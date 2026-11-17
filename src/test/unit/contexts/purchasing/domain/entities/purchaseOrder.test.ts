@@ -71,7 +71,7 @@ test('a saved order keeps the catalog name and the extra, and the same name adds
     createdAt
   );
   assert.equal(order.lines[0]?.catalogName, 'CHOCOLATINA');
-  assert.equal(order.lines[0]?.itemName, 'CHOCOLATINA fresa');
+  assert.equal(order.lines[0]?.itemName, 'CHOCOLATINA Fresa');
   assert.equal(order.lines[0]?.quantity, 3);
   assert.equal(lineCost(order.lines[0]!), 2401.5);
   assert.equal(order.totalCost, 2501.5);

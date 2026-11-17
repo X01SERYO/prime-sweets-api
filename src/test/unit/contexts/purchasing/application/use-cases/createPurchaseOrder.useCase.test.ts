@@ -54,7 +54,7 @@ test('saving an order snapshots the catalog cost and the extra name, and stores 
   );
 
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.lines[0]?.itemName, 'CHOCOLATINA fresa');
+  assert.equal(result.value?.lines[0]?.itemName, 'CHOCOLATINA Fresa');
   assert.equal(result.value?.lines[0]?.unitCost, 800.5);
   assert.equal(result.value?.totalCost, 1601);
   assert.equal(committed.lastQuantity, 2);

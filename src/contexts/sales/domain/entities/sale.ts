@@ -161,7 +161,7 @@ export class Sale {
   }
 
   addItem(newItem: SaleItem): Sale {
-    this.assertNotVoided();
+    this.ensureIsDraft();
 
     const sameName = newItem.itemName.trim().toLocaleLowerCase();
     const existingIndex = this.state.items.findIndex(
@@ -180,7 +180,7 @@ export class Sale {
   }
 
   updateItemQuantity(itemId: string, quantity: number): Sale {
-    this.assertNotVoided();
+    this.ensureIsDraft();
     const index = this.indexOfItem(itemId);
     const items = [...this.state.items];
     items[index] = items[index].updateQuantity(quantity);
@@ -196,19 +196,21 @@ export class Sale {
   }
 
   removeItem(itemId: string): Sale {
-    this.assertNotVoided();
+    this.ensureIsDraft();
     this.indexOfItem(itemId);
-
-    if (this.isConfirmed() && this.state.items.length === 1) {
-      throw new SaleMustContainItemsError('A confirmed sale must contain at least one item');
-    }
-
     return this.with({ items: this.state.items.filter((item) => item.id !== itemId) });
   }
 
   setDeliveryDate(deliveryDate: string, today: string): Sale {
-    this.assertNotVoided();
+    this.ensureIsDraft();
     return this.with({ deliveryDate: assertDeliveryDateAllowed(deliveryDate, normalizeBusinessDate(today)) });
+  }
+
+  reopen(): Sale {
+    if (!this.isConfirmed()) {
+      throw new SaleCannotBeModifiedError('Only a confirmed sale can be edited back to draft');
+    }
+    return this.asDraft();
   }
 
   confirm(invoiceNumber: string, businessDate: string): Sale {
@@ -243,10 +245,7 @@ export class Sale {
     if (!nextCustomerId) {
       throw new InvalidSaleError('Customer id cannot be empty');
     }
-    if (nextCustomerId === this.customerId) {
-      return this;
-    }
-    return new Sale(this.id, this.sellerId, nextCustomerId, this.captureDate, this.createdAt, this.state);
+    throw new SaleCannotBeModifiedError('The customer is chosen when the sale is created');
   }
 
   void(): Sale {
@@ -254,6 +253,11 @@ export class Sale {
     if (this.state.status !== 'CONFIRMED') {
       throw new SaleCannotBeModifiedError('Only a confirmed sale can be voided');
     }
+    return this.with({ status: 'VOIDED', voidedAt: new Date() });
+  }
+
+  retire(): Sale {
+    this.assertNotVoided();
     return this.with({ status: 'VOIDED', voidedAt: new Date() });
   }
 
@@ -275,6 +279,15 @@ export class Sale {
       confirmedAt: this.state.confirmedAt ? this.state.confirmedAt.toISOString() : null,
       voidedAt: this.state.voidedAt ? this.state.voidedAt.toISOString() : null
     };
+  }
+
+  private asDraft(changes: Partial<SaleState> = {}): Sale {
+    this.assertNotVoided();
+    return this.with({
+      status: 'DRAFT',
+      voidedAt: null,
+      ...changes
+    });
   }
 
   private with(changes: Partial<SaleState>): Sale {

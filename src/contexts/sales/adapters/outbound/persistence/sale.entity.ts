@@ -12,7 +12,7 @@ import { SaleItemEntity } from './saleItem.entity';
 @Entity('sales')
 @Index('IDX_sales_seller_id', ['sellerId'])
 @Index('IDX_sales_customer_id', ['customerId'])
-@Index('UQ_sales_invoice_business_date_number', ['invoiceBusinessDate', 'invoiceNumber'], { unique: true })
+@Index('UQ_sales_delivery_date_invoice_number', ['deliveryDate', 'invoiceNumber'], { unique: true })
 @Index('IDX_sales_delivery_date_status', ['deliveryDate', 'status'])
 export class SaleEntity {
   @PrimaryColumn({ type: 'uuid' })

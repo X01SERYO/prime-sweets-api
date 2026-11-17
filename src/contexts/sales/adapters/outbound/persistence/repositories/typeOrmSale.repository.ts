@@ -17,6 +17,13 @@ export class TypeOrmSaleRepository implements SaleRepository, SaleBatch {
     await this.saveAll([sale]);
   }
 
+  async discard(saleId: string): Promise<void> {
+    await this.repository.manager.transaction(async (manager) => {
+      await manager.delete(SaleItemEntity, { saleId });
+      await manager.delete(SaleEntity, { id: saleId });
+    });
+  }
+
   async saveAll(sales: Sale[]): Promise<void> {
     const prepared = sales.map(sale => {
       const entity = SaleMapper.toEntity(sale);

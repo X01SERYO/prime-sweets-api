@@ -4,7 +4,6 @@ import { SetSaleDeliveryDateUseCase } from '@/contexts/sales/application/use-cas
 import { Sale } from '@/contexts/sales/domain/entities/sale';
 import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 import { SaleRepository } from '@/contexts/sales/application/ports/outbound/sale.repository';
-import { SaleBatch } from '@/contexts/sales/application/ports/outbound/saleBatch.port';
 import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
 import { SaleAlreadyVoidedError } from '@/contexts/sales/domain/errors/saleAlreadyVoided.error';
@@ -44,7 +43,7 @@ function repositoryWith(initial: Sale): SaleRepository & { saved: Sale[] } {
   };
 }
 
-test('SetSaleDeliveryDateUseCase - updates a draft in place', async () => {
+test('SetSaleDeliveryDateUseCase - voids the current sale and creates another for the selected day', async () => {
   const repo = repositoryWith(
     Sale.create({
       id: 's-1',
@@ -54,19 +53,29 @@ test('SetSaleDeliveryDateUseCase - updates a draft in place', async () => {
       deliveryDate: '2026-11-05'
     }).addItem(item())
   );
-  const batch: SaleBatch = { saveAll: async () => {} };
-  const useCase = new SetSaleDeliveryDateUseCase(repo, batch, calendar, allocator, ids);
+  let batch: Sale[] = [];
+  const useCase = new SetSaleDeliveryDateUseCase(
+    repo,
+    { saveAll: async sales => { batch = sales; }, discard: async () => {} },
+    calendar,
+    allocator,
+    { next: (() => { let n = 0; return () => `id-${++n}`; })() }
+  );
 
   const result = await useCase.run({ saleId: 's-1', deliveryDate: '2026-11-08' });
 
   assert.equal(result.isSuccess, true);
-  assert.equal(result.value?.id, 's-1');
+  assert.equal(result.value?.id, 'id-1');
   assert.equal(result.value?.deliveryDate, '2026-11-08');
   assert.equal(result.value?.status, 'DRAFT');
-  assert.equal(repo.saved.length, 1);
+  assert.equal(result.value?.items.length, 1);
+  assert.equal(batch[0]?.id, 's-1');
+  assert.equal(batch[0]?.status, 'VOIDED');
+  assert.equal(batch[0]?.deliveryDate, '2026-11-05');
+  assert.equal(batch[1]?.id, 'id-1');
 });
 
-test('SetSaleDeliveryDateUseCase - voids a confirmed sale and confirms a new one for the new date', async () => {
+test('SetSaleDeliveryDateUseCase - a confirmed sale is voided with its invoice and a new draft is created', async () => {
   const original = Sale.create({
     id: 's-1',
     sellerId: 'seller-1',
@@ -80,7 +89,7 @@ test('SetSaleDeliveryDateUseCase - voids a confirmed sale and confirms a new one
   let batch: Sale[] = [];
   const useCase = new SetSaleDeliveryDateUseCase(
     repo,
-    { saveAll: async sales => { batch = sales; } },
+    { saveAll: async sales => { batch = sales; }, discard: async () => {} },
     calendar,
     allocator,
     { next: (() => { let n = 0; return () => `id-${++n}`; })() }
@@ -88,22 +97,13 @@ test('SetSaleDeliveryDateUseCase - voids a confirmed sale and confirms a new one
 
   const result = await useCase.run({ saleId: 's-1', deliveryDate: '2026-11-08' });
 
-  assert.equal(result.value?.id, 'id-1');
-  assert.equal(result.value?.status, 'CONFIRMED');
-  assert.equal(result.value?.invoiceNumber, '004');
-  assert.equal(result.value?.invoiceBusinessDate, '2026-11-04');
+  assert.equal(result.isSuccess, true);
+  assert.equal(batch[0]?.status, 'VOIDED');
+  assert.equal(batch[0]?.invoiceNumber, '001');
+  assert.equal(batch[0]?.deliveryDate, '2026-11-05');
+  assert.equal(result.value?.status, 'DRAFT');
+  assert.equal(result.value?.invoiceNumber, null);
   assert.equal(result.value?.deliveryDate, '2026-11-08');
-  assert.equal(result.value?.captureDate, '2026-11-02');
-  assert.equal(result.value?.sellerId, 'seller-1');
-  assert.equal(result.value?.items.length, 1);
-  assert.equal(result.value?.items[0].id, 'id-2');
-  assert.equal(result.value?.items[0].quantity, 2);
-  assert.equal(batch.length, 2);
-  assert.equal(batch[0].id, 's-1');
-  assert.equal(batch[0].status, 'VOIDED');
-  assert.equal(batch[0].invoiceNumber, '001');
-  assert.equal(batch[0].deliveryDate, '2026-11-05');
-  assert.equal(batch[1].id, result.value?.id);
 });
 
 test('SetSaleDeliveryDateUseCase - same date does not save', async () => {
@@ -119,7 +119,7 @@ test('SetSaleDeliveryDateUseCase - same date does not save', async () => {
   let called = false;
   const useCase = new SetSaleDeliveryDateUseCase(
     repo,
-    { saveAll: async () => { called = true; } },
+    { saveAll: async () => { called = true; }, discard: async () => {} },
     calendar,
     allocator,
     ids
@@ -141,7 +141,7 @@ test('SetSaleDeliveryDateUseCase - rejects a voided sale and a date outside the 
     deliveryDate: '2026-11-05',
     status: 'VOIDED'
   });
-  const useCase = new SetSaleDeliveryDateUseCase(repositoryWith(voided), { saveAll: async () => {} }, calendar, allocator, ids);
+  const useCase = new SetSaleDeliveryDateUseCase(repositoryWith(voided), { saveAll: async () => {}, discard: async () => {} }, calendar, allocator, ids);
 
   const voidedResult = await useCase.run({ saleId: 's-1', deliveryDate: '2026-11-08' });
   const rangeResult = await new SetSaleDeliveryDateUseCase(
@@ -154,7 +154,7 @@ test('SetSaleDeliveryDateUseCase - rejects a voided sale and a date outside the 
         deliveryDate: '2026-11-05'
       })
     ),
-    { saveAll: async () => {} },
+    { saveAll: async () => {}, discard: async () => {} },
     calendar,
     allocator,
     ids
@@ -162,4 +162,47 @@ test('SetSaleDeliveryDateUseCase - rejects a voided sale and a date outside the 
 
   assert.ok(voidedResult.error instanceof SaleAlreadyVoidedError);
   assert.ok(rangeResult.error instanceof DeliveryDateOutOfRangeError);
+});
+
+test('SetSaleDeliveryDateUseCase - continues the draft that already exists for that customer and day', async () => {
+  const moving = Sale.create({
+    id: 'moving',
+    sellerId: 'seller-1',
+    customerId: 'c-1',
+    captureDate: '2026-11-04',
+    deliveryDate: '2026-11-05'
+  }).addItem(item());
+  const existing = Sale.create({
+    id: 'existing',
+    sellerId: 'seller-1',
+    customerId: 'c-1',
+    captureDate: '2026-11-04',
+    deliveryDate: '2026-11-06'
+  });
+  let batch: Sale[] = [];
+  const repo: SaleRepository = {
+    async save() {},
+    async findById(id) {
+      return id === moving.id ? moving : null;
+    },
+    async list() {
+      return [existing];
+    }
+  };
+  const useCase = new SetSaleDeliveryDateUseCase(
+    repo,
+    { saveAll: async sales => { batch = sales; }, discard: async () => {} },
+    calendar,
+    allocator,
+    ids
+  );
+
+  const result = await useCase.run({ saleId: 'moving', deliveryDate: '2026-11-06' });
+
+  assert.equal(result.value?.id, 'existing');
+  assert.equal(result.value?.items.length, 1);
+  assert.equal(batch[0]?.id, 'moving');
+  assert.equal(batch[0]?.status, 'VOIDED');
+  assert.equal(batch[0]?.deliveryDate, '2026-11-05');
+  assert.equal(batch[1]?.id, 'existing');
 });

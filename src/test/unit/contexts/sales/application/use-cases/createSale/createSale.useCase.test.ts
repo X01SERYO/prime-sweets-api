@@ -87,6 +87,24 @@ test('CreateSaleUseCase - successfully creates a draft sale without initial item
   assert.equal(savedSales.length, 1);
 });
 
+test('CreateSaleUseCase - reopens the draft for the same customer and delivery date', async () => {
+  const { repo, calendar, customerChecker, productProvider } = createMocks();
+  const useCase = new CreateSaleUseCase(repo, customerChecker, productProvider, calendar, ids);
+  const first = await useCase.run({
+    sellerId: 'seller-1',
+    customerId: 'cust-001',
+    deliveryDate: '2026-11-05'
+  });
+  const second = await useCase.run({
+    sellerId: 'seller-1',
+    customerId: 'cust-001',
+    deliveryDate: '2026-11-05'
+  });
+
+  assert.equal(second.isSuccess, true);
+  assert.equal(second.value?.id, first.value?.id);
+});
+
 test('CreateSaleUseCase - creates sale with initial items snapshotting prices', async () => {
   const { repo, calendar, customerChecker, productProvider } = createMocks();
   const useCase = new CreateSaleUseCase(repo, customerChecker, productProvider, calendar, ids);

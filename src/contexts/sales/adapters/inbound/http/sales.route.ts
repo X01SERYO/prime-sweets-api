@@ -118,6 +118,11 @@ export function createSalesRouter(container: AppContainer) {
     );
   });
 
+  router.post('/:id/reopen', validateRequest(confirmSaleSchema), async (req: Request, res: Response) => {
+    const useCase = container.get('sales.application.reopen_sale_use_case');
+    return httpResponse(res, await useCase.run(routeParam(req.params.id)));
+  });
+
   router.post('/:id/confirm', validateRequest(confirmSaleSchema), async (req: Request, res: Response) => {
     const useCase = container.get('sales.application.confirm_sale_use_case');
     return httpResponse(res, await useCase.run({ saleId: routeParam(req.params.id) }));

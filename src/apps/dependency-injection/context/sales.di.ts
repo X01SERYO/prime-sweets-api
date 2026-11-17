@@ -11,6 +11,7 @@ import { UpdateSaleItemQuantityUseCase } from '@/contexts/sales/application/use-
 import { UpdateSaleItemNameUseCase } from '@/contexts/sales/application/use-cases/updateSaleItemName/updateSaleItemName.useCase';
 import { RemoveSaleItemUseCase } from '@/contexts/sales/application/use-cases/removeSaleItem/removeSaleItem.useCase';
 import { ConfirmSaleUseCase } from '@/contexts/sales/application/use-cases/confirmSale/confirmSale.useCase';
+import { ReopenSaleUseCase } from '@/contexts/sales/application/use-cases/reopenSale/reopenSale.useCase';
 import { SetSaleDeliveryDateUseCase } from '@/contexts/sales/application/use-cases/setSaleDeliveryDate/setSaleDeliveryDate.useCase';
 import { AssignSaleCustomerUseCase } from '@/contexts/sales/application/use-cases/assignSaleCustomer/assignSaleCustomer.useCase';
 import { VoidSaleUseCase } from '@/contexts/sales/application/use-cases/voidSale/voidSale.useCase';
@@ -90,6 +91,10 @@ export function registerSalesDependencies(container: ContainerBuilder): void {
     .addArgument(calendarRef)
     .addArgument(invoiceAllocatorRef)
     .addArgument(idsRef);
+
+  container
+    .register('sales.application.reopen_sale_use_case', ReopenSaleUseCase)
+    .addArgument(saleRepoRef);
 
   container
     .register('sales.application.confirm_sale_use_case', ConfirmSaleUseCase)

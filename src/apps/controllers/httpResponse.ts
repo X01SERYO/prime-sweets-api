@@ -13,6 +13,7 @@ export function httpResponse<T>(res: Response, result: Result<T>, successStatus 
   }
 
   const error = result.error!;
+  res.locals.failure = error;
 
   if (error instanceof NotFoundError) {
     return res.status(404).json({

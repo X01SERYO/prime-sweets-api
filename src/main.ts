@@ -3,12 +3,15 @@ import 'reflect-metadata';
 import { loadAppConfig, getAppConfig } from './shared/infrastructure/config/appConfig';
 import { startApi } from './apps/api/server';
 import { buildContainer } from './apps/dependency-injection/index';
+import { log } from './shared/infrastructure/logging/logger';
 
 async function bootstrap() {
   try {
     loadAppConfig();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
+    log('error', 'config.invalid', {
+      message: error instanceof Error ? error.message : 'config invalid'
+    });
     process.exit(1);
   }
 
@@ -19,11 +22,12 @@ async function bootstrap() {
       await dataSource.initialize();
     } catch (error) {
       const config = getAppConfig();
-      console.error(
-        `No se pudo conectar a PostgreSQL en ${config.db.host}:${config.db.port} (database: ${config.db.name}). ` +
-          'El acceso local sigue disponible. El resto de módulos necesita la base.'
-      );
-      console.error(error);
+      log('error', 'db.unavailable', {
+        host: config.db.host,
+        port: config.db.port,
+        database: config.db.name,
+        message: error instanceof Error ? error.message : 'database unavailable'
+      });
     }
   }
   await startApi(container);

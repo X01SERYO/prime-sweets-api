@@ -37,8 +37,13 @@ export class CreateSaleUseCase {
       return Result.fail(new CustomerNotFoundForSaleError(dto.customerId));
     }
 
+    const openDraft = await this.openDraft(dto.customerId.trim(), dto.deliveryDate.trim());
+    if (openDraft && (dto.items ?? []).length === 0) {
+      return Result.ok(openDraft.toPrimitives());
+    }
+
     try {
-      let sale = Sale.start({
+      let sale = openDraft ?? Sale.start({
         id: this.ids.next(),
         sellerId: dto.sellerId,
         customerId: dto.customerId,
@@ -69,7 +74,16 @@ export class CreateSaleUseCase {
       await this.saleRepository.save(sale);
       return Result.ok(sale.toPrimitives());
     } catch (error) {
+      const raced = await this.openDraft(dto.customerId.trim(), dto.deliveryDate.trim());
+      if (raced) {
+        return Result.ok(raced.toPrimitives());
+      }
       return Result.fail(error as Error);
     }
+  }
+
+  private async openDraft(customerId: string, deliveryDate: string): Promise<Sale | null> {
+    const drafts = await this.saleRepository.list({ customerId, deliveryDate, status: 'DRAFT' });
+    return drafts.find(sale => sale.isDraft() && sale.customerId === customerId && sale.deliveryDate === deliveryDate) ?? null;
   }
 }

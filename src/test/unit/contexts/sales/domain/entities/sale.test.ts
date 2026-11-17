@@ -219,7 +219,7 @@ test('Sale aggregate - confirms only once', () => {
   assert.throws(() => confirmed.confirm('INV-0002', '2026-10-20'), SaleCannotBeModifiedError);
 });
 
-test('Sale aggregate - editing items on confirmed sale keeps the same invoice number', () => {
+test('Sale aggregate - a confirmed sale stays confirmed until it is reopened', () => {
   const confirmed = Sale.create({
     id: 'sale-001',
     sellerId: 'seller-1',
@@ -229,16 +229,13 @@ test('Sale aggregate - editing items on confirmed sale keeps the same invoice nu
     .addItem(createSampleItem('p-1', 2, 1000, 700))
     .confirm('INV-0001', '2026-10-20');
 
-  const modified = confirmed.updateItemQuantity('item-p-1', 5);
-  assert.equal(modified.invoiceNumber, 'INV-0001');
-  assert.equal(modified.totalQuantity, 5);
-  assert.equal(modified.totalAmount, 5000);
+  assert.throws(() => confirmed.addItem(createSampleItem('p-2')), SaleCannotBeModifiedError);
+  assert.throws(() => confirmed.updateItemQuantity('item-p-1', 5), SaleCannotBeModifiedError);
 
-  // itemName cannot be changed once confirmed (PDR rule)
-  assert.throws(() => modified.updateItemName('item-p-1', 'Otro Nombre'), SaleCannotBeModifiedError);
-
-  // Cannot remove all items from confirmed sale
-  assert.throws(() => modified.removeItem('item-p-1'), SaleMustContainItemsError);
+  const reopened = confirmed.reopen();
+  assert.equal(reopened.status, 'DRAFT');
+  assert.equal(reopened.invoiceNumber, 'INV-0001');
+  assert.equal(reopened.updateItemQuantity('item-p-1', 5).totalQuantity, 5);
 });
 
 test('Sale aggregate - rejects any modifications once voided', () => {

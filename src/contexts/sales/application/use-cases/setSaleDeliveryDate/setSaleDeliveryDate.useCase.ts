@@ -4,7 +4,7 @@ import { Sale, SalePrimitives } from '@/contexts/sales/domain/entities/sale';
 import { SaleItem } from '@/contexts/sales/domain/entities/saleItem';
 import { SaleNotFoundError } from '@/contexts/sales/domain/errors/saleNotFound.error';
 import { InvalidSaleError } from '@/contexts/sales/domain/errors/invalidSale.error';
-import { assertDeliveryDateAllowed, normalizeBusinessDate } from '@/contexts/sales/domain/services/deliveryDateRange';
+import { assertDeliveryDateAllowed } from '@/contexts/sales/domain/services/deliveryDateRange';
 import { SetSaleDeliveryDateDto } from '@/contexts/sales/application/dto/setSaleDeliveryDate.dto';
 import { BusinessCalendar } from '@/shared/application/ports/businessCalendar';
 import { InvoiceNumberAllocator } from '@/contexts/sales/application/ports/outbound/invoiceNumberAllocator.port';
@@ -41,43 +41,43 @@ export class SetSaleDeliveryDateUseCase {
         return Result.ok(sale.toPrimitives());
       }
 
-      if (!sale.isConfirmed()) {
-        const updated = sale.setDeliveryDate(deliveryDate, today);
-        await this.saleRepository.save(updated);
-        return Result.ok(updated.toPrimitives());
+      const retired = sale.retire();
+      const open = await this.openDraft(sale.customerId, deliveryDate, sale.id);
+      let replacement = open ?? Sale.create({
+        id: this.ids.next(),
+        sellerId: sale.sellerId,
+        customerId: sale.customerId,
+        captureDate: sale.captureDate,
+        deliveryDate
+      });
+      for (const item of sale.items) {
+        replacement = replacement.addItem(
+          SaleItem.create({
+            id: this.ids.next(),
+            productId: item.productId,
+            productCode: item.productCode,
+            catalogName: item.catalogName,
+            itemName: item.itemName,
+            quantity: item.quantity,
+            wholesalePrice: item.wholesalePrice,
+            wholesaleCost: item.wholesaleCost,
+            createdAt: item.createdAt
+          })
+        );
       }
-
-      const replacement = this.confirmedReplacement(sale, deliveryDate);
-      const invoiceNumber = await this.invoiceNumberAllocator.allocateNext(deliveryDate);
-      const confirmed = replacement.confirm(invoiceNumber, normalizeBusinessDate(today));
-      await this.saleBatch.saveAll([sale.void(), confirmed]);
-      return Result.ok(confirmed.toPrimitives());
+      await this.saleBatch.saveAll([retired, replacement]);
+      return Result.ok(replacement.toPrimitives());
     } catch (error) {
       return Result.fail(error as Error);
     }
   }
 
-  private confirmedReplacement(sale: Sale, deliveryDate: string): Sale {
-    return Sale.create({
-      id: this.ids.next(),
-      sellerId: sale.sellerId,
-      customerId: sale.customerId,
-      captureDate: sale.captureDate,
-      deliveryDate,
-      items: sale.items.map(item =>
-        SaleItem.create({
-          id: this.ids.next(),
-          productId: item.productId,
-          productCode: item.productCode,
-          catalogName: item.catalogName,
-          itemName: item.itemName,
-          quantity: item.quantity,
-          wholesalePrice: item.wholesalePrice,
-          wholesaleCost: item.wholesaleCost,
-          createdAt: item.createdAt
-        })
-      ),
-      createdAt: new Date()
-    });
+  private async openDraft(customerId: string, deliveryDate: string, exceptId: string): Promise<Sale | null> {
+    const drafts = await this.saleRepository.list({ customerId, deliveryDate, status: 'DRAFT' });
+    return (
+      drafts.find(sale => sale.id !== exceptId && sale.isDraft() && sale.customerId === customerId && sale.deliveryDate === deliveryDate) ??
+      null
+    );
   }
+
 }

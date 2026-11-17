@@ -97,11 +97,13 @@ export class RetailDay {
   addProduct(snapshot: RetailProductSnapshot, quantity: number, today: string): RetailDay {
     this.assertEditable(today);
     const existing = this.state.items.find((item) => item.productId === snapshot.productId);
-    const items = existing
-      ? this.state.items.map((item) =>
-          item.productId === snapshot.productId ? item.withAddedQuantity(quantity) : item
-        )
-      : [...this.state.items, RetailDayItem.fromSnapshot(snapshot, quantity)];
+    const updated = existing
+      ? existing.withAddedQuantity(quantity)
+      : RetailDayItem.fromSnapshot(snapshot, quantity);
+    const items = [
+      ...this.state.items.filter((item) => item.productId !== snapshot.productId),
+      updated
+    ];
     return this.withItems(items);
   }
 

@@ -48,6 +48,24 @@ test('adding a product snapshots price and computes totals', () => {
   assert.equal(day.totalProfit, 1500);
 });
 
+test('adding a product already on the day moves it to the latest position', () => {
+  const day = RetailDay.create('day-1', today)
+    .addProduct(chocolate, 1, today)
+    .addProduct(peanuts, 2, today)
+    .addProduct(chocolate, 1, today);
+  assert.deepEqual(day.items.map((item) => item.productId), ['prod-2', 'prod-1']);
+  assert.equal(day.items[1].quantity, 2);
+});
+
+test('changing quantity keeps the product in place', () => {
+  const day = RetailDay.create('day-1', today)
+    .addProduct(chocolate, 1, today)
+    .addProduct(peanuts, 2, today)
+    .setQuantity('prod-1', 4, today);
+  assert.deepEqual(day.items.map((item) => item.productId), ['prod-1', 'prod-2']);
+  assert.equal(day.items[0].quantity, 4);
+});
+
 test('adding the same product increases quantity at the frozen price', () => {
   const day = RetailDay.create('day-1', today)
     .addProduct(chocolate, 3, today)

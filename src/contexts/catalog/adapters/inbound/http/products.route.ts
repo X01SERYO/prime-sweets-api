@@ -31,14 +31,14 @@ export function createProductsRouter(container: AppContainer) {
         : typeof req.query.search === 'string'
         ? req.query.search
         : undefined;
-    if (query !== undefined) {
-      const searchUseCase = container.get('catalog.application.search_products_use_case');
-      return httpResponse(res, await searchUseCase.run({ query }));
-    }
     const page = numberQuery(req.query.page);
     const pageSize = numberQuery(req.query.pageSize);
-    const useCase = container.get('catalog.application.list_products_use_case');
-    return httpResponse(res, await useCase.run({ page, pageSize, query }));
+    if (page !== undefined) {
+      const useCase = container.get('catalog.application.list_products_use_case');
+      return httpResponse(res, await useCase.run({ page, pageSize, query }));
+    }
+    const searchUseCase = container.get('catalog.application.search_products_use_case');
+    return httpResponse(res, await searchUseCase.run({ query }));
   });
 
   router.get('/:id', validateRequest(productIdParamSchema), async (req: Request, res: Response) => {

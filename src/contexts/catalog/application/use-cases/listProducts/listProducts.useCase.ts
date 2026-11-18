@@ -13,10 +13,13 @@ export class ListProductsUseCase {
 
     const pageSize = dto.pageSize ?? 20;
     const listed = await this.productRepository.page(dto.query, dto.page, pageSize);
+    const lastPage = Math.max(1, Math.ceil(listed.total / pageSize));
+    const page = Math.min(dto.page, lastPage);
+    const visible = page === dto.page ? listed : await this.productRepository.page(dto.query, page, pageSize);
     return Result.ok({
-      items: listed.items.map(product => product.toPrimitives()),
-      total: listed.total,
-      page: dto.page,
+      items: visible.items.map(product => product.toPrimitives()),
+      total: visible.total,
+      page,
       pageSize
     });
   }

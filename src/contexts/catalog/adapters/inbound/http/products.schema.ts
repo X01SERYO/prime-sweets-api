@@ -61,6 +61,7 @@ export const searchProductSchema = {
     q: z.string().optional(),
     search: z.string().optional(),
     page: z.coerce.number().int().positive().optional(),
-    pageSize: z.coerce.number().int().min(1).max(50).optional()
+    pageSize: z.coerce.number().int().min(1).max(50).optional(),
+    brands: z.union([z.string(), z.array(z.string())]).optional()
   })
 };

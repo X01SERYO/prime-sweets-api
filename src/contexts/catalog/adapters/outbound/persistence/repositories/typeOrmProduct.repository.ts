@@ -62,8 +62,12 @@ export class TypeOrmProductRepository implements ProductRepository {
     return entities.map((entity) => this.toDomain(entity));
   }
 
-  async page(term: string | undefined, page: number, pageSize: number): Promise<{ items: Product[]; total: number }> {
+  async page(term: string | undefined, page: number, pageSize: number, brands?: string[]): Promise<{ items: Product[]; total: number }> {
     const filtered = this.productRepo.createQueryBuilder('product').leftJoin('product.brand', 'brand');
+    const names = (brands ?? []).map(brand => brand.trim()).filter(Boolean);
+    if (names.length > 0) {
+      filtered.andWhere('brand.name IN (:...brands)', { brands: names });
+    }
     const sanitized = term?.trim();
     if (sanitized) {
       const pattern = `%${sanitized}%`;

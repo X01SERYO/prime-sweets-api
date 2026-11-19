@@ -35,7 +35,7 @@ export function createProductsRouter(container: AppContainer) {
     const pageSize = numberQuery(req.query.pageSize);
     if (page !== undefined) {
       const useCase = container.get('catalog.application.list_products_use_case');
-      return httpResponse(res, await useCase.run({ page, pageSize, query }));
+      return httpResponse(res, await useCase.run({ page, pageSize, query, brands: brandQuery(req.query.brands) }));
     }
     const searchUseCase = container.get('catalog.application.search_products_use_case');
     return httpResponse(res, await searchUseCase.run({ query }));
@@ -74,6 +74,12 @@ export function createProductsRouter(container: AppContainer) {
   });
 
   return router;
+}
+
+function brandQuery(value: unknown): string[] | undefined {
+  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  const brands = values.map(item => String(item).trim()).filter(Boolean);
+  return brands.length > 0 ? brands : undefined;
 }
 
 function numberQuery(value: unknown): number | undefined {

@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-const requiredText = z.preprocess(
-  value => (typeof value === 'string' ? value.trim() : ''),
-  z.string().min(1, 'is required')
-);
-
 const optionalText = z.preprocess(value => (typeof value === 'string' ? value.trim() : ''), z.string());
 
 const numberWithDefault = (fallback: number) =>
@@ -12,24 +7,10 @@ const numberWithDefault = (fallback: number) =>
 
 const environmentSchema = z.object({
   PORT: numberWithDefault(3000),
-  DB_HOST: z.preprocess(
-    value => (typeof value === 'string' && value.trim() !== '' ? value.trim() : '127.0.0.1'),
-    z.string().min(1)
+  DATABASE_URL: z.preprocess(
+    value => (typeof value === 'string' ? value.trim() : ''),
+    z.string().min(1, 'is required')
   ),
-  DB_PORT: numberWithDefault(5432),
-  DB_USER: requiredText,
-  DB_PASSWORD: optionalText,
-  DB_NAME: requiredText,
-  DB_SSL: z.preprocess(value => {
-    if (value === undefined || value === '') {
-      return false;
-    }
-    if (typeof value === 'boolean') {
-      return value;
-    }
-    const text = String(value).trim().toLowerCase();
-    return text === 'true' || text === '1';
-  }, z.boolean()),
   BUSINESS_TIMEZONE: z.preprocess(
     value => (typeof value === 'string' && value.trim() !== '' ? value.trim() : 'America/Bogota'),
     z.string().min(1)
@@ -75,6 +56,31 @@ export type AppConfig = {
   };
 };
 
+export function postgresFromConnectionString(connectionString: string): AppConfig['db'] {
+  let url: URL;
+  try {
+    url = new URL(connectionString);
+  } catch {
+    throw new ConfigurationError('Invalid environment configuration: DATABASE_URL: must be a Postgres connection string');
+  }
+
+  const database = decodeURIComponent(url.pathname.replace(/^\//, ''));
+  const port = url.port ? Number(url.port) : 5432;
+  const sslMode = (url.searchParams.get('sslmode') ?? '').toLowerCase();
+  if (!url.hostname || !database || !url.username || !Number.isInteger(port) || port <= 0) {
+    throw new ConfigurationError('Invalid environment configuration: DATABASE_URL: must include host, database, and user');
+  }
+
+  return {
+    host: url.hostname,
+    port,
+    user: decodeURIComponent(url.username),
+    password: decodeURIComponent(url.password),
+    name: database,
+    ssl: sslMode !== 'disable'
+  };
+}
+
 export class ConfigurationError extends Error {
   constructor(message: string) {
     super(message);
@@ -96,14 +102,7 @@ export function loadAppConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const value = parsed.data;
   cached = {
     port: value.PORT,
-    db: {
-      host: value.DB_HOST,
-      port: value.DB_PORT,
-      user: value.DB_USER,
-      password: value.DB_PASSWORD,
-      name: value.DB_NAME,
-      ssl: value.DB_SSL
-    },
+    db: postgresFromConnectionString(value.DATABASE_URL),
     businessTimeZone: value.BUSINESS_TIMEZONE,
     alegra: {
       baseUrl: value.ALEGRA_BASE_URL,

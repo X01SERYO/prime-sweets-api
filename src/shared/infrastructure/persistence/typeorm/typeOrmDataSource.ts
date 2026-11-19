@@ -1,6 +1,6 @@
 import path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
-import { getAppConfig } from '@/shared/infrastructure/config/appConfig';
+import { getAppConfig, postgresFromConnectionString } from '@/shared/infrastructure/config/appConfig';
 import { BrandEntity } from '@/contexts/catalog/adapters/outbound/persistence/entities/brand.entity';
 import { ProductEntity } from '@/contexts/catalog/adapters/outbound/persistence/entities/product.entity';
 import { ProductPriceEntity } from '@/contexts/catalog/adapters/outbound/persistence/entities/productPrice.entity';
@@ -15,17 +15,17 @@ import { SupplierEntity } from '@/contexts/purchasing/adapters/outbound/persiste
 import { SupplierProductEntity } from '@/contexts/purchasing/adapters/outbound/persistence/supplierProduct.entity';
 import { PurchaseOrderEntity } from '@/contexts/purchasing/adapters/outbound/persistence/purchaseOrder.entity';
 
-export function createTypeOrmOptions(): DataSourceOptions {
-  const config = getAppConfig();
+export function createTypeOrmOptions(connectionString?: string): DataSourceOptions {
+  const database = connectionString ? postgresFromConnectionString(connectionString) : getAppConfig().db;
 
   return {
     type: 'postgres',
-    host: config.db.host,
-    port: config.db.port,
-    username: config.db.user,
-    password: config.db.password,
-    database: config.db.name,
-    ssl: config.db.ssl ? { rejectUnauthorized: false } : false,
+    host: database.host,
+    port: database.port,
+    username: database.user,
+    password: database.password,
+    database: database.name,
+    ssl: database.ssl ? { rejectUnauthorized: false } : false,
     entities: [
       BrandEntity,
       ProductEntity,
@@ -47,7 +47,7 @@ export function createTypeOrmOptions(): DataSourceOptions {
 }
 
 export class TypeOrmDataSource extends DataSource {
-  constructor() {
-    super(createTypeOrmOptions());
+  constructor(connectionString?: string) {
+    super(createTypeOrmOptions(connectionString));
   }
 }

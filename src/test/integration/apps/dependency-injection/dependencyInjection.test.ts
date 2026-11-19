@@ -4,9 +4,7 @@ import { loadAppConfig } from '@/shared/infrastructure/config/appConfig';
 import { buildContainer } from '@/apps/dependency-injection/index';
 
 test('Dependency Injection Container - compiles and resolves all core services', async () => {
-  process.env.DB_USER ??= 'test';
-  process.env.DB_NAME ??= 'prime_sweets_test';
-  process.env.DB_PASSWORD ??= '';
+  process.env.DATABASE_URL ??= 'postgresql://test@127.0.0.1:5432/prime_sweets_test';
   loadAppConfig();
 
   const container = await buildContainer();

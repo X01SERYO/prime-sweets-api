@@ -13,6 +13,10 @@ import { createSuppliersRouter } from '@/contexts/purchasing/adapters/inbound/ht
 import { requireSession } from '@/apps/middlewares/requireSession';
 
 export function registerRoutes(app: Application, container: AppContainer) {
+  app.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
   const session = requireSession(container);
   app.use('/auth', createAuthRouter(container));
   app.use('/brands', session, createBrandsRouter(container));

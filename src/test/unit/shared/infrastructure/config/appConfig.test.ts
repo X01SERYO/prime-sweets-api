@@ -16,8 +16,14 @@ test('loadAppConfig - applies defaults and reads the database identity', () => {
   assert.equal(config.db.user, 'postgres');
   assert.equal(config.db.password, '');
   assert.equal(config.db.name, 'prime_sweets');
+  assert.equal(config.db.ssl, false);
   assert.equal(config.businessTimeZone, 'America/Bogota');
   assert.equal(config.company.name, '');
+});
+
+test('loadAppConfig - enables database SSL when DB_SSL is true', () => {
+  const config = loadAppConfig({ ...required, DB_SSL: 'true' });
+  assert.equal(config.db.ssl, true);
 });
 
 test('loadAppConfig - fails when a critical database variable is missing', () => {

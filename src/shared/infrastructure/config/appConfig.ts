@@ -20,6 +20,16 @@ const environmentSchema = z.object({
   DB_USER: requiredText,
   DB_PASSWORD: optionalText,
   DB_NAME: requiredText,
+  DB_SSL: z.preprocess(value => {
+    if (value === undefined || value === '') {
+      return false;
+    }
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    const text = String(value).trim().toLowerCase();
+    return text === 'true' || text === '1';
+  }, z.boolean()),
   BUSINESS_TIMEZONE: z.preprocess(
     value => (typeof value === 'string' && value.trim() !== '' ? value.trim() : 'America/Bogota'),
     z.string().min(1)
@@ -45,6 +55,7 @@ export type AppConfig = {
     user: string;
     password: string;
     name: string;
+    ssl: boolean;
   };
   businessTimeZone: string;
   alegra: {
@@ -90,7 +101,8 @@ export function loadAppConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       port: value.DB_PORT,
       user: value.DB_USER,
       password: value.DB_PASSWORD,
-      name: value.DB_NAME
+      name: value.DB_NAME,
+      ssl: value.DB_SSL
     },
     businessTimeZone: value.BUSINESS_TIMEZONE,
     alegra: {

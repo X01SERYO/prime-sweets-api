@@ -37,6 +37,16 @@ test('createApp answers CORS preflight and registers the routers', async () => {
       req.end();
     });
     assert.equal(brands, 200);
+
+    const health = await new Promise<number>((resolve, reject) => {
+      const req = http.request({ port, method: 'GET', path: '/health' }, (res) => {
+        res.resume();
+        res.on('end', () => resolve(res.statusCode ?? 0));
+      });
+      req.on('error', reject);
+      req.end();
+    });
+    assert.equal(health, 200);
   } finally {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }

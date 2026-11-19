@@ -25,6 +25,7 @@ export function createTypeOrmOptions(): DataSourceOptions {
     username: config.db.user,
     password: config.db.password,
     database: config.db.name,
+    ssl: config.db.ssl ? { rejectUnauthorized: false } : false,
     entities: [
       BrandEntity,
       ProductEntity,
